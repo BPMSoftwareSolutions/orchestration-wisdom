@@ -1,7 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.com/schemas/orchestration-wisdom.schema.json",
-  "title": "Orchestration Wisdom Schema (OWS)",
+  "title": "Orchestration Wisdom Schema (OWS) v1.1",
+  "description": "High-Quality Orchestration Framework with Quality Rubric and Observability",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -11,13 +12,14 @@
     "pattern",
     "actors",
     "caseDefinition",
+    "orchestrationQuality",
     "flows",
     "outputs"
   ],
   "properties": {
     "schemaVersion": {
       "type": "string",
-      "const": "1.0.0"
+      "const": "1.1.0"
     },
     "meta": {
       "type": "object",
@@ -76,7 +78,8 @@
     "actors": {
       "type": "array",
       "minItems": 3,
-      "maxItems": 9,
+      "maxItems": 7,
+      "description": "Maximum 7 actors to ensure clarity and avoid complexity.",
       "items": {
         "type": "object",
         "additionalProperties": false,
@@ -112,6 +115,95 @@
         }
       }
     },
+    "orchestrationQuality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["goals", "constraints", "requiredSignals", "requiredDecisionPoints", "rubric"],
+      "description": "Orchestration quality requirements and rubric; all generators must score ≥30/40 and no dimension <3.",
+      "properties": {
+        "goals": {
+          "type": "array",
+          "minItems": 2,
+          "items": { "type": "string" },
+          "description": "Orchestration goals (e.g., reduce time-to-ETA, enforce ownership, eliminate manual handoffs)."
+        },
+        "constraints": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" },
+          "description": "Hard limits (e.g., no more than 7 actors, no private data, no unverifiable claims)."
+        },
+        "requiredSignals": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "type": "string",
+            "enum": [
+              "case_created",
+              "ownership_assigned",
+              "sla_started",
+              "eta_provided",
+              "capacity_unavailable",
+              "sla_breach_risk",
+              "sla_breached",
+              "escalation_triggered",
+              "work_reassigned",
+              "customer_notified",
+              "case_closed"
+            ]
+          },
+          "description": "Observable signals that must be emitted by steps in the orchestration."
+        },
+        "requiredDecisionPoints": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "enum": [
+              "capacity_available",
+              "sla_breach_handling",
+              "eligibility_validation",
+              "parts_or_materials_delay",
+              "vendor_acceptance",
+              "customer_scheduling_choice"
+            ]
+          },
+          "description": "Decision points that must be modeled via alt branches."
+        },
+        "rubric": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["minTotalScore", "minDimensionScore", "dimensions"],
+          "properties": {
+            "minTotalScore": { "type": "integer", "minimum": 0, "maximum": 40, "default": 30, "description": "Minimum total score across all dimensions." },
+            "minDimensionScore": { "type": "integer", "minimum": 0, "maximum": 5, "default": 3, "description": "Minimum score for any single dimension." },
+            "dimensions": {
+              "type": "array",
+              "minItems": 8,
+              "maxItems": 8,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id", "name", "description", "signals"],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "enum": ["actor_clarity", "ownership_routing", "sla_time", "alt_decisions", "customer_visibility", "capacity_reality", "observability", "minimal_complexity"]
+                  },
+                  "name": { "type": "string", "description": "Human-readable dimension name." },
+                  "description": { "type": "string", "description": "What this dimension measures (0-5 scoring guidance)." },
+                  "signals": {
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "description": "Which requiredSignals and decision points demonstrate excellence in this dimension."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "flows": {
       "type": "object",
       "additionalProperties": false,
@@ -123,14 +215,14 @@
           "type": "array",
           "minItems": 1,
           "items": { "$ref": "#/$defs/altDecisionPoint" },
-          "description": "Defines the alt blocks that contrast as-is vs orchestrated behaviors."
+          "description": "Defines the alt blocks that contrast as-is vs orchestrated behaviors at real decision points."
         }
       }
     },
     "outputs": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["mermaid", "article", "checklist"],
+      "required": ["mermaid", "article", "checklist", "scorecard"],
       "properties": {
         "mermaid": {
           "type": "object",
@@ -174,7 +266,28 @@
           "properties": {
             "items": {
               "type": "array",
+              "minItems": 8,
               "items": { "$ref": "#/$defs/checkItem" }
+            }
+          }
+        },
+        "scorecard": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["dimensionScores", "totalScore", "passed"],
+          "description": "Quality rubric scorecard; required output to validate orchestration quality.",
+          "properties": {
+            "dimensionScores": {
+              "type": "object",
+              "additionalProperties": { "type": "integer", "minimum": 0, "maximum": 5 },
+              "description": "Score for each of 8 dimensions (actor_clarity, ownership_routing, sla_time, alt_decisions, customer_visibility, capacity_reality, observability, minimal_complexity)."
+            },
+            "totalScore": { "type": "integer", "minimum": 0, "maximum": 40, "description": "Sum of all dimension scores." },
+            "passed": { "type": "boolean", "description": "True if totalScore ≥ minTotalScore and all dimensions ≥ minDimensionScore." },
+            "failureReasons": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "If passed=false, list reasons why (e.g., 'sla_time score is 2, requires 3')."
             }
           }
         }
@@ -191,6 +304,8 @@
         "steps": {
           "type": "array",
           "minItems": 3,
+          "maxItems": 20,
+          "description": "Maximum 20 steps to maintain clarity.",
           "items": { "$ref": "#/$defs/step" }
         }
       }
@@ -214,6 +329,16 @@
           "minItems": 2,
           "maxItems": 2,
           "description": "If kind=note, specify two actor ids for 'Note over A,B'."
+        },
+        "emits": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Telemetry/observability events emitted at this step (e.g., 'ownership_assigned', 'sla_started')."
+        },
+        "updates": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "description": "Case state updates as a result of this step (e.g., status: 'InProgress', owner: 'WarrantyOrchestrator')."
         }
       }
     },
@@ -257,7 +382,7 @@
         },
         "statement": { "type": "string" },
         "owner": { "type": "string", "description": "Role or team (not a person)." },
-        "doneDefinition": { "type": "string" }
+        "doneDefinition": { "type": "string", "description": "Acceptance criteria for this checklist item." }
       }
     }
   }
