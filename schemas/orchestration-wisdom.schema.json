@@ -13,6 +13,7 @@
     "actors",
     "caseDefinition",
     "orchestrationQuality",
+    "diagramBudget",
     "flows",
     "outputs"
   ],
@@ -204,6 +205,120 @@
         }
       }
     },
+    "diagramBudget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "maxActors",
+        "maxTotalSteps",
+        "maxStepsPerBranch",
+        "maxAltBlocks",
+        "maxMessageChars",
+        "maxNoteChars",
+        "maxNotes"
+      ],
+      "description": "Hard limits for diagram size to ensure no-scroll, single-screen readability.",
+      "properties": {
+        "maxActors": {
+          "type": "integer",
+          "minimum": 3,
+          "maximum": 9,
+          "default": 7,
+          "description": "Maximum number of actors/participants in the diagram."
+        },
+        "maxTotalSteps": {
+          "type": "integer",
+          "minimum": 8,
+          "maximum": 40,
+          "default": 18,
+          "description": "Maximum total steps across the entire diagram."
+        },
+        "maxStepsPerBranch": {
+          "type": "integer",
+          "minimum": 3,
+          "maximum": 20,
+          "default": 8,
+          "description": "Maximum steps within any single alt branch."
+        },
+        "maxAltBlocks": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4,
+          "default": 2,
+          "description": "Maximum number of alt decision blocks."
+        },
+        "maxNotes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8,
+          "default": 3,
+          "description": "Maximum number of note annotations."
+        },
+        "maxMessageChars": {
+          "type": "integer",
+          "minimum": 20,
+          "maximum": 90,
+          "default": 56,
+          "description": "Maximum character length for message text."
+        },
+        "maxNoteChars": {
+          "type": "integer",
+          "minimum": 20,
+          "maximum": 140,
+          "default": 90,
+          "description": "Maximum character length for note text."
+        },
+        "targetViewport": {
+          "type": "string",
+          "enum": ["single_screen", "single_slide", "no_scroll"],
+          "default": "no_scroll",
+          "description": "Intent for how compact the diagram must be."
+        },
+        "layoutGuidance": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "prefer_short_actor_labels",
+              "prefer_short_messages",
+              "avoid_long_notes",
+              "avoid_nested_alt",
+              "avoid_more_than_one_return_chain",
+              "limit_internal_steps",
+              "use_two_phase_structure"
+            ]
+          },
+          "default": ["prefer_short_messages", "avoid_nested_alt", "use_two_phase_structure"],
+          "description": "Layout guidance rules to follow for diagram clarity."
+        }
+      }
+    },
+    "compressionRules": {
+      "type": "array",
+      "minItems": 5,
+      "description": "Ordered priority list of compression strategies to apply when diagram exceeds budget.",
+      "items": {
+        "type": "string",
+        "enum": [
+          "merge_adjacent_steps_same_actor_pair",
+          "replace_two_steps_with_one_state_change",
+          "convert_detail_to_note",
+          "remove_nonessential_returns",
+          "shorten_messages_to_verbs",
+          "collapse_system_internals_into_single_internal_step",
+          "reduce_alt_branches_to_two",
+          "reduce_actors_by_merging_support_roles",
+          "extract_secondary_flow_into_followup_diagram"
+        ]
+      },
+      "default": [
+        "shorten_messages_to_verbs",
+        "merge_adjacent_steps_same_actor_pair",
+        "collapse_system_internals_into_single_internal_step",
+        "reduce_alt_branches_to_two",
+        "extract_secondary_flow_into_followup_diagram"
+      ]
+    },
     "flows": {
       "type": "object",
       "additionalProperties": false,
@@ -222,7 +337,7 @@
     "outputs": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["mermaid", "article", "checklist", "scorecard"],
+      "required": ["mermaid", "article", "checklist", "scorecard", "diagramSizeScorecard"],
       "properties": {
         "mermaid": {
           "type": "object",
@@ -288,6 +403,60 @@
               "type": "array",
               "items": { "type": "string" },
               "description": "If passed=false, list reasons why (e.g., 'sla_time score is 2, requires 3')."
+            }
+          }
+        },
+        "diagramSizeScorecard": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "actorCount",
+            "totalSteps",
+            "altBlockCount",
+            "maxStepsInAnyBranch",
+            "noteCount",
+            "maxMessageCharsObserved",
+            "maxNoteCharsObserved",
+            "passesBudget"
+          ],
+          "description": "Diagram size validation scorecard; required output to ensure diagrams meet budget constraints.",
+          "properties": {
+            "actorCount": {
+              "type": "integer",
+              "description": "Number of actors/participants in the diagram."
+            },
+            "totalSteps": {
+              "type": "integer",
+              "description": "Total number of steps in the diagram."
+            },
+            "altBlockCount": {
+              "type": "integer",
+              "description": "Number of alt decision blocks in the diagram."
+            },
+            "maxStepsInAnyBranch": {
+              "type": "integer",
+              "description": "Maximum steps found in any single alt branch."
+            },
+            "noteCount": {
+              "type": "integer",
+              "description": "Number of note annotations in the diagram."
+            },
+            "maxMessageCharsObserved": {
+              "type": "integer",
+              "description": "Longest message text length observed."
+            },
+            "maxNoteCharsObserved": {
+              "type": "integer",
+              "description": "Longest note text length observed."
+            },
+            "passesBudget": {
+              "type": "boolean",
+              "description": "True if all budget constraints are met."
+            },
+            "violations": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "List of budget violations if passesBudget is false."
             }
           }
         }
