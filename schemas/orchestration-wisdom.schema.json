@@ -1,0 +1,264 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/orchestration-wisdom.schema.json",
+  "title": "Orchestration Wisdom Schema (OWS)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "meta",
+    "domain",
+    "pattern",
+    "actors",
+    "caseDefinition",
+    "flows",
+    "outputs"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "createdAt", "author", "audience"],
+      "properties": {
+        "id": { "type": "string", "description": "Stable unique ID for the pattern/article (slug or UUID)." },
+        "title": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "author": { "type": "string" },
+        "audience": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["exec", "ops", "product", "engineering", "support", "customer_success"] },
+          "minItems": 1
+        },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "disclaimer": {
+          "type": "string",
+          "description": "Optional: statement about illustrative modeling and non-confidential assumptions."
+        }
+      }
+    },
+    "domain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["industry", "topic", "useCase"],
+      "properties": {
+        "industry": { "type": "string", "description": "e.g., Automotive, Home Remodeling, Insurance." },
+        "topic": { "type": "string", "description": "e.g., Warranty defect escalation." },
+        "useCase": { "type": "string", "description": "Short label for the scenario." }
+      }
+    },
+    "pattern": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["problemStatement", "rootCause", "designPrinciples", "successCriteria"],
+      "properties": {
+        "problemStatement": { "type": "string" },
+        "rootCause": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "System-level causes, not people."
+        },
+        "designPrinciples": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Rules the orchestrated solution must follow (ownership, SLA-driven routing, visibility, etc.)."
+        },
+        "successCriteria": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Observable outcomes (e.g., ETA within 48 hours, escalation within SLA breach window)."
+        }
+      }
+    },
+    "actors": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 9,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "label", "role"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_]{1,30}$",
+            "description": "Mermaid-safe participant id."
+          },
+          "label": { "type": "string", "description": "Human label (can include emoji)." },
+          "role": { "type": "string", "description": "What this actor is responsible for." }
+        }
+      }
+    },
+    "caseDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["trigger", "inputs", "customerImpact", "assumptions", "boundaries"],
+      "properties": {
+        "trigger": { "type": "string", "description": "What starts the case." },
+        "inputs": { "type": "array", "items": { "type": "string" } },
+        "customerImpact": { "type": "string", "description": "Why this hurts." },
+        "assumptions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "What we're assuming to model the flow (no private info)."
+        },
+        "boundaries": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "What this model does NOT claim (e.g., not company-specific internal facts)."
+        }
+      }
+    },
+    "flows": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["asIs", "toBe", "altDecisionPoints"],
+      "properties": {
+        "asIs": { "$ref": "#/$defs/sequenceFlow" },
+        "toBe": { "$ref": "#/$defs/sequenceFlow" },
+        "altDecisionPoints": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/altDecisionPoint" },
+          "description": "Defines the alt blocks that contrast as-is vs orchestrated behaviors."
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mermaid", "article", "checklist"],
+      "properties": {
+        "mermaid": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["title", "autonumber", "includeNotes"],
+          "properties": {
+            "title": { "type": "string" },
+            "autonumber": { "type": "boolean", "default": true },
+            "includeNotes": { "type": "boolean", "default": true }
+          }
+        },
+        "article": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["sections"],
+          "properties": {
+            "sections": {
+              "type": "array",
+              "minItems": 5,
+              "items": {
+                "type": "string",
+                "enum": [
+                  "hook",
+                  "problem_in_one_minute",
+                  "as_is_walkthrough",
+                  "orchestrated_solution",
+                  "design_principles",
+                  "implementation_steps",
+                  "metrics_and_slas",
+                  "anti_patterns",
+                  "closing"
+                ]
+              }
+            }
+          }
+        },
+        "checklist": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["items"],
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/checkItem" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sequenceFlow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "steps"],
+      "properties": {
+        "name": { "type": "string" },
+        "steps": {
+          "type": "array",
+          "minItems": 3,
+          "items": { "$ref": "#/$defs/step" }
+        }
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to", "action", "kind"],
+      "properties": {
+        "from": { "type": "string", "description": "Actor id or 'Note'." },
+        "to": { "type": "string", "description": "Actor id (ignored when kind=note)." },
+        "action": { "type": "string", "description": "Message text." },
+        "kind": {
+          "type": "string",
+          "enum": ["message", "return", "note", "internal"],
+          "description": "Maps to Mermaid arrows or notes."
+        },
+        "noteOver": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "If kind=note, specify two actor ids for 'Note over A,B'."
+        }
+      }
+    },
+    "altDecisionPoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "branches"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9_\\-]{3,40}$" },
+        "title": { "type": "string" },
+        "branches": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 4,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["label", "criteria", "steps"],
+            "properties": {
+              "label": { "type": "string", "description": "e.g., Current state, Orchestrated state" },
+              "criteria": { "type": "string", "description": "Condition description (human readable)." },
+              "steps": {
+                "type": "array",
+                "minItems": 2,
+                "items": { "$ref": "#/$defs/step" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "checkItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "category", "statement", "owner"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[A-Z]{2,5}-[0-9]{3,5}$" },
+        "category": {
+          "type": "string",
+          "enum": ["ownership", "sla", "routing", "visibility", "capacity", "customer_experience", "governance", "tooling"]
+        },
+        "statement": { "type": "string" },
+        "owner": { "type": "string", "description": "Role or team (not a person)." },
+        "doneDefinition": { "type": "string" }
+      }
+    }
+  }
+}
