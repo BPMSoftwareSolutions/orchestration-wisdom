@@ -1,0 +1,389 @@
+{
+  "$schema": "../schemas/musical-sequence.schema.json",
+  "domainId": "orchestration-wisdom",
+  "id": "company-buyer-discovery",
+  "name": "Company Buyer Pattern Discovery & Evaluation",
+  "title": "Homepage → Pattern Evaluation → Purchase Decision",
+  "description": "Documents how company buyers (VP Operations, IT Directors) discover the Orchestration Wisdom platform, evaluate patterns for their operational challenges, and make purchase/implementation decisions",
+  "purpose": "Enable efficient pattern discovery and evaluation leading to informed purchase decisions",
+  "trigger": "Company buyer lands on orchestration-wisdom.com homepage seeking solutions to operational problems",
+  "packageName": "OrchestrationWisdom.BuyerJourney",
+  "kind": "orchestration",
+  "status": "active",
+  "key": "G Major",
+  "tempo": 100,
+  "timeSignature": "4/4",
+  "category": "buyer-journey",
+  "beats": 10,
+  "governance": {
+    "policies": [
+      "Homepage must load in <2 seconds",
+      "Pattern library must support filtering by industry and broken signals",
+      "All patterns must display HQO score and clarity metrics",
+      "Pattern details must include implementation checklist and estimated impact",
+      "Export functionality must generate implementation-ready artifacts"
+    ],
+    "metrics": [
+      "Homepage bounce rate",
+      "Pattern discovery time (homepage → relevant pattern)",
+      "Pattern evaluation completion rate",
+      "Download/export conversion rate",
+      "Time from first visit to purchase decision"
+    ]
+  },
+  "events": [
+    "homepage.visited",
+    "patterns.browsed",
+    "pattern.filtered",
+    "pattern.detail.viewed",
+    "diagram.analyzed",
+    "checklist.reviewed",
+    "article.exported",
+    "implementation.estimated",
+    "contact.initiated",
+    "purchase.decided"
+  ],
+  "userStory": {
+    "persona": "VP Operations at mid-market company",
+    "goal": "Find proven orchestration patterns to solve recurring operational bottlenecks",
+    "benefit": "Reduce firefighting, improve team velocity, and demonstrate ROI to executive leadership",
+    "diagram": "sequenceDiagram\n  participant Buyer as 👔 VP Operations\n  participant Homepage as 🏠 Homepage\n  participant Library as 📚 Pattern Library\n  participant Detail as 📄 Pattern Detail\n  \n  Buyer->>Homepage: Google: \"support ticket escalation solution\"\n  Homepage-->>Buyer: ✓ \"Operational problems are orchestration problems\"\n  \n  rect rgb(230, 245, 255)\n  Note over Buyer,Library: Movement 1: Discovery & Filtering\n  Buyer->>Library: Browse Patterns\n  Buyer->>Library: Filter: Technology, Ownership\n  Library-->>Buyer: ✓ 12 matching patterns\n  end\n  \n  rect rgb(255, 245, 230)\n  Note over Buyer,Detail: Movement 2: Pattern Evaluation\n  Buyer->>Detail: View \"Support Ticket Escalation Backlog\"\n  Detail-->>Buyer: ✓ As-Is diagram (shows current pain)\n  Detail-->>Buyer: ✓ Orchestrated diagram (shows solution)\n  Detail-->>Buyer: ✓ HQO Score: 35/40\n  end\n  \n  rect rgb(240, 255, 240)\n  Note over Buyer,Detail: Movement 3: Decision & Action\n  Buyer->>Detail: Download ARTICLE.md\n  Buyer->>Detail: Review implementation checklist\n  Buyer-->>Buyer: ✅ Decision: Present to leadership Monday\n  end"
+  },
+  "diagram": "sequenceDiagram\n  participant Buyer as 👔 VP Operations\n  participant Search as 🔍 Google Search\n  participant Homepage as 🏠 Orchestration Wisdom\n  participant Library as 📚 Pattern Library\n  participant Detail as 📄 Pattern Detail Page\n  participant Browser as 🌐 Browser\n  participant Team as 👥 Leadership Team\n  \n  Buyer->>Search: Search: \"support ticket escalation best practices\"\n  Search-->>Buyer: Result: orchestration-wisdom.com\n  \n  Note over Buyer,Team: ═══ Movement 1: Homepage Discovery & Initial Browse ═══\n  \n  Buyer->>Homepage: Click search result\n  Homepage->>Homepage: Load hero section (\"Operational problems are orchestration problems\")\n  Homepage-->>Buyer: ✓ Featured Patterns visible\n  \n  Buyer->>Buyer: Read: \"No-scroll diagrams + implementation-ready playbooks\"\n  Buyer->>Homepage: Click \"Browse Patterns\"\n  \n  Homepage->>Library: Navigate to /patterns\n  Library->>Library: Load pattern grid with filters\n  Library-->>Buyer: ✓ Pattern library (34 patterns available)\n  \n  Note over Buyer,Team: ═══ Movement 2: Filter & Pattern Discovery ═══\n  \n  Buyer->>Library: Filter by Industry: Technology\n  Library->>Library: Filter patterns (24 matching)\n  Library-->>Buyer: ✓ Updated grid\n  \n  Buyer->>Library: Filter by Broken Signal: Ownership\n  Library->>Library: Refine filter (12 matching)\n  Library-->>Buyer: ✓ Refined grid\n  \n  Buyer->>Library: Sort by: Clarity Score (highest first)\n  Library->>Library: Re-order patterns\n  Library-->>Buyer: ✓ Sorted patterns\n  \n  Buyer->>Buyer: Review pattern cards (titles, problems, badges)\n  Buyer->>Library: Click \"Support Ticket Escalation Backlog\"\n  \n  Note over Buyer,Team: ═══ Movement 3: Deep Pattern Evaluation ═══\n  \n  Library->>Detail: Navigate to /patterns/support-ticket-escalation\n  Detail->>Detail: Load pattern data from PatternService\n  Detail->>Detail: Render markdown sections with MarkdownService\n  Detail->>Detail: Initialize Mermaid.js for diagrams\n  Detail-->>Buyer: ✓ Pattern detail page loaded\n  \n  Buyer->>Detail: Read hook: \"Escalated tickets that somehow become invisible\"\n  Buyer->>Buyer: Recognition: \"This is exactly our problem!\"\n  \n  Buyer->>Detail: View As-Is Diagram\n  Detail->>Browser: Render Mermaid diagram (6 actors, 12 steps)\n  Browser-->>Buyer: ✓ Diagram shows broken workflow\n  Buyer->>Buyer: Analyze: Customer → L1 → L2 → stuck in limbo\n  \n  Buyer->>Detail: View Orchestrated Diagram\n  Detail->>Browser: Render Mermaid diagram (7 actors, 16 steps)\n  Browser-->>Buyer: ✓ Diagram shows improved workflow\n  Buyer->>Buyer: Analyze: Smart Router + SLA Monitor = ownership clarity\n  \n  Buyer->>Detail: Review Orchestration Scorecard\n  Detail-->>Buyer: ✓ Ownership: 5/5, Time/SLA: 4/5, Total: 35/40\n  \n  Buyer->>Detail: Read Decision Point section\n  Buyer->>Buyer: Insight: \"Who owns this escalation?\" is the critical question\n  \n  Note over Buyer,Team: ═══ Movement 4: Implementation Planning ═══\n  \n  Buyer->>Detail: Review Implementation Checklist\n  Detail-->>Buyer: ✓ 6 concrete action items visible\n  Buyer->>Buyer: Estimate effort: 2-3 sprints, needs L2 lead buy-in\n  \n  Buyer->>Detail: Review Metrics & SLAs section\n  Detail-->>Buyer: ✓ MTTR target, SLA compliance %, re-escalation rate\n  Buyer->>Buyer: Calculate ROI: 40% reduction in escalation queue time\n  \n  Buyer->>Detail: Click \"Download ARTICLE.md\"\n  Detail->>Browser: Trigger file download (markdown + diagrams)\n  Browser-->>Buyer: ✓ support-ticket-escalation.md saved\n  \n  Buyer->>Detail: Click \"Copy Mermaid\" (As-Is diagram)\n  Detail->>Browser: Copy to clipboard\n  Browser-->>Buyer: ✓ Diagram code copied\n  \n  Buyer->>Buyer: Paste into internal planning doc\n  \n  Note over Buyer,Team: ═══ Movement 5: Decision & Next Steps ═══\n  \n  Buyer->>Team: Present pattern in leadership meeting\n  Team->>Team: Review As-Is vs Orchestrated diagrams\n  Team->>Team: Discuss implementation checklist\n  Team-->>Buyer: ✅ Approved: Pilot with Support Team Q1\n  \n  Buyer->>Homepage: Return to site\n  Buyer->>Homepage: Navigate to /method\n  Homepage-->>Buyer: ✓ Learn about High Quality Orchestration principles\n  \n  Buyer->>Homepage: Click \"Contact\" (future: purchase/consulting inquiry)\n  \n  Note over Buyer,Team: Success: Pattern discovery → evaluation → decision in <1 hour",
+  "movements": [
+    {
+      "name": "Homepage Discovery & Initial Browse",
+      "description": "Buyer lands on homepage, understands value proposition, and navigates to pattern library",
+      "tempo": 120,
+      "status": "active",
+      "userStory": {
+        "persona": "Company Buyer",
+        "goal": "Quickly understand if this platform can solve my operational problems",
+        "benefit": "Avoid wasting time on irrelevant solutions",
+        "diagram": "sequenceDiagram\n  participant Buyer\n  participant Homepage\n  Buyer->>Homepage: Visit site\n  Homepage-->>Buyer: Value prop clear\n  Buyer->>Homepage: Browse Patterns\n  Homepage-->>Buyer: Navigate to library"
+      },
+      "diagram": "sequenceDiagram\n  participant Buyer as 👔 Buyer\n  participant Search as 🔍 Google\n  participant Homepage as 🏠 Homepage\n  \n  Note over Buyer,Homepage: Movement 1: Homepage Discovery\n  \n  Buyer->>Search: Search for solution\n  Search-->>Buyer: Link to site\n  Buyer->>Homepage: Click result\n  Homepage->>Homepage: Load hero section\n  Homepage-->>Buyer: ✓ \"Operational problems are orchestration problems\"\n  Buyer->>Homepage: Read featured patterns\n  Buyer->>Homepage: Click \"Browse Patterns\"",
+      "beats": [
+        {
+          "name": "Homepage Load",
+          "description": "Buyer lands on homepage from search engine",
+          "event": "homepage.visited",
+          "handler": {
+            "name": "Home.razor page render",
+            "scope": "internal",
+            "source": "src/OrchestrationWisdom/Components/Pages/Home.razor"
+          },
+          "userStory": {
+            "persona": "First-time visitor",
+            "goal": "Understand what this platform offers",
+            "benefit": "Decide if worth exploring further",
+            "diagram": "sequenceDiagram\n  participant V as Visitor\n  participant H as Homepage\n  V->>H: Load page\n  H-->>V: Hero + patterns"
+          },
+          "diagram": "sequenceDiagram\n  participant Buyer as 👔 Buyer\n  participant Browser as 🌐 Browser\n  participant Homepage as 🏠 Home.razor\n  \n  Note over Buyer,Homepage: Beat 1: Homepage Load\n  \n  Buyer->>Browser: Click search result\n  Browser->>Homepage: GET /\n  Homepage->>Homepage: Render hero section\n  Homepage->>Homepage: Load featured patterns\n  Homepage-->>Browser: HTML + CSS\n  Browser-->>Buyer: ✅ \"Operational problems are orchestration problems\"",
+          "acceptanceCriteria": {
+            "given": "Buyer clicks link from search engine",
+            "when": "Homepage loads",
+            "then": "Hero message and featured patterns visible in <2 seconds"
+          },
+          "test": "src/OrchestrationWisdom/Tests/Pages/Home.Tests.cs",
+          "notes": [
+            "Hero section must be compelling and clear",
+            "Featured patterns should show diversity (different industries/signals)"
+          ]
+        },
+        {
+          "name": "Read Value Proposition",
+          "description": "Buyer reads hero message and understands platform purpose",
+          "event": "value.proposition.read",
+          "handler": {
+            "name": "User reading content",
+            "scope": "external",
+            "externalSystem": {
+              "vendor": "User",
+              "system": "Visual attention",
+              "integrationType": "ui"
+            }
+          },
+          "userStory": {
+            "persona": "Skeptical buyer",
+            "goal": "Validate this isn't generic consulting fluff",
+            "benefit": "Feel confident to invest time exploring",
+            "diagram": "sequenceDiagram\n  participant B as Buyer\n  B->>B: Read hero\n  B->>B: Scan featured patterns\n  B-->>B: Decision: Continue"
+          },
+          "diagram": "sequenceDiagram\n  participant Buyer as 👔 Buyer\n  \n  Note over Buyer: Beat 2: Read Value Proposition\n  \n  Buyer->>Buyer: Read: \"Operational problems are orchestration problems\"\n  Buyer->>Buyer: Read: \"No-scroll diagrams + implementation-ready playbooks\"\n  Buyer->>Buyer: Scan featured pattern cards\n  Buyer->>Buyer: Recognition: \"Support Ticket Escalation\" = our pain point\n  Buyer-->>Buyer: ✅ Decision: Worth exploring",
+          "acceptanceCriteria": {
+            "given": "Homepage loaded",
+            "when": "Buyer reads hero section",
+            "then": "Understands platform solves operational problems with diagrams + playbooks"
+          },
+          "notes": [
+            "Value prop must be concise (1-2 sentences)",
+            "Featured patterns should show real problems, not abstractions"
+          ]
+        },
+        {
+          "name": "Navigate to Pattern Library",
+          "description": "Buyer clicks 'Browse Patterns' CTA",
+          "event": "patterns.browsed",
+          "handler": {
+            "name": "Navigation to /patterns",
+            "scope": "internal",
+            "source": "src/OrchestrationWisdom/Components/Pages/Patterns.razor"
+          },
+          "userStory": {
+            "persona": "Engaged buyer",
+            "goal": "See full catalog of patterns",
+            "benefit": "Find patterns specific to my industry/problem",
+            "diagram": "sequenceDiagram\n  participant B as Buyer\n  participant Nav\n  B->>Nav: Click Browse\n  Nav-->>B: Library page"
+          },
+          "diagram": "sequenceDiagram\n  participant Buyer as 👔 Buyer\n  participant Homepage as 🏠 Home.razor\n  participant Library as 📚 Patterns.razor\n  \n  Note over Buyer,Library: Beat 3: Navigate to Pattern Library\n  \n  Buyer->>Homepage: Click \"Browse Patterns\" button\n  Homepage->>Library: Navigate /patterns\n  Library->>Library: Load PatternService.GetAllPatternsAsync()\n  Library->>Library: Initialize filter options\n  Library-->>Buyer: ✅ Pattern library with sidebar filters",
+          "acceptanceCriteria": {
+            "given": "Buyer on homepage",
+            "when": "Clicks 'Browse Patterns' CTA",
+            "then": "Navigates to /patterns with full pattern grid visible"
+          },
+          "test": "src/OrchestrationWisdom/Tests/Pages/Patterns.Tests.cs",
+          "notes": [
+            "Pattern library should load quickly (<1 second)",
+            "Filters should be visible and intuitive"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Filter & Pattern Discovery",
+      "description": "Buyer uses filters to narrow down patterns to most relevant for their context",
+      "tempo": 100,
+      "status": "active",
+      "userStory": {
+        "persona": "Company Buyer",
+        "goal": "Quickly find patterns matching my industry and problem type",
+        "benefit": "Avoid information overload, focus on relevant solutions",
+        "diagram": "sequenceDiagram\n  participant Buyer\n  participant Library\n  Buyer->>Library: Apply filters\n  Library-->>Buyer: Filtered results\n  Buyer->>Library: Select pattern\n  Library-->>Buyer: Navigate to detail"
+      },
+      "diagram": "sequenceDiagram\n  participant Buyer as 👔 Buyer\n  participant Library as 📚 Pattern Library\n  \n  Note over Buyer,Library: Movement 2: Filter & Discovery\n  \n  Buyer->>Library: Filter: Industry = Technology\n  Library->>Library: Update grid (24 patterns)\n  Library-->>Buyer: ✓ Filtered results\n  \n  Buyer->>Library: Filter: Broken Signal = Ownership\n  Library->>Library: Refine (12 patterns)\n  Library-->>Buyer: ✓ Refined results\n  \n  Buyer->>Library: Sort by Clarity Score\n  Library-->>Buyer: ✓ Sorted patterns\n  \n  Buyer->>Library: Click pattern card",
+      "beats": [
+        {
+          "name": "Filter by Industry",
+          "description": "Buyer selects their industry from filter sidebar",
+          "event": "pattern.filtered",
+          "handler": {
+            "name": "FilterOptions.Industries selection + ApplyFilters()",
+            "scope": "internal",
+            "source": "src/OrchestrationWisdom/Components/Pages/Patterns.razor"
+          },
+          "userStory": {
+            "persona": "Technology company buyer",
+            "goal": "See patterns relevant to my industry",
+            "benefit": "Examples resonate with my operational context",
+            "diagram": "sequenceDiagram\n  participant B as Buyer\n  participant F as Filters\n  B->>F: Select Technology\n  F-->>B: Filtered grid"
+          },
+          "diagram": "sequenceDiagram\n  participant Buyer as 👔 Buyer\n  participant Sidebar as 📋 Filter Sidebar\n  participant PatternService as 🔧 Pattern Service\n  \n  Note over Buyer,PatternService: Beat 1: Filter by Industry\n  \n  Buyer->>Sidebar: Check \"Technology\"\n  Sidebar->>PatternService: FilterPatternsAsync(industries: [\"Technology\"])\n  PatternService->>PatternService: Filter patterns matching industry\n  PatternService-->>Sidebar: ✓ 24 patterns\n  Sidebar-->>Buyer: ✅ Updated grid with Technology patterns",
+          "acceptanceCriteria": {
+            "given": "Pattern library loaded",
+            "when": "Buyer selects 'Technology' industry filter",
+            "then": "Grid updates to show only Technology patterns"
+          },
+          "test": "src/OrchestrationWisdom/Tests/Services/PatternService.Tests.cs",
+          "notes": [
+            "Filter should update instantly (no page reload)",
+            "Pattern count should update to show number of matches"
+          ]
+        },
+        {
+          "name": "Filter by Broken Signal",
+          "description": "Buyer adds filter for specific orchestration signal (e.g., Ownership)",
+          "event": "pattern.filtered",
+          "handler": {
+            "name": "FilterOptions.BrokenSignals selection + ApplyFilters()",
+            "scope": "internal",
+            "source": "src/OrchestrationWisdom/Components/Pages/Patterns.razor"
+          },
+          "userStory": {
+            "persona": "Buyer with ownership clarity issues",
+            "goal": "Find patterns addressing ownership gaps",
+            "benefit": "Solutions directly target my team's pain point",
+            "diagram": "sequenceDiagram\n  participant B as Buyer\n  participant F as Filters\n  B->>F: Select Ownership\n  F-->>B: Refined grid"
+          },
+          "diagram": "sequenceDiagram\n  participant Buyer as 👔 Buyer\n  participant Sidebar as 📋 Filter Sidebar\n  participant PatternService as 🔧 Pattern Service\n  \n  Note over Buyer,PatternService: Beat 2: Filter by Broken Signal\n  \n  Buyer->>Sidebar: Check \"Ownership\"\n  Sidebar->>PatternService: FilterPatternsAsync(industries: [\"Technology\"], brokenSignals: [\"Ownership\"])\n  PatternService->>PatternService: Refine filter\n  PatternService-->>Sidebar: ✓ 12 patterns\n  Sidebar-->>Buyer: ✅ Updated grid with Ownership-related patterns",
+          "acceptanceCriteria": {
+            "given": "Industry filter already applied",
+            "when": "Buyer adds 'Ownership' broken signal filter",
+            "then": "Grid narrows to patterns addressing ownership issues"
+          },
+          "test": "src/OrchestrationWisdom/Tests/Services/PatternService.Tests.cs",
+          "notes": [
+            "Multiple filters should work together (AND logic)",
+            "Filter badges should show active selections"
+          ]
+        },
+        {
+          "name": "Sort by Clarity Score",
+          "description": "Buyer sorts patterns by clarity/reference count",
+          "event": "pattern.sorted",
+          "handler": {
+            "name": "FilterOptions.SortBy selection + ApplyFilters()",
+            "scope": "internal",
+            "source": "src/OrchestrationWisdom/Components/Pages/Patterns.razor"
+          },
+          "userStory": {
+            "persona": "Quality-focused buyer",
+            "goal": "See highest-quality patterns first",
+            "benefit": "Don't waste time on low-quality content",
+            "diagram": "sequenceDiagram\n  participant B as Buyer\n  participant S as Sort\n  B->>S: Sort: Clarity\n  S-->>B: Reordered grid"
+          },
+          "diagram": "sequenceDiagram\n  participant Buyer as 👔 Buyer\n  participant Dropdown as 📊 Sort Dropdown\n  participant PatternService as 🔧 Pattern Service\n  \n  Note over Buyer,PatternService: Beat 3: Sort by Clarity Score\n  \n  Buyer->>Dropdown: Select \"Clarity Score (Highest)\"\n  Dropdown->>PatternService: FilterPatternsAsync(sortBy: \"clarity\")\n  PatternService->>PatternService: Order by ClarityScore descending\n  PatternService-->>Dropdown: ✓ Sorted patterns\n  Dropdown-->>Buyer: ✅ Grid reordered (highest clarity first)",
+          "acceptanceCriteria": {
+            "given": "Filtered patterns displayed",
+            "when": "Buyer selects 'Clarity Score' sort",
+            "then": "Patterns reorder with highest clarity scores first"
+          },
+          "test": "src/OrchestrationWisdom/Tests/Services/PatternService.Tests.cs",
+          "notes": [
+            "Clarity score should be visible on pattern cards",
+            "Default sort should be 'Most Referenced'"
+          ]
+        },
+        {
+          "name": "Select Pattern Card",
+          "description": "Buyer clicks pattern card to view full details",
+          "event": "pattern.detail.viewed",
+          "handler": {
+            "name": "Navigation to /patterns/{slug}",
+            "scope": "internal",
+            "source": "src/OrchestrationWisdom/Components/Pages/PatternDetail.razor"
+          },
+          "userStory": {
+            "persona": "Interested buyer",
+            "goal": "See full pattern details and diagrams",
+            "benefit": "Evaluate if pattern solves my specific problem",
+            "diagram": "sequenceDiagram\n  participant B as Buyer\n  participant Card\n  participant Detail\n  B->>Card: Click card\n  Card->>Detail: Navigate\n  Detail-->>B: Full pattern"
+          },
+          "diagram": "sequenceDiagram\n  participant Buyer as 👔 Buyer\n  participant Card as 🃏 Pattern Card\n  participant Detail as 📄 Pattern Detail\n  \n  Note over Buyer,Detail: Beat 4: Select Pattern Card\n  \n  Buyer->>Card: Click \"Support Ticket Escalation Backlog\"\n  Card->>Detail: Navigate /patterns/support-ticket-escalation\n  Detail->>Detail: Load pattern from PatternService\n  Detail->>Detail: Render markdown with MarkdownService\n  Detail->>Detail: Initialize Mermaid.js\n  Detail-->>Buyer: ✅ Full pattern detail page",
+          "acceptanceCriteria": {
+            "given": "Pattern grid displayed",
+            "when": "Buyer clicks pattern card",
+            "then": "Navigates to pattern detail page with all content loaded"
+          },
+          "test": "src/OrchestrationWisdom/Tests/Pages/PatternDetail.Tests.cs",
+          "notes": [
+            "Pattern card should be clickable (entire card, not just title)",
+            "Detail page should load diagrams without flicker"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Deep Pattern Evaluation",
+      "description": "Buyer reads pattern details, analyzes diagrams, and evaluates fit for their organization",
+      "tempo": 80,
+      "status": "active",
+      "userStory": {
+        "persona": "Company Buyer",
+        "goal": "Deeply understand the pattern and validate it solves my problem",
+        "benefit": "Make informed decision about implementation",
+        "diagram": "sequenceDiagram\n  participant Buyer\n  participant Detail\n  Buyer->>Detail: Read problem\n  Buyer->>Detail: Analyze diagrams\n  Buyer->>Detail: Review scorecard\n  Buyer-->>Buyer: Decision"
+      },
+      "diagram": "sequenceDiagram\n  participant Buyer as 👔 Buyer\n  participant Detail as 📄 Pattern Detail\n  participant Mermaid as 🎨 Mermaid.js\n  \n  Note over Buyer,Mermaid: Movement 3: Deep Evaluation\n  \n  Buyer->>Detail: Read hook + problem\n  Buyer->>Buyer: Recognition: \"This is us!\"\n  \n  Buyer->>Detail: View As-Is diagram\n  Detail->>Mermaid: Render diagram\n  Mermaid-->>Buyer: ✓ Current broken state\n  \n  Buyer->>Detail: View Orchestrated diagram\n  Detail->>Mermaid: Render diagram\n  Mermaid-->>Buyer: ✓ Improved state\n  \n  Buyer->>Detail: Review HQO scorecard\n  Detail-->>Buyer: ✓ 35/40 score breakdown",
+      "beats": [
+        {
+          "name": "Read Hook and Problem",
+          "description": "Buyer reads hook and problem description to validate relevance",
+          "event": "pattern.hook.read",
+          "handler": {
+            "name": "User reading markdown content rendered by MarkdownService",
+            "scope": "external",
+            "externalSystem": {
+              "vendor": "User",
+              "system": "Visual attention",
+              "integrationType": "ui"
+            }
+          },
+          "userStory": {
+            "persona": "Busy executive",
+            "goal": "Quickly determine if pattern matches my situation",
+            "benefit": "Don't waste time on irrelevant patterns",
+            "diagram": "sequenceDiagram\n  participant B as Buyer\n  B->>B: Read hook\n  B->>B: Read problem\n  B-->>B: Validation"
+          },
+          "diagram": "sequenceDiagram\n  participant Buyer as 👔 Buyer\n  \n  Note over Buyer: Beat 1: Read Hook and Problem\n  \n  Buyer->>Buyer: Read hook: \"Escalated tickets that somehow become invisible\"\n  Buyer->>Buyer: Emotional recognition: \"This is exactly our pain!\"\n  Buyer->>Buyer: Read problem detail (rendered markdown)\n  Buyer->>Buyer: Validate: Describes ownership gaps we experience\n  Buyer-->>Buyer: ✅ Pattern is highly relevant",
+          "acceptanceCriteria": {
+            "given": "Pattern detail page loaded",
+            "when": "Buyer reads hook and problem sections",
+            "then": "Recognizes their operational challenge in the description"
+          },
+          "notes": [
+            "Hook must be emotionally resonant, not generic",
+            "Problem section should describe systemic issue, not blame"
+          ]
+        },
+        {
+          "name": "Analyze As-Is Diagram",
+          "description": "Buyer views current-state diagram showing broken workflow",
+          "event": "diagram.analyzed",
+          "handler": {
+            "name": "Mermaid.js rendering <pre class=\"mermaid\"> blocks",
+            "scope": "external",
+            "externalSystem": {
+              "vendor": "Mermaid.js",
+              "system": "Diagram renderer",
+              "integrationType": "cdn"
+            }
+          },
+          "userStory": {
+            "persona": "Visual thinker",
+            "goal": "See my current broken workflow visualized",
+            "benefit": "Confirm pattern understands my problem",
+            "diagram": "sequenceDiagram\n  participant B as Buyer\n  participant D as Diagram\n  B->>D: View As-Is\n  D-->>B: Rendered diagram\n  B->>B: Analyze flow"
+          },
+          "diagram": "sequenceDiagram\n  participant Buyer as 👔 Buyer\n  participant Browser as 🌐 Browser\n  participant Mermaid as 🎨 Mermaid.js\n  \n  Note over Buyer,Mermaid: Beat 2: Analyze As-Is Diagram\n  \n  Buyer->>Browser: Scroll to As-Is diagram section\n  Browser->>Mermaid: Render <pre class=\"mermaid\">\n  Mermaid->>Mermaid: Parse sequence diagram syntax\n  Mermaid->>Mermaid: Draw actors: Customer, L1, L2, L3, Queue\n  Mermaid->>Mermaid: Draw 12 interaction steps\n  Mermaid-->>Browser: ✓ Interactive diagram\n  Browser-->>Buyer: ✓ Diagram visible (no scroll needed)\n  \n  Buyer->>Buyer: Analyze: Ticket → L1 → L2 → stuck in queue\n  Buyer->>Buyer: Identify: No clear owner, no SLA tracking\n  Buyer-->>Buyer: ✅ \"This is our current broken process!\"",
+          "acceptanceCriteria": {
+            "given": "Pattern detail page loaded",
+            "when": "Buyer scrolls to As-Is diagram",
+            "then": "Diagram renders without scrolling, shows broken workflow clearly"
+          },
+          "test": "src/OrchestrationWisdom/Tests/Components/MermaidDiagram.Tests.cs",
+          "notes": [
+            "Diagram must fit in viewport (no horizontal scroll)",
+            "Actor names should be clear and relatable"
+          ]
+        },
+        {
+          "name": "Analyze Orchestrated Diagram",
+          "description": "Buyer views improved-state diagram showing orchestration solution",
+          "event": "diagram.analyzed",
+          "handler": {
+            "name": "Mermaid.js rendering orchestrated diagram",
+            "scope": "external",
+            "externalSystem": {
+              "vendor": "Mermaid.js",
+              "system": "Diagram renderer",
+              "integrationType": "cdn"
+            }
+          },
+          "userStory": {
+            "persona": "Solution-focused buyer",
+            "goal": "Understand the orchestration improvement",
+            "benefit": "Visualize how my workflow could improve",
+            "diagram": "sequenceDiagram\n  participant B as Buyer\n  participant D as Diagram\n  B->>D: View Orchestrated\n  D-->>B: Solution diagram\n  B->>B: Understand improvement"
+          },
+          "diagram": "sequenceDiagram\n  participant Buyer as 👔 Buyer\n  participant Browser as 🌐 Browser\n  participant Mermaid as 🎨 Mermaid.js\n  \n  Note over Buyer,Mermaid: Beat 3: Analyze Orchestrated Diagram\n  \n  Buyer->>Browser: Scroll to Orchestrated diagram section\n  Browser->>Mermaid: Render orchestrated diagram\n  Mermaid->>Mermaid: Parse diagram (7 actors, 16 steps)\n  Mermaid->>Mermaid: Draw new elements: Smart Router, SLA Monitor\n  Mermaid-->>Buyer: ✓ Improved workflow diagram\n  \n  Buyer->>Buyer: Analyze: Router assigns to available L2\n  Buyer->>Buyer: Analyze: SLA Monitor tracks aging tickets\n  Buyer->>Buyer: Compare: 6 actors → 7 actors (added Router)\n  Buyer->>Buyer: Insight: \"Clear ownership + capacity awareness = solution\"\n  Buyer-->>Buyer: ✅ \"This would solve our problem!\"",
+          "acceptanceCriteria": {
+            "given": "Buyer viewed As-Is diagram",
+            "when": "Buyer scrolls to Orchestrated diagram",
+            "then": "Diagram shows clear improvements with new orchestration elements"
+          },
+          "test": "src/OrchestrationWisdom/Tests/Components/MermaidDiagram.Tests.cs",
+          "notes": [
+            "Orchestration elements should be visually distinct",
+            "Improvement should be obvious from diagram alone"
+          ]
+        }
+      ]
+    }
+  ],
+  "version": "1.0.0",
+  "author": "Orchestration Wisdom Team",
+  "created": "2026-01-11",
+  "updated": "2026-01-11",
+  "tags": ["buyer-journey", "discovery", "evaluation", "homepage", "pattern-library"]
+}

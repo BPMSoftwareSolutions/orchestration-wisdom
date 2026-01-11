@@ -1,0 +1,1174 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    color: #24292e;
+    background-color: #fafafa;
+    padding: 20px;
+}
+
+.markdown-body {
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 24px;
+    margin-bottom: 16px;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+h1 { font-size: 2em; border-bottom: 3px solid #673ab7; padding-bottom: 10px; }
+h2 { font-size: 1.5em; border-bottom: 2px solid #9575cd; padding-bottom: 8px; }
+h3 { font-size: 1.25em; color: #673ab7; }
+h4 { font-size: 1em; color: #9575cd; }
+
+p { margin-bottom: 16px; }
+
+a { color: #673ab7; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+code {
+    background-color: #f6f8fa;
+    border-radius: 3px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 85%;
+    margin: 0;
+    padding: 0.2em 0.4em;
+    color: #e01e5a;
+}
+
+pre {
+    background-color: #2d2d2d;
+    border-radius: 6px;
+    color: #f8f8f2;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 85%;
+    line-height: 1.45;
+    overflow: auto;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+pre code {
+    background-color: transparent;
+    border: 0;
+    color: #f8f8f2;
+    display: inline;
+    line-height: inherit;
+    margin: 0;
+    overflow: visible;
+    padding: 0;
+    word-wrap: normal;
+}
+
+blockquote {
+    border-left: 4px solid #673ab7;
+    color: #6a737d;
+    padding: 0 15px;
+    margin: 16px 0;
+    background-color: #f6f8fa;
+    border-radius: 4px;
+    padding: 12px 15px;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+    margin-bottom: 16px;
+    overflow: auto;
+}
+
+table th {
+    background-color: #673ab7;
+    color: white;
+    font-weight: 600;
+    padding: 12px;
+    text-align: left;
+}
+
+table td {
+    border: 1px solid #dfe2e5;
+    padding: 8px 12px;
+}
+
+table tr:nth-child(even) {
+    background-color: #f6f8fa;
+}
+
+ul, ol {
+    margin-bottom: 16px;
+    padding-left: 2em;
+}
+
+li { margin-bottom: 4px; }
+
+hr {
+    background-color: #e1e4e8;
+    border: 0;
+    height: 2px;
+    margin: 24px 0;
+}
+
+img {
+    max-width: 100%;
+    box-sizing: content-box;
+}
+
+strong { font-weight: 600; }
+
+em { font-style: italic; }
+
+/* Mermaid diagram styling */
+.mermaid {
+    background-color: #ffffff;
+    border-radius: 6px;
+    padding: 16px;
+    margin: 16px 0;
+    text-align: center;
+    border: 1px solid #e1e4e8;
+}
+    </style>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'default',
+            securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            },
+            sequence: {
+                useMaxWidth: true,
+                wrap: true
+            }
+        });
+
+        // Wait for DOM to be ready
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Find all mermaid diagrams
+            const diagrams = document.querySelectorAll('.mermaid');
+
+            for (let i = 0; i < diagrams.length; i++) {
+                const diagram = diagrams[i];
+                const src = diagram.textContent;
+
+                // Render the diagram
+                const { svg, bindFunctions } = await mermaid.render(`m${i}`, src);
+                diagram.innerHTML = svg;
+                bindFunctions?.(diagram);
+
+                // Apply enhanced styling if it's a sequence diagram
+                if (src.includes('sequenceDiagram')) {
+                    enhanceSequenceDiagram(diagram);
+                }
+            }
+        });
+
+        function enhanceSequenceDiagram(host) {
+            const svgEl = host.querySelector('svg');
+            if (!svgEl) return;
+
+            const svgns = 'http://www.w3.org/2000/svg';
+
+            // Helper functions
+            function findGroupForTextNode(textNode) {
+                let el = textNode;
+                while (el && el.tagName?.toLowerCase() !== 'g') el = el.parentNode;
+                return el;
+            }
+
+            function pickLargestRect(group) {
+                const rects = Array.from(group.querySelectorAll('rect'));
+                if (!rects.length) return null;
+
+                let best = rects[0];
+                let bestArea = 0;
+                for (const r of rects) {
+                    const w = parseFloat(r.getAttribute('width') || '0');
+                    const h = parseFloat(r.getAttribute('height') || '0');
+                    const area = w * h;
+                    if (area > bestArea) {
+                        bestArea = area;
+                        best = r;
+                    }
+                }
+                return best;
+            }
+
+            function ensureDefs() {
+                let defs = svgEl.querySelector('defs');
+                if (!defs) {
+                    defs = document.createElementNS(svgns, 'defs');
+                    svgEl.insertBefore(defs, svgEl.firstChild);
+                }
+                return defs;
+            }
+
+            function hashString(str) {
+                let hash = 0;
+                for (let i = 0; i < str.length; i++) {
+                    const char = str.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash;
+                }
+                return Math.abs(hash);
+            }
+
+            function generateColorTheme(label) {
+                const hash = hashString(label);
+                const hue = hash % 360;
+                const saturation = 60 + (hash % 20);
+                const lightness1 = 95;
+                const lightness2 = 75;
+
+                const top = `hsl(${hue}, ${saturation}%, ${lightness1}%)`;
+                const bottom = `hsl(${hue}, ${saturation}%, ${lightness2}%)`;
+                const stroke = `hsl(${hue}, ${saturation}%, 35%)`;
+
+                return { top, bottom, stroke };
+            }
+
+            function rgbToGradient(rgbString) {
+                const match = rgbString.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+                if (!match) return null;
+
+                const r = parseInt(match[1]);
+                const g = parseInt(match[2]);
+                const b = parseInt(match[3]);
+
+                const darkerR = Math.max(0, r - 20);
+                const darkerG = Math.max(0, g - 20);
+                const darkerB = Math.max(0, b - 20);
+
+                return {
+                    top: `rgb(${r}, ${g}, ${b})`,
+                    bottom: `rgb(${darkerR}, ${darkerG}, ${darkerB})`
+                };
+            }
+
+            // 1) Add base filters to defs
+            const defs = ensureDefs();
+
+            defs.innerHTML += `
+                <!-- Bezel-ish shadow for participants -->
+                <filter id="bezelShadow" x="-35%" y="-35%" width="170%" height="170%">
+                    <feDropShadow dx="0" dy="3.2" stdDeviation="2.2" flood-opacity="0.35"/>
+                    <feDropShadow dx="0" dy="0" stdDeviation="1.2" flood-opacity="0.22"/>
+                </filter>
+
+                <!-- Note callout styling -->
+                <linearGradient id="noteGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#fff7cc"/>
+                    <stop offset="100%" stop-color="#fde68a"/>
+                </linearGradient>
+
+                <filter id="noteShadow" x="-35%" y="-35%" width="170%" height="170%">
+                    <feDropShadow dx="0" dy="2.5" stdDeviation="2" flood-opacity="0.35"/>
+                </filter>
+            `;
+
+            // 2) Style ALL participant boxes automatically
+            const allText = Array.from(svgEl.querySelectorAll('text'));
+            const participantGradients = {};
+            const processedGroups = new Set();
+
+            for (const t of allText) {
+                const label = (t.textContent || '').trim();
+                if (!label) continue;
+
+                const g = findGroupForTextNode(t);
+                if (!g || processedGroups.has(g)) continue;
+
+                const rect = pickLargestRect(g);
+                if (!rect) continue;
+
+                // Check if this looks like a participant box (reasonable size)
+                const w = parseFloat(rect.getAttribute('width') || '0');
+                const h = parseFloat(rect.getAttribute('height') || '0');
+                if (w < 50 || h < 30 || w > 300) continue;
+
+                processedGroups.add(g);
+
+                // Generate or reuse color theme for this participant label
+                const gradId = `pgrad_${hashString(label)}`;
+                if (!participantGradients[gradId]) {
+                    const theme = generateColorTheme(label);
+                    participantGradients[gradId] = theme;
+
+                    // Add gradient to defs (only once per unique label)
+                    const gradientDef = `
+                        <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="${theme.top}"/>
+                            <stop offset="100%" stop-color="${theme.bottom}"/>
+                        </linearGradient>
+                    `;
+                    defs.innerHTML += gradientDef;
+                }
+
+                const theme = participantGradients[gradId];
+
+                // Apply gradient and bezel effect
+                rect.setAttribute('fill', `url(#${gradId})`);
+                rect.setAttribute('rx', '12');
+                rect.setAttribute('ry', '12');
+                rect.setAttribute('stroke', theme.stroke);
+                rect.setAttribute('stroke-width', '4');
+                rect.setAttribute('filter', 'url(#bezelShadow)');
+
+                // Add inner inset panel
+                const x = parseFloat(rect.getAttribute('x') || '0');
+                const y = parseFloat(rect.getAttribute('y') || '0');
+
+                const already = g.querySelector('rect[data-inner-bezel="1"]');
+                if (!already && w > 0 && h > 0) {
+                    const inner = document.createElementNS(svgns, 'rect');
+                    inner.setAttribute('data-inner-bezel', '1');
+                    inner.setAttribute('x', x + 4.5);
+                    inner.setAttribute('y', y + 4.5);
+                    inner.setAttribute('width', Math.max(0, w - 9));
+                    inner.setAttribute('height', Math.max(0, h - 9));
+                    inner.setAttribute('rx', '9');
+                    inner.setAttribute('ry', '9');
+                    inner.setAttribute('fill', 'rgba(255,255,255,0.55)');
+                    inner.setAttribute('stroke', 'rgba(255,255,255,0.65)');
+                    inner.setAttribute('stroke-width', '1');
+                    g.insertBefore(inner, rect.nextSibling);
+                }
+            }
+
+            // 3) Style ALL rect backgrounds (from rect rgb() blocks)
+            const processedRects = new Set();
+            svgEl.querySelectorAll('rect').forEach(r => {
+                const fill = r.getAttribute('fill');
+                if (!fill || !fill.startsWith('rgb(')) return;
+                if (r.hasAttribute('data-inner-bezel')) return;
+                if (processedRects.has(fill)) return;
+
+                const gradient = rgbToGradient(fill);
+                if (!gradient) return;
+
+                processedRects.add(fill);
+
+                // Create gradient for this color
+                const gradId = `rectGrad_${hashString(fill)}`;
+                const gradientDef = `
+                    <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="${gradient.top}"/>
+                        <stop offset="100%" stop-color="${gradient.bottom}"/>
+                    </linearGradient>
+                `;
+                defs.innerHTML += gradientDef;
+
+                // Apply to all rects with this fill
+                svgEl.querySelectorAll('rect').forEach(rect => {
+                    if (rect.getAttribute('fill') === fill && !rect.hasAttribute('data-inner-bezel')) {
+                        rect.setAttribute('fill', `url(#${gradId})`);
+                    }
+                });
+            });
+
+            // 4) Style ALL NOTE boxes
+            const processedNotes = new Set();
+            for (const t of allText) {
+                const text = (t.textContent || '').trim();
+                if (!text || processedNotes.has(text)) continue;
+
+                // Look for text that seems like a note (contains common patterns)
+                const looksLikeNote = text.includes('—') || text.includes('Note') ||
+                                     text.includes('Beat') || text.includes('Movement') ||
+                                     text.length > 30;
+
+                if (!looksLikeNote) continue;
+
+                const g = findGroupForTextNode(t);
+                if (!g) continue;
+
+                const rect = pickLargestRect(g);
+                if (!rect) continue;
+
+                // Check if this looks like a note box (wide and not too tall)
+                const w = parseFloat(rect.getAttribute('width') || '0');
+                const h = parseFloat(rect.getAttribute('height') || '0');
+                if (w < 100 || h < 20 || h > 80) continue;
+
+                processedNotes.add(text);
+
+                // Apply note styling
+                rect.setAttribute('fill', 'url(#noteGrad)');
+                rect.setAttribute('rx', '8');
+                rect.setAttribute('ry', '8');
+                rect.setAttribute('stroke', '#b45309');
+                rect.setAttribute('stroke-width', '2.5');
+                rect.setAttribute('filter', 'url(#noteShadow)');
+
+                // Make text bold
+                t.setAttribute('font-weight', '700');
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="markdown-body">
+        <h1 id="operator-pattern-implementation-journey">Operator Pattern Implementation Journey</h1>
+<blockquote>
+<p><strong>Domain</strong>: orchestration-wisdom | <strong>Status</strong>: active | <strong>Auto-generated from</strong>: <a href="../../C:/source/repos/bpm/internal/orchestration-wisdom/sequences/operator-implementation.json">operator-implementation.json</a></p>
+</blockquote>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#user-story">User Story</a></li>
+<li><a href="#business-value">Business Value</a></li>
+<li><a href="#governance">Governance</a></li>
+<li><a href="#workflow-movements">Workflow Movements</a>
+<ul>
+<li><a href="#movement--pattern-assignment--understanding">Movement : Pattern Assignment &amp; Understanding</a>
+<ul>
+<li><a href="#beat--receive-pattern-assignment">Beat : Receive Pattern Assignment</a></li>
+<li><a href="#beat--review-pattern-details">Beat : Review Pattern Details</a></li>
+<li><a href="#beat--download-implementation-artifacts">Beat : Download Implementation Artifacts</a></li>
+</ul>
+</li>
+<li><a href="#movement--team-kickoff--baseline">Movement : Team Kickoff &amp; Baseline</a>
+<ul>
+<li><a href="#beat--team-kickoff-meeting">Beat : Team Kickoff Meeting</a></li>
+<li><a href="#beat--create-implementation-tickets">Beat : Create Implementation Tickets</a></li>
+<li><a href="#beat--baseline-current-metrics">Beat : Baseline Current Metrics</a></li>
+</ul>
+</li>
+<li><a href="#movement--implementation-execution">Movement : Implementation Execution</a>
+<ul>
+<li><a href="#beat--build-smart-router-component">Beat : Build Smart Router Component</a></li>
+<li><a href="#beat--build-sla-monitor-component">Beat : Build SLA Monitor Component</a></li>
+<li><a href="#beat--test-in-staging">Beat : Test in Staging</a></li>
+<li><a href="#beat--deploy-to-production">Beat : Deploy to Production</a></li>
+</ul>
+</li>
+<li><a href="#movement--measurement--results-reporting">Movement : Measurement &amp; Results Reporting</a>
+<ul>
+<li><a href="#beat--wait-for-stabilization">Beat : Wait for Stabilization</a></li>
+<li><a href="#beat--measure-post-implementation-metrics">Beat : Measure Post-Implementation Metrics</a></li>
+<li><a href="#beat--report-results-to-leadership">Beat : Report Results to Leadership</a></li>
+<li><a href="#beat--document-lessons-learned">Beat : Document Lessons Learned</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#metadata">Metadata</a></li>
+</ul>
+<h2 id="overview">Overview</h2>
+<p>Documents how operational teams (support managers, ops leads) discover patterns, implement orchestration improvements, and measure impact on team velocity and quality</p>
+<p><strong>Purpose</strong>: Enable hands-on operators to translate patterns into concrete workflow improvements</p>
+<p><strong>Trigger</strong>: Operator receives approved pattern from leadership or discovers pattern while researching operational improvements</p>
+<h2 id="user-story">User Story</h2>
+<p><strong>As a</strong> Support Team Manager,<br />
+<strong>I want to</strong> Implement proven orchestration pattern to fix recurring operational bottleneck,<br />
+<strong>So that</strong> Reduce team firefighting, improve predictability, demonstrate measurable impact.</p>
+<h3 id="user-story-diagram">User Story Diagram</h3>
+<pre class="mermaid">sequenceDiagram
+  participant Manager as 👨‍💼 Support Manager
+  participant VP as 👔 VP Ops
+  participant Pattern as 📄 Pattern Page
+  participant Team as 👥 Support Team
+  participant Metrics as 📊 Metrics Dashboard
+  
+  VP->>Manager: Implement "Support Ticket Escalation" pattern
+  
+  rect rgb(230, 245, 255)
+  Note over Manager,Team: Movement 1: Pattern Understanding
+  Manager->>Pattern: Review pattern detail
+  Pattern-->>Manager: ✓ Diagrams + checklist
+  Manager->>Team: Schedule kickoff
+  end
+  
+  rect rgb(255, 245, 230)
+  Note over Manager,Metrics: Movement 2: Implementation
+  Manager->>Team: Assign checklist items
+  Team->>Team: Build Smart Router
+  Team->>Team: Deploy SLA Monitor
+  Team->>Metrics: Baseline current metrics
+  end
+  
+  rect rgb(240, 255, 240)
+  Note over Manager,Metrics: Movement 3: Measurement & Iteration
+  Manager->>Metrics: Measure improvement
+  Metrics-->>Manager: ✓ 40% MTTR reduction
+  Manager->>VP: Report results
+  end
+</pre>
+<h2 id="business-value">Business Value</h2>
+<h2 id="governance">Governance</h2>
+<h3 id="policies">Policies</h3>
+<ul>
+<li>Implementation checklist must be actionable (no abstract guidance)</li>
+<li>Metrics must be measurable with existing tools</li>
+<li>Patterns must include rollback/failure scenarios</li>
+<li>Diagrams must be copyable for team documentation</li>
+<li>Checklists must be exportable to project management tools</li>
+</ul>
+<h3 id="metrics">Metrics</h3>
+<ul>
+<li>Time from pattern discovery to implementation start</li>
+<li>Checklist completion rate</li>
+<li>Metric improvement (before/after)</li>
+<li>Team adoption rate</li>
+<li>Pattern reference frequency</li>
+</ul>
+<h2 id="workflow-movements">Workflow Movements</h2>
+<h3 id="movement-pattern-assignment-understanding">Movement : Pattern Assignment &amp; Understanding</h3>
+<p>Operator receives pattern from leadership, reviews details, and plans implementation approach</p>
+<p><strong>Tempo</strong>: 120 | <strong>Status</strong>: active</p>
+<h4 id="user-story-1">User Story</h4>
+<p><strong>As a</strong> Implementation Lead,<br />
+<strong>I want to</strong> Fully understand pattern before committing team resources,<br />
+<strong>So that</strong> Avoid false starts and scope surprises.</p>
+<pre class="mermaid">sequenceDiagram
+  participant Lead
+  participant Pattern
+  Lead->>Pattern: Review details
+  Pattern-->>Lead: Diagrams + checklist
+  Lead->>Lead: Plan approach
+</pre>
+<p><strong>Beats</strong>: 3</p>
+<h4 id="beat-receive-pattern-assignment">Beat : Receive Pattern Assignment</h4>
+<ul>
+<li><strong>Handler</strong>: <code>Email or meeting communication</code></li>
+<li><strong>External System</strong>: Company - Email / Meeting ()</li>
+<li><strong>Event</strong>: pattern.assigned</li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: Support Manager</li>
+<li><strong>Goal</strong>: Understand why this pattern was chosen</li>
+<li><strong>Benefit</strong>: Context for prioritization and team communication</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant VP
+  participant Manager
+  VP->>Manager: Implement pattern
+  Manager-->>VP: Acknowledged
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant VP as 👔 VP Ops
+  participant Manager as 👨‍💼 Manager
+  
+  Note over VP,Manager: Beat 1: Receive Assignment
+  
+  VP->>Manager: Meeting: Implement escalation pattern
+  VP->>Manager: Context: 35% SLA breach rate unacceptable
+  VP->>Manager: Link: /patterns/support-ticket-escalation
+  Manager-->>VP: ✅ Will review and plan implementation
+</pre>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Assignment should include business rationale</li>
+<li>Manager should have authority to implement changes</li>
+</ul>
+<h4 id="beat-review-pattern-details">Beat : Review Pattern Details</h4>
+<ul>
+<li><strong>Handler</strong>: <code>PatternDetail.razor page interaction</code></li>
+<li><strong>Event</strong>: pattern.detail.viewed</li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: Hands-on operator</li>
+<li><strong>Goal</strong>: Understand both problem and solution deeply</li>
+<li><strong>Benefit</strong>: Confident in explaining to team and stakeholders</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant M as Manager
+  participant P as Pattern
+  M->>P: Read details
+  P-->>M: Full content
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Manager as 👨‍💼 Manager
+  participant Pattern as 📄 Pattern Detail
+  
+  Note over Manager,Pattern: Beat 2: Review Pattern Details
+  
+  Manager->>Pattern: Visit pattern URL
+  Pattern-->>Manager: ✓ Pattern loaded
+  Manager->>Manager: Read hook + problem
+  Manager->>Manager: View As-Is diagram
+  Manager->>Manager: View Orchestrated diagram
+  Manager->>Manager: Review HQO scorecard
+  Manager->>Manager: Study implementation checklist
+  Manager-->>Manager: ✅ Full understanding achieved
+</pre>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Manager should spend 15-30 minutes reviewing</li>
+<li>Diagrams are critical for team communication</li>
+</ul>
+<h4 id="beat-download-implementation-artifacts">Beat : Download Implementation Artifacts</h4>
+<ul>
+<li><strong>Handler</strong>: <code>DownloadArticle() and CopyMermaidCode()</code></li>
+<li><strong>Event</strong>: checklist.downloaded</li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: Organized operator</li>
+<li><strong>Goal</strong>: Have offline copies for team meetings</li>
+<li><strong>Benefit</strong>: Share context without requiring internet access</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant M as Manager
+  participant P as Pattern
+  M->>P: Download
+  P-->>M: Files saved
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Manager as 👨‍💼 Manager
+  participant Pattern as 📄 Pattern Detail
+  participant FileSystem as 💾 Downloads
+  
+  Note over Manager,FileSystem: Beat 3: Download Artifacts
+  
+  Manager->>Pattern: Click "Download ARTICLE.md"
+  Pattern->>FileSystem: Save markdown file
+  FileSystem-->>Manager: ✓ File downloaded
+  
+  Manager->>Pattern: Click "Copy Mermaid" (Orchestrated)
+  Pattern-->>Manager: ✓ Diagram code copied
+  Manager->>Manager: Paste into Confluence doc
+  Manager-->>Manager: ✅ Artifacts ready for team sharing
+</pre>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Markdown file should include all sections</li>
+<li>Mermaid code should be copyable to internal tools</li>
+</ul>
+<hr />
+<h3 id="movement-team-kickoff-baseline">Movement : Team Kickoff &amp; Baseline</h3>
+<p>Operator presents pattern to team, assigns checklist items, and captures baseline metrics</p>
+<p><strong>Tempo</strong>: 110 | <strong>Status</strong>: active</p>
+<h4 id="user-story-2">User Story</h4>
+<p><strong>As a</strong> Team Lead,<br />
+<strong>I want to</strong> Align team on problem, solution, and implementation plan,<br />
+<strong>So that</strong> Clear ownership and shared understanding.</p>
+<pre class="mermaid">sequenceDiagram
+  participant Lead
+  participant Team
+  Lead->>Team: Present pattern
+  Team->>Team: Discuss approach
+  Lead->>Team: Assign items
+</pre>
+<p><strong>Beats</strong>: 3</p>
+<h4 id="beat-team-kickoff-meeting">Beat : Team Kickoff Meeting</h4>
+<ul>
+<li><strong>Handler</strong>: <code>Team meeting facilitation</code></li>
+<li><strong>External System</strong>: Company - Zoom / Google Meet ()</li>
+<li><strong>Event</strong>: team.kickoff.scheduled</li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: Team member</li>
+<li><strong>Goal</strong>: Understand why we're changing our workflow</li>
+<li><strong>Benefit</strong>: Buy-in and ownership of solution</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant M as Manager
+  participant T as Team
+  M->>T: Present pattern
+  T->>T: Discuss
+  T-->>M: Questions answered
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Manager as 👨‍💼 Manager
+  participant Team as 👥 Team
+  
+  Note over Manager,Team: Beat 1: Team Kickoff
+  
+  Manager->>Team: Schedule 1-hour kickoff
+  Manager->>Team: Present As-Is diagram
+  Team->>Team: Recognition: "That's our broken process"
+  Manager->>Team: Present Orchestrated diagram
+  Team->>Team: Discussion: Router + Monitor components
+  Manager->>Team: Walk through checklist (6 items)
+  Team->>Team: Questions about implementation
+  Team-->>Manager: ✅ Team aligned on approach
+</pre>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Use diagrams as primary communication tool</li>
+<li>Allow time for team questions and concerns</li>
+</ul>
+<h4 id="beat-create-implementation-tickets">Beat : Create Implementation Tickets</h4>
+<ul>
+<li><strong>Handler</strong>: <code>Jira ticket creation</code></li>
+<li><strong>External System</strong>: Atlassian - Jira ()</li>
+<li><strong>Event</strong>: implementation.started</li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: Engineer</li>
+<li><strong>Goal</strong>: Have clear, actionable work items</li>
+<li><strong>Benefit</strong>: Know exactly what to build</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant T as Team
+  participant J as Jira
+  T->>J: Create tickets
+  J-->>T: Tickets created
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Manager as 👨‍💼 Manager
+  participant Team as 👥 Team
+  participant Jira as 📋 Jira
+  
+  Note over Manager,Jira: Beat 2: Create Tickets
+  
+  Team->>Jira: Create ticket 1: Design Smart Router
+  Team->>Jira: Create ticket 2: Implement Router logic
+  Team->>Jira: Create ticket 3: Design SLA Monitor
+  Team->>Jira: Create ticket 4: Implement Monitor alerts
+  Team->>Jira: Create ticket 5: Update runbooks
+  Team->>Jira: Create ticket 6: Conduct team training
+  Jira-->>Team: ✓ 6 tickets created
+  Team->>Team: Assign owners to each ticket
+  Team-->>Manager: ✅ Implementation planned in Jira
+</pre>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Link tickets to parent epic for tracking</li>
+<li>Include pattern URL in ticket description</li>
+</ul>
+<h4 id="beat-baseline-current-metrics">Beat : Baseline Current Metrics</h4>
+<ul>
+<li><strong>Handler</strong>: <code>Metrics dashboard query</code></li>
+<li><strong>External System</strong>: Company - Grafana / Datadog / Custom ()</li>
+<li><strong>Event</strong>: metrics.baselined</li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: Data-driven manager</li>
+<li><strong>Goal</strong>: Prove implementation impact with numbers</li>
+<li><strong>Benefit</strong>: Demonstrate ROI to leadership</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant M as Manager
+  participant D as Dashboard
+  M->>D: Query metrics
+  D-->>M: Baseline captured
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Manager as 👨‍💼 Manager
+  participant Metrics as 📊 Metrics Dashboard
+  
+  Note over Manager,Metrics: Beat 3: Baseline Metrics
+  
+  Manager->>Metrics: Query: Average escalation MTTR
+  Metrics-->>Manager: ✓ 48 hours (current)
+  Manager->>Metrics: Query: SLA breach rate
+  Metrics-->>Manager: ✓ 35% (current)
+  Manager->>Metrics: Query: Re-escalation rate
+  Metrics-->>Manager: ✓ 22% (current)
+  Manager->>Manager: Document baseline in spreadsheet
+  Manager-->>Manager: ✅ Baseline metrics captured
+</pre>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Capture metrics pattern promises to improve</li>
+<li>Set target improvement goals (e.g., 30% MTTR reduction)</li>
+</ul>
+<hr />
+<h3 id="movement-implementation-execution">Movement : Implementation Execution</h3>
+<p>Team builds components, tests in staging, and deploys to production</p>
+<p><strong>Tempo</strong>: 100 | <strong>Status</strong>: active</p>
+<h4 id="user-story-3">User Story</h4>
+<p><strong>As a</strong> Engineering team,<br />
+<strong>I want to</strong> Build and deploy orchestration components,<br />
+<strong>So that</strong> Transform diagram into working system.</p>
+<pre class="mermaid">sequenceDiagram
+  participant Team
+  participant Staging
+  participant Prod
+  Team->>Staging: Build + test
+  Team->>Prod: Deploy
+</pre>
+<p><strong>Beats</strong>: 4</p>
+<h4 id="beat-build-smart-router-component">Beat : Build Smart Router Component</h4>
+<ul>
+<li><strong>Handler</strong>: <code>Software development</code></li>
+<li><strong>External System</strong>: Company - IDE / CI/CD ()</li>
+<li><strong>Event</strong>: checklist.item.completed</li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: Backend engineer</li>
+<li><strong>Goal</strong>: Build router that assigns tickets based on capacity</li>
+<li><strong>Benefit</strong>: Eliminate manual routing decisions</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant E as Engineer
+  participant R as Router
+  E->>R: Implement logic
+  R-->>E: Component built
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Engineer as 👨‍💻 Engineer
+  participant Router as 🔀 Smart Router
+  
+  Note over Engineer,Router: Beat 1: Build Router
+  
+  Engineer->>Router: Implement GetAvailableAgents()
+  Engineer->>Router: Implement GetAgentCapacity()
+  Engineer->>Router: Implement RouteToOptimalAgent()
+  Router->>Router: Logic: Check agent load
+  Router->>Router: Logic: Route to least loaded
+  Engineer-->>Engineer: ✅ Router component complete
+</pre>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Start simple, iterate based on real data</li>
+<li>Include logging for debugging</li>
+</ul>
+<h4 id="beat-build-sla-monitor-component">Beat : Build SLA Monitor Component</h4>
+<ul>
+<li><strong>Handler</strong>: <code>Software development</code></li>
+<li><strong>External System</strong>: Company - IDE / CI/CD ()</li>
+<li><strong>Event</strong>: checklist.item.completed</li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: Backend engineer</li>
+<li><strong>Goal</strong>: Build monitor that prevents SLA breaches</li>
+<li><strong>Benefit</strong>: Proactive alerts instead of reactive firefighting</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant E as Engineer
+  participant M as Monitor
+  E->>M: Implement logic
+  M-->>E: Component built
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Engineer as 👨‍💻 Engineer
+  participant Monitor as 📊 SLA Monitor
+  
+  Note over Engineer,Monitor: Beat 2: Build Monitor
+  
+  Engineer->>Monitor: Implement CheckTicketAge()
+  Engineer->>Monitor: Implement SendAlert()
+  Engineer->>Monitor: Implement EscalateIfBreached()
+  Monitor->>Monitor: Logic: Compare age vs SLA
+  Monitor->>Monitor: Logic: Alert at 80% threshold
+  Engineer-->>Engineer: ✅ Monitor component complete
+</pre>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Configurable thresholds (80% warning, 100% breach)</li>
+<li>Integration with existing alert channels (Slack, email)</li>
+</ul>
+<h4 id="beat-test-in-staging">Beat : Test in Staging</h4>
+<ul>
+<li><strong>Handler</strong>: <code>QA testing in staging</code></li>
+<li><strong>External System</strong>: Company - Staging environment ()</li>
+<li><strong>Event</strong>: workflow.tested</li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: QA engineer</li>
+<li><strong>Goal</strong>: Verify solution works before production</li>
+<li><strong>Benefit</strong>: Catch issues without impacting customers</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant QA
+  participant Staging
+  QA->>Staging: Create test ticket
+  Staging-->>QA: Verify routing
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Manager as 👨‍💼 Manager
+  participant QA as 🧪 QA Engineer
+  participant Staging as 🎭 Staging Env
+  participant Router as 🔀 Router
+  participant Monitor as 📊 Monitor
+  
+  Note over Manager,Monitor: Beat 3: Test in Staging
+  
+  QA->>Staging: Create test escalation ticket
+  Staging->>Router: Route ticket
+  Router->>Router: Check agent capacity
+  Router-->>Staging: ✓ Routed to Agent_02 (lowest load)
+  
+  QA->>Staging: Simulate aging ticket
+  Staging->>Monitor: Check SLA status
+  Monitor->>Monitor: Detect 80% threshold reached
+  Monitor-->>QA: ✓ Alert sent (Slack notification)
+  
+  Manager->>Manager: Review test results
+  Manager-->>Manager: ✅ Components working as expected
+</pre>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Test happy path and edge cases</li>
+<li>Validate alert delivery channels</li>
+</ul>
+<h4 id="beat-deploy-to-production">Beat : Deploy to Production</h4>
+<ul>
+<li><strong>Handler</strong>: <code>Production deployment via CI/CD</code></li>
+<li><strong>External System</strong>: Company - CI/CD pipeline ()</li>
+<li><strong>Event</strong>: checklist.item.completed</li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: DevOps engineer</li>
+<li><strong>Goal</strong>: Deploy safely with rollback plan</li>
+<li><strong>Benefit</strong>: Minimize production risk</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Ops
+  participant Pipeline
+  participant Prod
+  Ops->>Pipeline: Trigger deploy
+  Pipeline->>Prod: Deploy
+  Prod-->>Ops: Success
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Manager as 👨‍💼 Manager
+  participant DevOps as ⚙️ DevOps
+  participant Pipeline as 🔄 CI/CD
+  participant Production as 🚀 Production
+  
+  Note over Manager,Production: Beat 4: Deploy to Production
+  
+  Manager->>DevOps: Approve production deployment
+  DevOps->>Pipeline: Trigger deployment
+  Pipeline->>Pipeline: Run automated tests
+  Pipeline->>Production: Deploy Router component
+  Pipeline->>Production: Deploy Monitor component
+  Pipeline->>Production: Update environment config
+  Production-->>Pipeline: ✓ Deployment successful
+  Pipeline-->>DevOps: ✓ Rollout complete
+  DevOps-->>Manager: ✅ Components live in production
+</pre>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Deploy during low-traffic window</li>
+<li>Monitor closely for first 24 hours</li>
+</ul>
+<hr />
+<h3 id="movement-measurement-results-reporting">Movement : Measurement &amp; Results Reporting</h3>
+<p>Measure post-implementation metrics, compare to baseline, and report results</p>
+<p><strong>Tempo</strong>: 90 | <strong>Status</strong>: active</p>
+<h4 id="user-story-4">User Story</h4>
+<p><strong>As a</strong> Results-oriented manager,<br />
+<strong>I want to</strong> Prove implementation delivered promised improvements,<br />
+<strong>So that</strong> Justify investment and gain support for future patterns.</p>
+<pre class="mermaid">sequenceDiagram
+  participant Manager
+  participant Metrics
+  participant VP
+  Manager->>Metrics: Measure improvement
+  Metrics-->>Manager: Results
+  Manager->>VP: Report
+</pre>
+<p><strong>Beats</strong>: 4</p>
+<h4 id="beat-wait-for-stabilization">Beat : Wait for Stabilization</h4>
+<ul>
+<li><strong>Handler</strong>: <code>Time-based waiting period</code></li>
+<li><strong>External System</strong>: N/A - Time passage ()</li>
+<li><strong>Event</strong>: workflow.tested</li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: Patient manager</li>
+<li><strong>Goal</strong>: Get reliable metrics, not first-day anomalies</li>
+<li><strong>Benefit</strong>: Accurate measurement of sustained improvement</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant M as Manager
+  M->>M: Wait 2 weeks
+  M-->>M: Ready to measure
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Manager as 👨‍💼 Manager
+  participant Team as 👥 Team
+  participant Metrics as 📊 Metrics
+  
+  Note over Manager,Metrics: Beat 1: Stabilization Period
+  
+  Manager->>Team: Monitor for issues
+  Team->>Team: Handle real escalations with new workflow
+  Team->>Metrics: Log routing times, SLA compliance
+  Manager->>Manager: Wait 2 weeks for stabilization
+  Manager-->>Manager: ✅ Ready to measure impact
+</pre>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Monitor for unexpected issues during stabilization</li>
+<li>Team should follow new workflow consistently</li>
+</ul>
+<h4 id="beat-measure-post-implementation-metrics">Beat : Measure Post-Implementation Metrics</h4>
+<ul>
+<li><strong>Handler</strong>: <code>Metrics dashboard query</code></li>
+<li><strong>External System</strong>: Company - Grafana / Datadog ()</li>
+<li><strong>Event</strong>: metrics.measured</li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: Data-driven manager</li>
+<li><strong>Goal</strong>: Get concrete numbers on improvement</li>
+<li><strong>Benefit</strong>: Quantifiable results for leadership</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant M as Manager
+  participant D as Dashboard
+  M->>D: Query new metrics
+  D-->>M: Post-impl data
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Manager as 👨‍💼 Manager
+  participant Metrics as 📊 Metrics Dashboard
+  
+  Note over Manager,Metrics: Beat 2: Measure Improvement
+  
+  Manager->>Metrics: Query: New average MTTR
+  Metrics-->>Manager: ✓ 28 hours (was 48h)
+  Manager->>Manager: Calculate: 42% improvement
+  
+  Manager->>Metrics: Query: New SLA breach rate
+  Metrics-->>Manager: ✓ 18% (was 35%)
+  Manager->>Manager: Calculate: 49% improvement
+  
+  Manager->>Metrics: Query: New re-escalation rate
+  Metrics-->>Manager: ✓ 8% (was 22%)
+  Manager->>Manager: Calculate: 64% improvement
+  
+  Manager-->>Manager: ✅ Significant improvements across all metrics
+</pre>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Compare same time periods (e.g., 2 weeks before vs 2 weeks after)</li>
+<li>Account for seasonality or special events</li>
+</ul>
+<h4 id="beat-report-results-to-leadership">Beat : Report Results to Leadership</h4>
+<ul>
+<li><strong>Handler</strong>: <code>Leadership presentation</code></li>
+<li><strong>External System</strong>: Company - PowerPoint / Google Slides ()</li>
+<li><strong>Event</strong>: results.reported</li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: Ambitious manager</li>
+<li><strong>Goal</strong>: Get credit for measurable impact</li>
+<li><strong>Benefit</strong>: Career advancement and team recognition</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant M as Manager
+  participant VP
+  M->>VP: Present results
+  VP-->>M: Approved expansion
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Manager as 👨‍💼 Manager
+  participant VP as 👔 VP Operations
+  
+  Note over Manager,VP: Beat 3: Report Results
+  
+  Manager->>VP: Schedule results presentation
+  Manager->>VP: Show: MTTR 48h → 28h (42% improvement)
+  Manager->>VP: Show: SLA breach 35% → 18% (49% improvement)
+  Manager->>VP: Show: Re-escalation 22% → 8% (64% improvement)
+  Manager->>VP: Recommend: Expand to Tier 1 support team
+  VP->>VP: Validate: Results exceed expectations
+  VP-->>Manager: ✅ Approved: Roll out to other teams in Q2
+</pre>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Use pattern's As-Is vs Orchestrated diagrams in presentation</li>
+<li>Highlight ROI: reduced firefighting, improved predictability</li>
+</ul>
+<h4 id="beat-document-lessons-learned">Beat : Document Lessons Learned</h4>
+<ul>
+<li><strong>Handler</strong>: <code>Team retrospective</code></li>
+<li><strong>External System</strong>: Company - Confluence / Wiki ()</li>
+<li><strong>Event</strong>: pattern.referenced</li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: Continuous improver</li>
+<li><strong>Goal</strong>: Learn from this implementation</li>
+<li><strong>Benefit</strong>: Next pattern implementation goes even smoother</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Team
+  Team->>Team: Retrospective
+  Team-->>Team: Lessons captured
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Manager as 👨‍💼 Manager
+  participant Team as 👥 Team
+  participant Wiki as 📝 Confluence
+  
+  Note over Manager,Wiki: Beat 4: Lessons Learned
+  
+  Manager->>Team: Schedule retrospective
+  Team->>Team: Discuss: What went well?
+  Team->>Team: Discuss: What to improve?
+  Team->>Team: Identify: Router capacity algorithm needs tuning
+  Team->>Team: Identify: Monitor alert thresholds too aggressive
+  Team->>Wiki: Document lessons learned
+  Wiki-->>Team: ✓ Documentation published
+  Team-->>Manager: ✅ Improvement backlog created for iteration
+</pre>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Include pattern URL in documentation</li>
+<li>Share learnings with other teams implementing patterns</li>
+</ul>
+<hr />
+<h2 id="metadata">Metadata</h2>
+<ul>
+<li><strong>Version</strong>:</li>
+<li><strong>Author</strong>:</li>
+<li><strong>Created</strong>:</li>
+<li><strong>Tags</strong>:</li>
+</ul>
+<hr />
+<p><em>This documentation was auto-generated from the canonical sequence definition.</em><br />
+<em><strong>Canonical Reference</strong>: <a href="../../C:/source/repos/bpm/internal/orchestration-wisdom/sequences/operator-implementation.json">operator-implementation.json</a></em></p>
+
+    </div>
+</body>
+</html>
