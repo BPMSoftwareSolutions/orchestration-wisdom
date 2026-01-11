@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(dotnet add:*)"
+      "Bash(dotnet add:*)",
+      "Bash(pwsh:*)",
+      "Bash(powershell.exe:*)"
     ]
   }
 }

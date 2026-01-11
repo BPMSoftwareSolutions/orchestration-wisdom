@@ -1,0 +1,1482 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    color: #24292e;
+    background-color: #fafafa;
+    padding: 20px;
+}
+
+.markdown-body {
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 24px;
+    margin-bottom: 16px;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+h1 { font-size: 2em; border-bottom: 3px solid #673ab7; padding-bottom: 10px; }
+h2 { font-size: 1.5em; border-bottom: 2px solid #9575cd; padding-bottom: 8px; }
+h3 { font-size: 1.25em; color: #673ab7; }
+h4 { font-size: 1em; color: #9575cd; }
+
+p { margin-bottom: 16px; }
+
+a { color: #673ab7; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+code {
+    background-color: #f6f8fa;
+    border-radius: 3px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 85%;
+    margin: 0;
+    padding: 0.2em 0.4em;
+    color: #e01e5a;
+}
+
+pre {
+    background-color: #2d2d2d;
+    border-radius: 6px;
+    color: #f8f8f2;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 85%;
+    line-height: 1.45;
+    overflow: auto;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+pre code {
+    background-color: transparent;
+    border: 0;
+    color: #f8f8f2;
+    display: inline;
+    line-height: inherit;
+    margin: 0;
+    overflow: visible;
+    padding: 0;
+    word-wrap: normal;
+}
+
+blockquote {
+    border-left: 4px solid #673ab7;
+    color: #6a737d;
+    padding: 0 15px;
+    margin: 16px 0;
+    background-color: #f6f8fa;
+    border-radius: 4px;
+    padding: 12px 15px;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+    margin-bottom: 16px;
+    overflow: auto;
+}
+
+table th {
+    background-color: #673ab7;
+    color: white;
+    font-weight: 600;
+    padding: 12px;
+    text-align: left;
+}
+
+table td {
+    border: 1px solid #dfe2e5;
+    padding: 8px 12px;
+}
+
+table tr:nth-child(even) {
+    background-color: #f6f8fa;
+}
+
+ul, ol {
+    margin-bottom: 16px;
+    padding-left: 2em;
+}
+
+li { margin-bottom: 4px; }
+
+hr {
+    background-color: #e1e4e8;
+    border: 0;
+    height: 2px;
+    margin: 24px 0;
+}
+
+img {
+    max-width: 100%;
+    box-sizing: content-box;
+}
+
+strong { font-weight: 600; }
+
+em { font-style: italic; }
+
+/* Mermaid diagram styling */
+.mermaid {
+    background-color: #ffffff;
+    border-radius: 6px;
+    padding: 16px;
+    margin: 16px 0;
+    text-align: center;
+    border: 1px solid #e1e4e8;
+}
+    </style>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'default',
+            securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            },
+            sequence: {
+                useMaxWidth: true,
+                wrap: true
+            }
+        });
+
+        // Wait for DOM to be ready
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Find all mermaid diagrams
+            const diagrams = document.querySelectorAll('.mermaid');
+
+            for (let i = 0; i < diagrams.length; i++) {
+                const diagram = diagrams[i];
+                const src = diagram.textContent;
+
+                // Render the diagram
+                const { svg, bindFunctions } = await mermaid.render(`m${i}`, src);
+                diagram.innerHTML = svg;
+                bindFunctions?.(diagram);
+
+                // Apply enhanced styling if it's a sequence diagram
+                if (src.includes('sequenceDiagram')) {
+                    enhanceSequenceDiagram(diagram);
+                }
+            }
+        });
+
+        function enhanceSequenceDiagram(host) {
+            const svgEl = host.querySelector('svg');
+            if (!svgEl) return;
+
+            const svgns = 'http://www.w3.org/2000/svg';
+
+            // Helper functions
+            function findGroupForTextNode(textNode) {
+                let el = textNode;
+                while (el && el.tagName?.toLowerCase() !== 'g') el = el.parentNode;
+                return el;
+            }
+
+            function pickLargestRect(group) {
+                const rects = Array.from(group.querySelectorAll('rect'));
+                if (!rects.length) return null;
+
+                let best = rects[0];
+                let bestArea = 0;
+                for (const r of rects) {
+                    const w = parseFloat(r.getAttribute('width') || '0');
+                    const h = parseFloat(r.getAttribute('height') || '0');
+                    const area = w * h;
+                    if (area > bestArea) {
+                        bestArea = area;
+                        best = r;
+                    }
+                }
+                return best;
+            }
+
+            function ensureDefs() {
+                let defs = svgEl.querySelector('defs');
+                if (!defs) {
+                    defs = document.createElementNS(svgns, 'defs');
+                    svgEl.insertBefore(defs, svgEl.firstChild);
+                }
+                return defs;
+            }
+
+            function hashString(str) {
+                let hash = 0;
+                for (let i = 0; i < str.length; i++) {
+                    const char = str.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash;
+                }
+                return Math.abs(hash);
+            }
+
+            function generateColorTheme(label) {
+                const hash = hashString(label);
+                const hue = hash % 360;
+                const saturation = 60 + (hash % 20);
+                const lightness1 = 95;
+                const lightness2 = 75;
+
+                const top = `hsl(${hue}, ${saturation}%, ${lightness1}%)`;
+                const bottom = `hsl(${hue}, ${saturation}%, ${lightness2}%)`;
+                const stroke = `hsl(${hue}, ${saturation}%, 35%)`;
+
+                return { top, bottom, stroke };
+            }
+
+            function rgbToGradient(rgbString) {
+                const match = rgbString.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+                if (!match) return null;
+
+                const r = parseInt(match[1]);
+                const g = parseInt(match[2]);
+                const b = parseInt(match[3]);
+
+                const darkerR = Math.max(0, r - 20);
+                const darkerG = Math.max(0, g - 20);
+                const darkerB = Math.max(0, b - 20);
+
+                return {
+                    top: `rgb(${r}, ${g}, ${b})`,
+                    bottom: `rgb(${darkerR}, ${darkerG}, ${darkerB})`
+                };
+            }
+
+            // 1) Add base filters to defs
+            const defs = ensureDefs();
+
+            defs.innerHTML += `
+                <!-- Bezel-ish shadow for participants -->
+                <filter id="bezelShadow" x="-35%" y="-35%" width="170%" height="170%">
+                    <feDropShadow dx="0" dy="3.2" stdDeviation="2.2" flood-opacity="0.35"/>
+                    <feDropShadow dx="0" dy="0" stdDeviation="1.2" flood-opacity="0.22"/>
+                </filter>
+
+                <!-- Note callout styling -->
+                <linearGradient id="noteGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#fff7cc"/>
+                    <stop offset="100%" stop-color="#fde68a"/>
+                </linearGradient>
+
+                <filter id="noteShadow" x="-35%" y="-35%" width="170%" height="170%">
+                    <feDropShadow dx="0" dy="2.5" stdDeviation="2" flood-opacity="0.35"/>
+                </filter>
+            `;
+
+            // 2) Style ALL participant boxes automatically
+            const allText = Array.from(svgEl.querySelectorAll('text'));
+            const participantGradients = {};
+            const processedGroups = new Set();
+
+            for (const t of allText) {
+                const label = (t.textContent || '').trim();
+                if (!label) continue;
+
+                const g = findGroupForTextNode(t);
+                if (!g || processedGroups.has(g)) continue;
+
+                const rect = pickLargestRect(g);
+                if (!rect) continue;
+
+                // Check if this looks like a participant box (reasonable size)
+                const w = parseFloat(rect.getAttribute('width') || '0');
+                const h = parseFloat(rect.getAttribute('height') || '0');
+                if (w < 50 || h < 30 || w > 300) continue;
+
+                processedGroups.add(g);
+
+                // Generate or reuse color theme for this participant label
+                const gradId = `pgrad_${hashString(label)}`;
+                if (!participantGradients[gradId]) {
+                    const theme = generateColorTheme(label);
+                    participantGradients[gradId] = theme;
+
+                    // Add gradient to defs (only once per unique label)
+                    const gradientDef = `
+                        <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="${theme.top}"/>
+                            <stop offset="100%" stop-color="${theme.bottom}"/>
+                        </linearGradient>
+                    `;
+                    defs.innerHTML += gradientDef;
+                }
+
+                const theme = participantGradients[gradId];
+
+                // Apply gradient and bezel effect
+                rect.setAttribute('fill', `url(#${gradId})`);
+                rect.setAttribute('rx', '12');
+                rect.setAttribute('ry', '12');
+                rect.setAttribute('stroke', theme.stroke);
+                rect.setAttribute('stroke-width', '4');
+                rect.setAttribute('filter', 'url(#bezelShadow)');
+
+                // Add inner inset panel
+                const x = parseFloat(rect.getAttribute('x') || '0');
+                const y = parseFloat(rect.getAttribute('y') || '0');
+
+                const already = g.querySelector('rect[data-inner-bezel="1"]');
+                if (!already && w > 0 && h > 0) {
+                    const inner = document.createElementNS(svgns, 'rect');
+                    inner.setAttribute('data-inner-bezel', '1');
+                    inner.setAttribute('x', x + 4.5);
+                    inner.setAttribute('y', y + 4.5);
+                    inner.setAttribute('width', Math.max(0, w - 9));
+                    inner.setAttribute('height', Math.max(0, h - 9));
+                    inner.setAttribute('rx', '9');
+                    inner.setAttribute('ry', '9');
+                    inner.setAttribute('fill', 'rgba(255,255,255,0.55)');
+                    inner.setAttribute('stroke', 'rgba(255,255,255,0.65)');
+                    inner.setAttribute('stroke-width', '1');
+                    g.insertBefore(inner, rect.nextSibling);
+                }
+            }
+
+            // 3) Style ALL rect backgrounds (from rect rgb() blocks)
+            const processedRects = new Set();
+            svgEl.querySelectorAll('rect').forEach(r => {
+                const fill = r.getAttribute('fill');
+                if (!fill || !fill.startsWith('rgb(')) return;
+                if (r.hasAttribute('data-inner-bezel')) return;
+                if (processedRects.has(fill)) return;
+
+                const gradient = rgbToGradient(fill);
+                if (!gradient) return;
+
+                processedRects.add(fill);
+
+                // Create gradient for this color
+                const gradId = `rectGrad_${hashString(fill)}`;
+                const gradientDef = `
+                    <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="${gradient.top}"/>
+                        <stop offset="100%" stop-color="${gradient.bottom}"/>
+                    </linearGradient>
+                `;
+                defs.innerHTML += gradientDef;
+
+                // Apply to all rects with this fill
+                svgEl.querySelectorAll('rect').forEach(rect => {
+                    if (rect.getAttribute('fill') === fill && !rect.hasAttribute('data-inner-bezel')) {
+                        rect.setAttribute('fill', `url(#${gradId})`);
+                    }
+                });
+            });
+
+            // 4) Style ALL NOTE boxes
+            const processedNotes = new Set();
+            for (const t of allText) {
+                const text = (t.textContent || '').trim();
+                if (!text || processedNotes.has(text)) continue;
+
+                // Look for text that seems like a note (contains common patterns)
+                const looksLikeNote = text.includes('—') || text.includes('Note') ||
+                                     text.includes('Beat') || text.includes('Movement') ||
+                                     text.length > 30;
+
+                if (!looksLikeNote) continue;
+
+                const g = findGroupForTextNode(t);
+                if (!g) continue;
+
+                const rect = pickLargestRect(g);
+                if (!rect) continue;
+
+                // Check if this looks like a note box (wide and not too tall)
+                const w = parseFloat(rect.getAttribute('width') || '0');
+                const h = parseFloat(rect.getAttribute('height') || '0');
+                if (w < 100 || h < 20 || h > 80) continue;
+
+                processedNotes.add(text);
+
+                // Apply note styling
+                rect.setAttribute('fill', 'url(#noteGrad)');
+                rect.setAttribute('rx', '8');
+                rect.setAttribute('ry', '8');
+                rect.setAttribute('stroke', '#b45309');
+                rect.setAttribute('stroke-width', '2.5');
+                rect.setAttribute('filter', 'url(#noteShadow)');
+
+                // Make text bold
+                t.setAttribute('font-weight', '700');
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="markdown-body">
+        <h1 id="ai-content-creator-pattern-authoring-workflow">AI Content Creator Pattern Authoring Workflow</h1>
+<blockquote>
+<p><strong>Domain</strong>: orchestration-wisdom | <strong>Status</strong>: active | <strong>Auto-generated from</strong>: <a href="../../C:/source/repos/bpm/internal/orchestration-wisdom/sequences/ai-content-creator-workflow.json">ai-content-creator-workflow.json</a></p>
+</blockquote>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#user-story">User Story</a></li>
+<li><a href="#business-value">Business Value</a></li>
+<li><a href="#governance">Governance</a></li>
+<li><a href="#workflow-movements">Workflow Movements</a>
+<ul>
+<li><a href="#movement-1-ai-assisted-pattern-generation">Movement 1: AI-Assisted Pattern Generation</a>
+<ul>
+<li><a href="#beat-1-load-template-and-structure">Beat 1: Load Template and Structure</a></li>
+<li><a href="#beat-2-generate-hook">Beat 2: Generate Hook</a></li>
+<li><a href="#beat-3-generate-problem-detail">Beat 3: Generate Problem Detail</a></li>
+<li><a href="#beat-4-generate-mermaid-diagrams">Beat 4: Generate Mermaid Diagrams</a></li>
+<li><a href="#beat-5-complete-remaining-sections">Beat 5: Complete Remaining Sections</a></li>
+</ul>
+</li>
+<li><a href="#movement-2-desktop-preview--validation">Movement 2: Desktop Preview &amp; Validation</a>
+<ul>
+<li><a href="#beat-1-render-markdown-preview">Beat 1: Render Markdown Preview</a></li>
+<li><a href="#beat-2-edit-and-refine-content">Beat 2: Edit and Refine Content</a></li>
+<li><a href="#beat-3-validate-diagram-budgets">Beat 3: Validate Diagram Budgets</a></li>
+<li><a href="#beat-4-calculate-hqo-scorecard">Beat 4: Calculate HQO Scorecard</a></li>
+<li><a href="#beat-5-export-html-preview">Beat 5: Export HTML Preview</a></li>
+</ul>
+</li>
+<li><a href="#movement-3-json-conversion--publication">Movement 3: JSON Conversion &amp; Publication</a>
+<ul>
+<li><a href="#beat-1-convert-markdown-to-json">Beat 1: Convert Markdown to JSON</a></li>
+<li><a href="#beat-2-validate-json-schema">Beat 2: Validate JSON Schema</a></li>
+<li><a href="#beat-3-commit-to-repository">Beat 3: Commit to Repository</a></li>
+<li><a href="#beat-4-deploy-to-platform">Beat 4: Deploy to Platform</a></li>
+<li><a href="#beat-5-track-publication-event">Beat 5: Track Publication Event</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#metadata">Metadata</a></li>
+</ul>
+<h2 id="overview">Overview</h2>
+<p>Documents how AI researchers and content creators use the Orchestration Wisdom platform to author, preview, and publish operational patterns from initial research through final publication</p>
+<p><strong>Purpose</strong>: Enable rapid, high-quality pattern creation using AI-assisted authoring with desktop preview and structured validation</p>
+<p><strong>Trigger</strong>: AI researcher identifies new operational pattern or receives request to document known anti-pattern</p>
+<h2 id="user-story">User Story</h2>
+<p><strong>As a</strong> AI Content Researcher,<br />
+<strong>I want to</strong> Transform operational research into structured, publishable orchestration patterns,<br />
+<strong>So that</strong> Accelerate knowledge capture and sharing with consistent quality and structure.</p>
+<h3 id="user-story-diagram">User Story Diagram</h3>
+<pre class="mermaid">sequenceDiagram
+  participant Researcher as 🧑‍💻 AI Researcher
+  participant AI as 🤖 Claude/GPT-4
+  participant Viewer as 🖥️ MarkdownViewer
+  participant Platform as 🌐 OW Platform
+  
+  Researcher->>AI: Research escalation anti-pattern
+  rect rgb(230, 245, 255)
+  Note over Researcher,Viewer: Movement 1: Pattern Generation
+  AI-->>Researcher: ✓ ARTICLE.md with Mermaid diagrams
+  Researcher->>Viewer: Open in MarkdownViewer
+  Viewer-->>Researcher: ✓ Live preview with diagrams
+  end
+  
+  rect rgb(255, 245, 230)
+  Note over Researcher,Viewer: Movement 2: Refinement & Validation  
+  Researcher->>Viewer: Edit markdown, refine diagrams
+  Viewer->>Viewer: ✓ Validate diagram budgets
+  Viewer->>Viewer: ✓ Calculate HQO scorecard
+  Viewer-->>Researcher: ✓ Score: 35/40 (Ready to publish)
+  end
+  
+  rect rgb(240, 255, 240)
+  Note over Researcher,Platform: Movement 3: Publication
+  Researcher->>Viewer: Export to OWS JSON
+  Viewer-->>Researcher: ✓ pattern.json created
+  Researcher->>Platform: Upload pattern
+  Platform-->>Researcher: ✅ Published: /patterns/escalation-backlog
+  end
+</pre>
+<h2 id="business-value">Business Value</h2>
+<h2 id="governance">Governance</h2>
+<h3 id="policies">Policies</h3>
+<ul>
+<li>All patterns must score ≥30/40 on HQO rubric before publication</li>
+<li>No dimension may score below 3 on HQO rubric</li>
+<li>Mermaid diagrams must adhere to budget constraints (≤7 actors, ≤18 steps)</li>
+<li>Patterns must include all required sections per OWS template</li>
+<li>AI-generated content must be reviewed and refined by human expert</li>
+</ul>
+<h3 id="metrics">Metrics</h3>
+<ul>
+<li>Pattern generation time (research → publication)</li>
+<li>HQO score distribution across published patterns</li>
+<li>AI token usage per pattern</li>
+<li>Pattern revision cycles before publication</li>
+<li>User engagement metrics (views, downloads, implementations)</li>
+</ul>
+<h2 id="workflow-movements">Workflow Movements</h2>
+<h3 id="movement-1-ai-assisted-pattern-generation">Movement 1: AI-Assisted Pattern Generation</h3>
+<p>Use AI (Claude, GPT-4) to research and generate initial pattern draft in markdown format following OWS template structure</p>
+<p><strong>Tempo</strong>: 120 | <strong>Status</strong>: active</p>
+<h4 id="user-story-1">User Story</h4>
+<p><strong>As a</strong> AI Content Researcher,<br />
+<strong>I want to</strong> Generate comprehensive pattern draft from operational anti-pattern research,<br />
+<strong>So that</strong> Accelerate initial content creation from hours to minutes with AI assistance.</p>
+<pre class="mermaid">sequenceDiagram
+  participant Researcher as 🧑‍💻 Researcher
+  participant AI as 🤖 AI Assistant
+  participant Template as 📄 OWS Template
+  
+  Note over Researcher,Template: Movement 1: AI-Assisted Pattern Generation
+  
+  Researcher->>AI: Prompt: Research support ticket escalation backlog pattern
+  AI->>AI: Analyze problem space
+  AI->>Template: Load OWS ARTICLE.md structure
+  AI->>AI: Generate Hook (1-2 sentences)
+  AI->>AI: Generate Problem Detail (context + impact)
+  AI->>AI: Create As-Is Mermaid diagram (current broken state)
+  AI->>AI: Create Orchestrated Mermaid diagram (improved state)
+  AI->>AI: Identify Decision Point (critical choice)
+  AI->>AI: Define Metrics & SLAs
+  AI->>AI: Build Implementation Checklist
+  AI->>AI: Calculate Orchestration Scorecard (8 dimensions)
+  AI->>AI: Write Closing Insight
+  AI-->>Researcher: ✅ Complete ARTICLE.md draft ready for review
+</pre>
+<p><strong>Beats</strong>: 5</p>
+<h4 id="beat-1-load-template-and-structure">Beat 1: Load Template and Structure</h4>
+<ul>
+<li><strong>Handler</strong>: <code>AI Prompt Engineering with OWS Template</code></li>
+<li><strong>External System</strong>: Anthropic / OpenAI - Claude 3.5 Sonnet / GPT-4 (api)</li>
+<li><strong>Integration</strong>: AI model receives OWS template as context in system prompt</li>
+<li><strong>Event</strong>: template.loaded</li>
+<li><strong>Test</strong>: <a href="../../docs/examples/article-template.md">docs/examples/article-template.md</a> - <code>AI can parse and identify all 9 required sections</code></li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: AI Researcher</li>
+<li><strong>Goal</strong>: Ensure AI understands expected pattern structure</li>
+<li><strong>Benefit</strong>: Generates properly formatted content matching platform requirements</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant R as Researcher
+  participant AI
+  R->>AI: Load ARTICLE.md template
+  AI-->>R: ✓ Template structure loaded
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Researcher as 🧑‍💻 Researcher
+  participant AI as 🤖 AI
+  participant Template as 📄 Template Store
+  
+  Note over Researcher,Template: Beat 1: Load Template and Structure
+  
+  Researcher->>Template: Get OWS ARTICLE.md template
+  Template-->>Researcher: ✓ Template markdown
+  Researcher->>AI: System Prompt: Use this OWS template structure
+  AI->>AI: Parse template sections (Hook, Problem, Diagrams...)
+  AI-->>Researcher: ✅ Template structure understood (9 sections identified)
+</pre>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: OWS ARTICLE.md template available</li>
+<li><strong>When</strong>: Researcher provides template to AI</li>
+<li><strong>Then</strong>: AI acknowledges template structure</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Template should include inline examples for each section</li>
+<li>Diagram budget constraints should be explicit in template comments</li>
+</ul>
+<h4 id="beat-2-generate-hook">Beat 2: Generate Hook</h4>
+<ul>
+<li><strong>Handler</strong>: <code>AI Content Generation</code></li>
+<li><strong>External System</strong>: Anthropic - Claude 3.5 Sonnet (api)</li>
+<li><strong>Integration</strong>: Generate compelling hook that resonates with practitioners</li>
+<li><strong>Event</strong>: hook.generated</li>
+<li><strong>Test</strong>: [N/A - AI generated content](../../N/A - AI generated content) - <code>Generated hooks score ≥7/10 on readability and engagement</code></li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: Content Creator</li>
+<li><strong>Goal</strong>: Create hook that immediately resonates with target audience</li>
+<li><strong>Benefit</strong>: Increase pattern engagement and readership</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant AI
+  AI->>AI: Generate hook
+  AI-->>AI: ✓ Compelling hook created
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Researcher as 🧑‍💻 Researcher
+  participant AI as 🤖 AI
+  
+  Note over Researcher,AI: Beat 2: Generate Hook
+  
+  Researcher->>AI: Generate hook for escalation backlog pattern
+  AI->>AI: Identify universal pain point
+  AI->>AI: Craft 1-2 sentence hook (emotional resonance)
+  AI-->>Researcher: ✓ "Every support team knows the pain: escalated tickets that somehow become invisible."
+</pre>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Pattern topic identified</li>
+<li><strong>When</strong>: AI generates hook</li>
+<li><strong>Then</strong>: Returns 1-2 sentence hook</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Good hooks use concrete language, not abstractions</li>
+<li>Example: 'Escalated tickets disappear into a queue' vs 'Escalation process lacks visibility'</li>
+</ul>
+<h4 id="beat-3-generate-problem-detail">Beat 3: Generate Problem Detail</h4>
+<ul>
+<li><strong>Handler</strong>: <code>AI Content Generation with Research</code></li>
+<li><strong>External System</strong>: Anthropic - Claude 3.5 Sonnet (api)</li>
+<li><strong>Integration</strong>: Generate detailed problem analysis with broken signal identification</li>
+<li><strong>Event</strong>: problem.detailed</li>
+<li><strong>Test</strong>: [N/A - AI generated content](../../N/A - AI generated content) - <code>Problem descriptions identify orchestration gaps in ≥80% of cases</code></li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: Operator seeking solutions</li>
+<li><strong>Goal</strong>: Understand root cause and systemic nature of problem</li>
+<li><strong>Benefit</strong>: Recognize own operational challenges in pattern description</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant AI
+  AI->>AI: Research problem
+  AI->>AI: Identify broken signals
+  AI-->>AI: ✓ Problem detail complete
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Researcher as 🧑‍💻 Researcher
+  participant AI as 🤖 AI
+  participant Knowledge as 📚 Knowledge Base
+  
+  Note over Researcher,Knowledge: Beat 3: Generate Problem Detail
+  
+  Researcher->>AI: Generate problem description for escalation pattern
+  AI->>Knowledge: Research escalation queue anti-patterns
+  Knowledge-->>AI: ✓ Context: Tickets stuck in limbo, unclear ownership
+  AI->>AI: Identify broken signals (Ownership, Visibility, SLA)
+  AI->>AI: Structure 2-3 paragraphs (Context → Impact → Root cause)
+  AI-->>Researcher: ✓ Problem detail (423 words, identifies 3 broken signals)
+</pre>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Pattern topic and hook</li>
+<li><strong>When</strong>: Problem detail is generated</li>
+<li><strong>Then</strong>: Returns 2-3 paragraph description</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Broken signals: Ownership, Time/SLA, Capacity, Visibility, Customer Loop, Escalation, Handoffs, Documentation</li>
+<li>Focus on pattern, not specific company failures</li>
+</ul>
+<h4 id="beat-4-generate-mermaid-diagrams">Beat 4: Generate Mermaid Diagrams</h4>
+<ul>
+<li><strong>Handler</strong>: <code>AI Mermaid Diagram Generation with Budget Validation</code></li>
+<li><strong>External System</strong>: Anthropic - Claude 3.5 Sonnet (api)</li>
+<li><strong>Integration</strong>: Generate Mermaid sequence diagrams within budget constraints</li>
+<li><strong>Event</strong>: diagrams.generated</li>
+<li><strong>Test</strong>: [N/A - AI generated content with schema validation](../../N/A - AI generated content with schema validation) - <code>Generated diagrams pass budget validation ≥95% of time</code></li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: Visual learner</li>
+<li><strong>Goal</strong>: See before/after transformation in diagram form</li>
+<li><strong>Benefit</strong>: Quickly grasp orchestration improvement without reading prose</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant AI
+  participant Validator
+  AI->>AI: Generate As-Is diagram
+  AI->>Validator: Check budget
+  Validator-->>AI: ✓ Within budget
+  AI->>AI: Generate Orchestrated diagram
+  AI->>Validator: Check budget
+  Validator-->>AI: ✓ Within budget
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Researcher as 🧑‍💻 Researcher
+  participant AI as 🤖 AI
+  participant Validator as ✅ Diagram Validator
+  
+  Note over Researcher,Validator: Beat 4: Generate Mermaid Diagrams
+  
+  Researcher->>AI: Generate As-Is diagram for escalation pattern
+  AI->>AI: Identify actors (Customer, L1, L2, L3)
+  AI->>AI: Map broken workflow (≤18 steps)
+  AI->>Validator: Validate diagram (actors, steps, alt blocks)
+  Validator->>Validator: Check: 6 actors ✓, 12 steps ✓, 1 alt block ✓
+  Validator-->>AI: ✓ As-Is diagram valid
+  
+  Researcher->>AI: Generate Orchestrated diagram
+  AI->>AI: Add orchestration elements (Router, Monitor)
+  AI->>AI: Map improved workflow (≤18 steps)
+  AI->>Validator: Validate diagram
+  Validator->>Validator: Check: 7 actors ✓, 16 steps ✓, 2 alt blocks ✓
+  Validator-->>AI: ✓ Orchestrated diagram valid
+  
+  AI-->>Researcher: ✅ Both diagrams ready (As-Is: 12 steps, Orchestrated: 16 steps)
+</pre>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Problem description complete</li>
+<li><strong>When</strong>: Diagrams are generated</li>
+<li><strong>Then</strong>: Returns 2 Mermaid sequence diagrams (As-Is + Orchestrated)</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Diagram budget: ≤7 actors, ≤18 steps, ≤2 alt blocks, ≤8 steps per alt</li>
+<li>If diagram exceeds budget, AI should decompose pattern into smaller scope</li>
+</ul>
+<h4 id="beat-5-complete-remaining-sections">Beat 5: Complete Remaining Sections</h4>
+<ul>
+<li><strong>Handler</strong>: <code>AI Multi-Section Content Generation</code></li>
+<li><strong>External System</strong>: Anthropic - Claude 3.5 Sonnet (api)</li>
+<li><strong>Integration</strong>: Generate Decision Point, Metrics, Checklist (6-8 items), Scorecard (8 dimensions), Closing Insight</li>
+<li><strong>Event</strong>: markdown.draft.generated</li>
+<li><strong>Test</strong>: [N/A - AI generated content with HQO validation](../../N/A - AI generated content with HQO validation) - <code>Generated patterns score ≥30/40 on HQO rubric ≥90% of time</code></li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: Implementation leader</li>
+<li><strong>Goal</strong>: Receive actionable guidance for pattern implementation</li>
+<li><strong>Benefit</strong>: Clear roadmap from understanding to execution</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant AI
+  AI->>AI: Generate Decision Point
+  AI->>AI: Define Metrics/SLAs
+  AI->>AI: Build Checklist
+  AI->>AI: Calculate Scorecard
+  AI->>AI: Write Closing
+  AI-->>AI: ✓ All sections complete
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Researcher as 🧑‍💻 Researcher
+  participant AI as 🤖 AI
+  participant Scorecard as 📊 HQO Calculator
+  
+  Note over Researcher,Scorecard: Beat 5: Complete Remaining Sections
+  
+  Researcher->>AI: Generate remaining sections
+  
+  AI->>AI: Generate Decision Point (critical orchestration choice)
+  AI-->>AI: ✓ "Who owns this escalation?"
+  
+  AI->>AI: Define Metrics & SLAs
+  AI-->>AI: ✓ 4 key metrics (MTTR, queue depth, SLA %, re-escalation rate)
+  
+  AI->>AI: Build Implementation Checklist
+  AI->>AI: List 6-8 concrete action items
+  AI-->>AI: ✓ Checklist (6 items)
+  
+  AI->>Scorecard: Calculate Orchestration Scorecard
+  Scorecard->>Scorecard: Score 8 dimensions (Ownership=5, TimeSLA=4, Capacity=4, Visibility=4, CustomerLoop=3, Escalation=5, Handoffs=4, Documentation=3)
+  Scorecard-->>AI: ✓ Total: 35/40 (HQO threshold met)
+  
+  AI->>AI: Write Closing Insight (1-2 sentence takeaway)
+  AI-->>AI: ✓ "The backlog isn't a people problem—it's an orchestration gap."
+  
+  AI-->>Researcher: ✅ Complete ARTICLE.md draft (all sections ready)
+</pre>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Diagrams and problem sections complete</li>
+<li><strong>When</strong>: Remaining sections are generated</li>
+<li><strong>Then</strong>: Returns complete ARTICLE.md with all sections</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>HQO dimensions: Ownership, Time/SLA, Capacity, Visibility, Customer Loop, Escalation, Handoffs, Documentation</li>
+<li>Scorecard should reflect improvements shown in Orchestrated diagram</li>
+</ul>
+<hr />
+<h3 id="movement-2-desktop-preview-validation">Movement 2: Desktop Preview &amp; Validation</h3>
+<p>Use MarkdownViewer desktop application to preview rendered pattern, validate Mermaid diagrams, calculate HQO scorecard, and refine content</p>
+<p><strong>Tempo</strong>: 100 | <strong>Status</strong>: active</p>
+<h4 id="user-story-2">User Story</h4>
+<p><strong>As a</strong> Content Quality Reviewer,<br />
+<strong>I want to</strong> Verify pattern quality before publication,<br />
+<strong>So that</strong> Catch formatting issues, validate diagrams, ensure HQO standards met.</p>
+<pre class="mermaid">sequenceDiagram
+  participant Reviewer as 🧑‍💻 Reviewer
+  participant Viewer as 🖥️ MarkdownViewer
+  participant Validator as ✅ Validator
+  
+  Note over Reviewer,Validator: Movement 2: Desktop Preview & Validation
+  
+  Reviewer->>Viewer: Open ARTICLE.md
+  Viewer->>Viewer: Render markdown with Markdig
+  Viewer->>Viewer: Render Mermaid diagrams
+  Viewer-->>Reviewer: ✓ Live preview (Dark theme)
+  
+  Reviewer->>Viewer: Edit: Refine decision point wording
+  Viewer->>Viewer: Update preview in real-time
+  Viewer-->>Reviewer: ✓ Changes reflected immediately
+  
+  Reviewer->>Validator: Validate diagrams
+  Validator->>Validator: Check As-Is (6 actors, 12 steps)
+  Validator->>Validator: Check Orchestrated (7 actors, 16 steps)
+  Validator-->>Reviewer: ✅ Both diagrams within budget
+  
+  Reviewer->>Validator: Calculate HQO scorecard
+  Validator->>Validator: Score 8 dimensions
+  Validator-->>Reviewer: ✅ Score: 35/40 (Ready for publication)
+</pre>
+<p><strong>Beats</strong>: 5</p>
+<h4 id="beat-1-render-markdown-preview">Beat 1: Render Markdown Preview</h4>
+<ul>
+<li><strong>Handler</strong>: <code>MarkdownViewer.MainWindow + MarkdownService</code></li>
+<li><strong>Source</strong>: [Tools/MarkdownViewer/MainWindow.xaml.cs + Services/MarkdownService.cs](../../Tools/MarkdownViewer/MainWindow.xaml.cs + Services/MarkdownService.cs)</li>
+<li><strong>Event</strong>: preview.rendered</li>
+<li><strong>Test</strong>: <a href="../../Tools/MarkdownViewer/Tests/MarkdownService.Tests.cs">Tools/MarkdownViewer/Tests/MarkdownService.Tests.cs</a> - <code>TestConvertToHtml_MermaidDiagram_RendersCorrectly</code></li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: Content Reviewer</li>
+<li><strong>Goal</strong>: See how pattern will look when published</li>
+<li><strong>Benefit</strong>: Catch formatting issues before publication</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant R as Reviewer
+  participant Viewer
+  R->>Viewer: Open ARTICLE.md
+  Viewer->>Viewer: Render with Markdig
+  Viewer-->>R: ✓ Preview with diagrams
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Reviewer as 🧑‍💻 Reviewer
+  participant Viewer as 🖥️ MarkdownViewer
+  participant Markdig as 📝 Markdig
+  participant Mermaid as 🎨 Mermaid.js
+  
+  Note over Reviewer,Mermaid: Beat 1: Render Markdown Preview
+  
+  Reviewer->>Viewer: Open File → support-escalation.md
+  Viewer->>Viewer: Read markdown file content
+  Viewer->>Markdig: ConvertToHtml(markdown)
+  Markdig->>Markdig: Parse markdown to AST
+  Markdig->>Markdig: Apply advanced extensions
+  Markdig->>Markdig: Custom MermaidCodeBlockRenderer (```mermaid → <pre class="mermaid">)
+  Markdig-->>Viewer: ✓ HTML with Mermaid blocks
+  Viewer->>Mermaid: Initialize Mermaid.js
+  Mermaid->>Mermaid: Render all <pre class="mermaid"> elements
+  Mermaid-->>Viewer: ✓ Interactive diagrams rendered
+  Viewer-->>Reviewer: ✅ Live preview (Dark theme, scroll sync)
+</pre>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: ARTICLE.md file available</li>
+<li><strong>When</strong>: File opened in MarkdownViewer</li>
+<li><strong>Then</strong>: Renders markdown with proper formatting</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>MarkdownViewer uses same Markdig pipeline as Blazor web app</li>
+<li>WYSIWYG: What you see in desktop app = what users see on web</li>
+</ul>
+<h4 id="beat-2-edit-and-refine-content">Beat 2: Edit and Refine Content</h4>
+<ul>
+<li><strong>Handler</strong>: <code>MarkdownViewer.FileWatcher + ReloadContent</code></li>
+<li><strong>Source</strong>: <a href="../../Tools/MarkdownViewer/MainWindow.xaml.cs">Tools/MarkdownViewer/MainWindow.xaml.cs</a></li>
+<li><strong>Event</strong>: content.refined</li>
+<li><strong>Test</strong>: [N/A - Desktop app feature](../../N/A - Desktop app feature) - <code>File watcher detects changes and refreshes view</code></li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: Content Editor</li>
+<li><strong>Goal</strong>: Iterate quickly on content with instant feedback</li>
+<li><strong>Benefit</strong>: See changes immediately without manual refresh</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant E as Editor
+  participant Viewer
+  E->>E: Edit markdown
+  E->>Viewer: Save file
+  Viewer-->>E: ✓ Preview updates
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Reviewer as 🧑‍💻 Reviewer
+  participant Editor as 📝 VS Code
+  participant FileWatcher as 👁️ File Watcher
+  participant Viewer as 🖥️ MarkdownViewer
+  
+  Note over Reviewer,Viewer: Beat 2: Edit and Refine Content
+  
+  Reviewer->>Editor: Open support-escalation.md in VS Code
+  Reviewer->>Editor: Edit: Strengthen hook sentence
+  Reviewer->>Editor: Edit: Clarify decision point language
+  Reviewer->>Editor: Save (Ctrl+S)
+  
+  FileWatcher->>FileWatcher: Detect file change event
+  FileWatcher->>Viewer: Notify: File modified
+  Viewer->>Viewer: Reload markdown content
+  Viewer->>Viewer: Re-render with Markdig + Mermaid
+  Viewer-->>Reviewer: ✅ Preview updated with edits (auto-refresh)
+</pre>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: ARTICLE.md open in MarkdownViewer and editor</li>
+<li><strong>When</strong>: File is saved after edits</li>
+<li><strong>Then</strong>: Preview automatically refreshes</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Use F5 manual refresh if file watcher disabled</li>
+<li>Edit/preview workflow mirrors live web development</li>
+</ul>
+<h4 id="beat-3-validate-diagram-budgets">Beat 3: Validate Diagram Budgets</h4>
+<ul>
+<li><strong>Handler</strong>: <code>MermaidDiagramValidator (future enhancement)</code></li>
+<li><strong>Source</strong>: <a href="../../Tools/MarkdownViewer/Services/MermaidDiagramValidator.cs" title="planned">Tools/MarkdownViewer/Services/MermaidDiagramValidator.cs (planned)</a></li>
+<li><strong>Event</strong>: diagram.validated</li>
+<li><strong>Test</strong>: <a href="../../Tools/MarkdownViewer/Tests/MermaidDiagramValidator.Tests.cs" title="planned">Tools/MarkdownViewer/Tests/MermaidDiagramValidator.Tests.cs (planned)</a> - <code>TestValidateDiagram_WithinBudget_ReturnsPass</code></li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: Pattern Quality Enforcer</li>
+<li><strong>Goal</strong>: Ensure diagrams meet simplicity constraints</li>
+<li><strong>Benefit</strong>: Maintain no-scroll diagram principle across all patterns</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant V as Validator
+  V->>V: Parse diagram
+  V->>V: Count actors
+  V->>V: Count steps
+  V->>V: Check alt blocks
+  V-->>V: ✓ Within budget
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Reviewer as 🧑‍💻 Reviewer
+  participant Viewer as 🖥️ MarkdownViewer
+  participant Parser as 🔍 Mermaid Parser
+  participant Validator as ✅ Budget Validator
+  
+  Note over Reviewer,Validator: Beat 3: Validate Diagram Budgets
+  
+  Reviewer->>Viewer: Validate Diagrams
+  
+  Viewer->>Parser: Extract As-Is diagram code
+  Parser->>Parser: Parse sequenceDiagram syntax
+  Parser->>Validator: Analyze structure
+  Validator->>Validator: Count participants (6 actors)
+  Validator->>Validator: Count steps (12 steps)
+  Validator->>Validator: Count alt blocks (1 alt block)
+  Validator->>Validator: Check nested alt (none)
+  Validator-->>Viewer: ✅ As-Is: 6 actors ✓, 12 steps ✓, 1 alt ✓
+  
+  Viewer->>Parser: Extract Orchestrated diagram code
+  Parser->>Parser: Parse sequenceDiagram syntax
+  Parser->>Validator: Analyze structure
+  Validator->>Validator: Count participants (7 actors)
+  Validator->>Validator: Count steps (16 steps)
+  Validator->>Validator: Count alt blocks (2 alt blocks)
+  Validator->>Validator: Check alt branch lengths (6 steps, 7 steps)
+  Validator-->>Viewer: ✅ Orchestrated: 7 actors ✓, 16 steps ✓, 2 alt ✓
+  
+  Viewer-->>Reviewer: ✅ Both diagrams within budget (ready for publication)
+</pre>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Mermaid diagram code in ARTICLE.md</li>
+<li><strong>When</strong>: Validation is triggered</li>
+<li><strong>Then</strong>: Returns pass/fail for each constraint</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Future enhancement: Add diagram validator to MarkdownViewer</li>
+<li>Regex parse or use Mermaid AST if available</li>
+</ul>
+<h4 id="beat-4-calculate-hqo-scorecard">Beat 4: Calculate HQO Scorecard</h4>
+<ul>
+<li><strong>Handler</strong>: <code>HQOScorecardCalculator (future enhancement)</code></li>
+<li><strong>Source</strong>: <a href="../../Tools/MarkdownViewer/Services/HQOScorecardCalculator.cs" title="planned">Tools/MarkdownViewer/Services/HQOScorecardCalculator.cs (planned)</a></li>
+<li><strong>Event</strong>: hqo.scorecard.calculated</li>
+<li><strong>Test</strong>: <a href="../../Tools/MarkdownViewer/Tests/HQOScorecardCalculator.Tests.cs" title="planned">Tools/MarkdownViewer/Tests/HQOScorecardCalculator.Tests.cs (planned)</a> - <code>TestCalculateHQO_ValidPattern_ReturnsScorecard</code></li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: Quality Assurance Reviewer</li>
+<li><strong>Goal</strong>: Verify pattern meets High Quality Orchestration standards</li>
+<li><strong>Benefit</strong>: Ensure published patterns maintain platform quality bar</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant C as Calculator
+  C->>C: Score Ownership
+  C->>C: Score Time/SLA
+  C->>C: Score Capacity
+  C->>C: Score Visibility
+  C->>C: Score Customer Loop
+  C->>C: Score Escalation
+  C->>C: Score Handoffs
+  C->>C: Score Documentation
+  C->>C: Total = 35/40
+  C-->>C: ✓ HQO pass
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Reviewer as 🧑‍💻 Reviewer
+  participant Viewer as 🖥️ MarkdownViewer
+  participant Calculator as 📊 HQO Calculator
+  participant Diagram as 🎨 Diagram Analyzer
+  
+  Note over Reviewer,Diagram: Beat 4: Calculate HQO Scorecard
+  
+  Reviewer->>Viewer: Calculate HQO Score
+  Viewer->>Calculator: Analyze pattern for HQO dimensions
+  
+  Calculator->>Diagram: Check Orchestrated diagram for ownership clarity
+  Diagram-->>Calculator: ✓ Explicit L2 owner assignment → Ownership = 5
+  
+  Calculator->>Diagram: Check for SLA monitoring mechanism
+  Diagram-->>Calculator: ✓ SLA Monitor present → Time/SLA = 4
+  
+  Calculator->>Diagram: Check for capacity-aware routing
+  Diagram-->>Calculator: ✓ Smart Router with capacity → Capacity = 4
+  
+  Calculator->>Diagram: Check for visibility/tracking
+  Diagram-->>Calculator: ✓ Queue monitoring visible → Visibility = 4
+  
+  Calculator->>Diagram: Check for customer communication loop
+  Diagram-->>Calculator: ⚠️ Auto-response only → Customer Loop = 3
+  
+  Calculator->>Diagram: Check for escalation handling
+  Diagram-->>Calculator: ✓ Clear escalation routing → Escalation = 5
+  
+  Calculator->>Diagram: Check for handoff quality
+  Diagram-->>Calculator: ✓ Context transfer present → Handoffs = 4
+  
+  Calculator->>Diagram: Check for documentation/runbook
+  Diagram-->>Calculator: ⚠️ Mentioned but not detailed → Documentation = 3
+  
+  Calculator->>Calculator: Calculate total: 5+4+4+4+3+5+4+3 = 35/40
+  Calculator->>Calculator: Validate: Total ≥30 ✓, No dimension <3 ✓
+  
+  Calculator-->>Viewer: ✅ HQO Scorecard: 35/40 (Pass - Ready for publication)
+  Viewer-->>Reviewer: Display scorecard with dimension breakdown
+</pre>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Complete pattern with Orchestrated diagram</li>
+<li><strong>When</strong>: HQO calculation is triggered</li>
+<li><strong>Then</strong>: Returns score for each of 8 dimensions</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Future enhancement: Automated HQO scoring in MarkdownViewer</li>
+<li>HQO scoring could use AI-assisted analysis of diagram elements</li>
+<li>8 dimensions: Ownership, Time/SLA, Capacity, Visibility, Customer Loop, Escalation, Handoffs, Documentation</li>
+</ul>
+<h4 id="beat-5-export-html-preview">Beat 5: Export HTML Preview</h4>
+<ul>
+<li><strong>Handler</strong>: <code>MarkdownViewer.ExportToHtml</code></li>
+<li><strong>Source</strong>: <a href="../../Tools/MarkdownViewer/MainWindow.xaml.cs">Tools/MarkdownViewer/MainWindow.xaml.cs</a></li>
+<li><strong>Event</strong>: html.exported</li>
+<li><strong>Test</strong>: [N/A - Desktop app feature](../../N/A - Desktop app feature) - <code>Exported HTML opens correctly in Chrome, Firefox, Edge</code></li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: Pattern Reviewer</li>
+<li><strong>Goal</strong>: Share pattern draft with team for feedback</li>
+<li><strong>Benefit</strong>: Enable offline review without requiring MarkdownViewer installation</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant R as Reviewer
+  participant Viewer
+  R->>Viewer: Export HTML
+  Viewer->>Viewer: Generate HTML
+  Viewer-->>R: ✓ HTML saved
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Reviewer as 🧑‍💻 Reviewer
+  participant Viewer as 🖥️ MarkdownViewer
+  participant Exporter as 📤 HTML Exporter
+  participant FileSystem as 💾 File System
+  
+  Note over Reviewer,FileSystem: Beat 5: Export HTML Preview
+  
+  Reviewer->>Viewer: File → Export to HTML
+  Viewer->>Exporter: Generate standalone HTML
+  Exporter->>Exporter: Convert markdown to HTML (Markdig)
+  Exporter->>Exporter: Embed CSS styles (light-theme.css)
+  Exporter->>Exporter: Include Mermaid.js CDN link
+  Exporter->>Exporter: Wrap in complete HTML document
+  Exporter->>FileSystem: Write support-escalation.html (284KB)
+  FileSystem-->>Exporter: ✓ File saved
+  Exporter-->>Viewer: ✓ Export complete
+  Viewer-->>Reviewer: ✅ HTML exported: C:\Exports\support-escalation.html
+</pre>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Rendered pattern in MarkdownViewer</li>
+<li><strong>When</strong>: Export to HTML is triggered</li>
+<li><strong>Then</strong>: Generates standalone HTML file</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Exported HTML can be sent via email for review</li>
+<li>Useful for stakeholder approval before publication</li>
+</ul>
+<hr />
+<h3 id="movement-3-json-conversion-publication">Movement 3: JSON Conversion &amp; Publication</h3>
+<p>Convert validated ARTICLE.md to OWS JSON schema, validate structure, and publish to Orchestration Wisdom platform</p>
+<p><strong>Tempo</strong>: 120 | <strong>Status</strong>: active</p>
+<h4 id="user-story-3">User Story</h4>
+<p><strong>As a</strong> Content Publisher,<br />
+<strong>I want to</strong> Publish validated pattern to production platform,<br />
+<strong>So that</strong> Make pattern discoverable and usable by platform users.</p>
+<pre class="mermaid">sequenceDiagram
+  participant Publisher as 🧑‍💻 Publisher
+  participant Converter as 🔄 JSON Converter
+  participant Platform as 🌐 OW Platform
+  participant Analytics as 📊 Analytics
+  
+  Note over Publisher,Analytics: Movement 3: JSON Conversion & Publication
+  
+  Publisher->>Converter: Convert ARTICLE.md to JSON
+  Converter->>Converter: Parse markdown sections
+  Converter->>Converter: Extract Mermaid diagrams
+  Converter->>Converter: Build Pattern JSON
+  Converter-->>Publisher: ✓ pattern.json created
+  
+  Publisher->>Platform: Upload pattern.json
+  Platform->>Platform: Validate against OWS schema
+  Platform->>Platform: Load into PatternService
+  Platform-->>Publisher: ✅ Published: /patterns/support-escalation
+  
+  Platform->>Analytics: Track publication event
+  Analytics-->>Platform: ✓ Analytics recorded
+</pre>
+<p><strong>Beats</strong>: 5</p>
+<h4 id="beat-1-convert-markdown-to-json">Beat 1: Convert Markdown to JSON</h4>
+<ul>
+<li><strong>Handler</strong>: <code>MarkdownViewer.ExportToOWSJson OR Convert-PatternToJSON.ps1</code></li>
+<li><strong>Source</strong>: [Tools/MarkdownViewer/Services/PatternJsonExporter.cs (planned) OR Tools/Convert-PatternToJSON.ps1](../../Tools/MarkdownViewer/Services/PatternJsonExporter.cs (planned) OR Tools/Convert-PatternToJSON.ps1)</li>
+<li><strong>Event</strong>: json.pattern.created</li>
+<li><strong>Test</strong>: [Tools/Tests/PatternJsonExporter.Tests.cs OR Tools/Tests/Convert-PatternToJSON.Tests.ps1](../../Tools/Tests/PatternJsonExporter.Tests.cs OR Tools/Tests/Convert-PatternToJSON.Tests.ps1) - <code>TestConvertMarkdownToJson_ValidArticle_ReturnsValidJson</code></li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: Content Publisher</li>
+<li><strong>Goal</strong>: Convert validated markdown to structured JSON for platform ingestion</li>
+<li><strong>Benefit</strong>: Enable dynamic rendering and filtering on web platform</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant P as Publisher
+  participant Converter
+  P->>Converter: Convert to JSON
+  Converter->>Converter: Parse markdown
+  Converter->>Converter: Extract diagrams
+  Converter->>Converter: Build JSON
+  Converter-->>P: ✓ pattern.json
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Publisher as 🧑‍💻 Publisher
+  participant Parser as 🔍 Markdown Parser
+  participant Builder as 🏗️ JSON Builder
+  participant FileSystem as 💾 File System
+  
+  Note over Publisher,FileSystem: Beat 1: Convert Markdown to JSON
+  
+  Publisher->>Parser: Parse ARTICLE.md
+  Parser->>Parser: Extract front matter / metadata
+  Parser->>Parser: Split by section headings (## Hook, ## Problem, etc.)
+  Parser->>Parser: Extract ```mermaid blocks
+  Parser-->>Builder: ✓ Structured sections
+  
+  Builder->>Builder: Build Pattern object
+  Builder->>Builder: Set id: "support-ticket-escalation"
+  Builder->>Builder: Set slug: "support-ticket-escalation-backlog"
+  Builder->>Builder: Set title: "Support Ticket Escalation Backlog"
+  Builder->>Builder: Set hookMarkdown: "..."
+  Builder->>Builder: Set asIsDiagramMermaid: "sequenceDiagram\n..."
+  Builder->>Builder: Set orchestratedDiagramMermaid: "sequenceDiagram\n..."
+  Builder->>Builder: Set scorecard: { Ownership: 5, TimeSLA: 4, ... }
+  Builder->>Builder: Set components: [{id, name, description}, ...]
+  
+  Builder->>FileSystem: Write pattern.json (formatted, UTF-8)
+  FileSystem-->>Builder: ✓ File saved (8.4KB)
+  Builder-->>Publisher: ✅ support-escalation.pattern.json created
+</pre>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Valid ARTICLE.md with all sections</li>
+<li><strong>When</strong>: Conversion is triggered</li>
+<li><strong>Then</strong>: Generates OWS-compliant Pattern JSON</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Two options: Desktop app export OR PowerShell script</li>
+<li>PowerShell option useful for batch conversion of multiple patterns</li>
+</ul>
+<h4 id="beat-2-validate-json-schema">Beat 2: Validate JSON Schema</h4>
+<ul>
+<li><strong>Handler</strong>: <code>JsonSchemaValidator OR dotnet test with schema validation</code></li>
+<li><strong>Source</strong>: [schemas/pattern.schema.json + validation script](../../schemas/pattern.schema.json + validation script)</li>
+<li><strong>Event</strong>: schema.validated</li>
+<li><strong>Test</strong>: <a href="../../schemas/tests/pattern-schema-validation.tests.js">schemas/tests/pattern-schema-validation.tests.js</a> - <code>TestValidatePattern_CompliantJson_ReturnsSuccess</code></li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: Platform Integrator</li>
+<li><strong>Goal</strong>: Ensure only valid patterns are published to platform</li>
+<li><strong>Benefit</strong>: Prevent runtime errors from malformed pattern data</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant V as Validator
+  V->>V: Load schema
+  V->>V: Load pattern JSON
+  V->>V: Validate structure
+  V-->>V: ✓ Valid
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Publisher as 🧑‍💻 Publisher
+  participant Validator as ✅ JSON Validator
+  participant Schema as 📋 Pattern Schema
+  
+  Note over Publisher,Schema: Beat 2: Validate JSON Schema
+  
+  Publisher->>Validator: Validate pattern.json
+  Validator->>Schema: Load Pattern schema definition
+  Schema-->>Validator: ✓ Schema loaded
+  
+  Validator->>Validator: Check required fields (id, slug, title, hookMarkdown, diagrams, scorecard)
+  Validator->>Validator: Validate data types (string, number, object, array)
+  Validator->>Validator: Check scorecard structure (8 dimensions, each 0-5)
+  Validator->>Validator: Validate components array (id, name, description)
+  Validator->>Validator: Check HQO constraints (total ≥30, no dim <3)
+  
+  alt Schema Valid
+    Validator-->>Publisher: ✅ Schema validation passed
+  else Schema Invalid
+    Validator-->>Publisher: ❌ Validation failed: Missing 'components' array
+    Publisher->>Publisher: Fix JSON and retry
+  end
+</pre>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Generated pattern.json file</li>
+<li><strong>When</strong>: Schema validation is run</li>
+<li><strong>Then</strong>: Returns pass/fail with specific error messages</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Use JSON Schema Draft-07 or later</li>
+<li>Consider JSON Schema $ref for reusable definitions</li>
+</ul>
+<h4 id="beat-3-commit-to-repository">Beat 3: Commit to Repository</h4>
+<ul>
+<li><strong>Handler</strong>: <code>git add + commit + push</code></li>
+<li><strong>Source</strong>: [N/A - Git command line](../../N/A - Git command line)</li>
+<li><strong>Event</strong>: pattern.committed</li>
+<li><strong>Test</strong>: [N/A - Git operation](../../N/A - Git operation) - <code>Pattern appears in git log and GitHub/GitLab</code></li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: Content Manager</li>
+<li><strong>Goal</strong>: Version control pattern content</li>
+<li><strong>Benefit</strong>: Track pattern evolution and enable rollback if needed</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant P as Publisher
+  participant Git
+  P->>Git: git add pattern.json
+  P->>Git: git commit -m "..."
+  P->>Git: git push
+  Git-->>P: ✓ Pushed
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Publisher as 🧑‍💻 Publisher
+  participant Git as 📦 Git
+  participant Remote as ☁️ GitHub/GitLab
+  
+  Note over Publisher,Remote: Beat 3: Commit to Repository
+  
+  Publisher->>Git: git status
+  Git-->>Publisher: ✓ Untracked: patterns/support-escalation.pattern.json
+  
+  Publisher->>Git: git add patterns/support-escalation.pattern.json
+  Git-->>Publisher: ✓ Staged
+  
+  Publisher->>Git: git commit -m "Add support escalation pattern (HQO: 35/40)"
+  Git->>Git: Create commit with timestamp and author
+  Git-->>Publisher: ✓ Committed [abc123f]
+  
+  Publisher->>Git: git push origin main
+  Git->>Remote: Push commits
+  Remote-->>Git: ✓ Accepted
+  Git-->>Publisher: ✅ Pushed to remote (main branch)
+</pre>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Valid pattern.json file</li>
+<li><strong>When</strong>: Git commit and push are executed</li>
+<li><strong>Then</strong>: Pattern file committed to repository</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Consider PR workflow for team review before merge to main</li>
+<li>Tag releases for production deployments</li>
+</ul>
+<h4 id="beat-4-deploy-to-platform">Beat 4: Deploy to Platform</h4>
+<ul>
+<li><strong>Handler</strong>: <code>OrchestrationWisdom.PatternService.LoadPatterns()</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/PatternService.cs">src/OrchestrationWisdom/Services/PatternService.cs</a></li>
+<li><strong>Event</strong>: pattern.published</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/PatternService.Tests.cs">src/OrchestrationWisdom/Tests/PatternService.Tests.cs</a> - <code>TestGetPatternBySlug_PublishedPattern_ReturnsPattern</code></li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: Platform User</li>
+<li><strong>Goal</strong>: Discover and read newly published pattern</li>
+<li><strong>Benefit</strong>: Access latest operational knowledge immediately</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Platform
+  participant Git
+  Platform->>Git: Pull latest
+  Platform->>Platform: Load patterns
+  Platform->>Platform: Render page
+  Platform-->>Platform: ✓ Live
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant CICD as ⚙️ CI/CD Pipeline
+  participant Git as 📦 Git Repo
+  participant Platform as 🌐 Orchestration Wisdom
+  participant PatternService as 📂 Pattern Service
+  participant MarkdownService as 📝 Markdown Service
+  participant Browser as 🌐 User Browser
+  
+  Note over CICD,Browser: Beat 4: Deploy to Platform
+  
+  CICD->>Git: Detect new commit (webhook trigger)
+  CICD->>CICD: Run tests (dotnet test)
+  CICD->>CICD: Build app (dotnet build)
+  CICD->>Platform: Deploy to production
+  Platform-->>CICD: ✓ Deployment successful
+  
+  Platform->>PatternService: Reload patterns from /patterns folder
+  PatternService->>PatternService: Read support-escalation.pattern.json
+  PatternService->>PatternService: Deserialize to Pattern model
+  PatternService-->>Platform: ✓ Pattern loaded
+  
+  Browser->>Platform: GET /patterns/support-ticket-escalation
+  Platform->>PatternService: GetPatternBySlug("support-ticket-escalation")
+  PatternService-->>Platform: ✓ Pattern data
+  Platform->>MarkdownService: ConvertToHtml(pattern.HookMarkdown)
+  MarkdownService-->>Platform: ✓ HTML content
+  Platform->>Platform: Render PatternDetail.razor with Mermaid.js
+  Platform-->>Browser: ✅ Pattern page rendered (live at /patterns/support-ticket-escalation)
+</pre>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Pattern committed to repository</li>
+<li><strong>When</strong>: CI/CD pipeline runs</li>
+<li><strong>Then</strong>: Pattern is live on production platform</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Consider pattern caching for performance</li>
+<li>Add pattern sitemap.xml for SEO</li>
+</ul>
+<h4 id="beat-5-track-publication-event">Beat 5: Track Publication Event</h4>
+<ul>
+<li><strong>Handler</strong>: <code>AnalyticsService.TrackEvent(&quot;pattern_published&quot;)</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/AnalyticsService.cs" title="planned">src/OrchestrationWisdom/Services/AnalyticsService.cs (planned)</a></li>
+<li><strong>Event</strong>: analytics.tracked</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/AnalyticsService.Tests.cs" title="planned">src/OrchestrationWisdom/Tests/AnalyticsService.Tests.cs (planned)</a> - <code>TestTrackPatternPublication_ValidEvent_LogsSuccessfully</code></li>
+</ul>
+<p><strong>User Story</strong>:</p>
+<ul>
+<li><strong>Persona</strong>: Platform Analytics Manager</li>
+<li><strong>Goal</strong>: Track pattern publication metrics for platform growth insights</li>
+<li><strong>Benefit</strong>: Measure content velocity and quality trends</li>
+</ul>
+<p><strong>User Story Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Platform
+  participant Analytics
+  Platform->>Analytics: Track event
+  Analytics->>Analytics: Log metadata
+  Analytics-->>Platform: ✓ Tracked
+</pre>
+<p><strong>Visual Diagram</strong>:</p>
+<pre class="mermaid">sequenceDiagram
+  participant Platform as 🌐 Platform
+  participant Analytics as 📊 Analytics Engine
+  participant DataWarehouse as 🗄️ Data Warehouse
+  
+  Note over Platform,DataWarehouse: Beat 5: Track Publication Event
+  
+  Platform->>Analytics: TrackEvent("pattern_published")
+  Analytics->>Analytics: Build event payload
+  Analytics->>Analytics: Add metadata (PatternId: "support-escalation", HQOScore: 35, Author: "AI_Researcher")
+  Analytics->>Analytics: Add timestamp (2026-01-11T14:23:45Z)
+  Analytics->>DataWarehouse: Write event record
+  DataWarehouse-->>Analytics: ✓ Event stored
+  Analytics-->>Platform: ✅ Analytics event tracked (EventId: evt_001)
+</pre>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Pattern published successfully</li>
+<li><strong>When</strong>: Analytics tracking is triggered</li>
+<li><strong>Then</strong>: Event logged with complete metadata</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Use for platform metrics: patterns/month, average HQO score, top authors</li>
+<li>Consider privacy: anonymize author if needed</li>
+</ul>
+<hr />
+<h2 id="metadata">Metadata</h2>
+<ul>
+<li><strong>Version</strong>: 1.0.0</li>
+<li><strong>Author</strong>: Orchestration Wisdom Team</li>
+<li><strong>Created</strong>: 2026-01-11</li>
+<li><strong>Tags</strong>: content-authoring, ai-assisted, pattern-generation, markdown-workflow</li>
+</ul>
+<hr />
+<p><em>This documentation was auto-generated from the canonical sequence definition.</em><br />
+<em><strong>Canonical Reference</strong>: <a href="../../C:/source/repos/bpm/internal/orchestration-wisdom/sequences/ai-content-creator-workflow.json">ai-content-creator-workflow.json</a></em></p>
+
+    </div>
+</body>
+</html>
