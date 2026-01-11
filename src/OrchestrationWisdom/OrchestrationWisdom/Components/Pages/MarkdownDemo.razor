@@ -1,0 +1,123 @@
+@page "/markdown-demo"
+@inject IMarkdownService MarkdownService
+
+<PageTitle>Markdown Service Demo - Orchestration Wisdom</PageTitle>
+
+<div class="container-narrow">
+    <div class="page-header">
+        <h1>Markdown Service Demo</h1>
+        <p>Demonstrating the ported MarkdownService from MarkdownViewer with Mermaid support</p>
+    </div>
+
+    <div class="demo-section">
+        <h2>Rich Text Formatting</h2>
+        @((MarkupString)MarkdownService.ConvertToHtml(richTextDemo))
+    </div>
+
+    <div class="demo-section">
+        <h2>Mermaid Diagram Support</h2>
+        <p>The MarkdownService automatically converts ```mermaid code blocks to Mermaid.js diagrams:</p>
+        @((MarkupString)MarkdownService.ConvertToHtml(mermaidDemo))
+    </div>
+
+    <div class="demo-section">
+        <h2>Code Blocks</h2>
+        @((MarkupString)MarkdownService.ConvertToHtml(codeBlockDemo))
+    </div>
+
+    <div class="demo-section">
+        <h2>Lists and Tables</h2>
+        @((MarkupString)MarkdownService.ConvertToHtml(listTableDemo))
+    </div>
+
+    <div class="alert-box">
+        <strong>Note:</strong> This demonstrates the MarkdownService ported from your WPF MarkdownViewer application.
+        It uses the same Markdig pipeline with custom Mermaid rendering.
+    </div>
+</div>
+
+@code {
+    private string richTextDemo = @"
+This is **bold text**, *italic text*, and `inline code`.
+
+> This is a blockquote demonstrating how markdown is converted to HTML
+
+### Key Features
+
+- Advanced markdown extensions
+- Emoji support 😊 🎉
+- Soft line breaks
+- Tables and lists
+";
+
+    private string mermaidDemo = @"
+Here's a sequence diagram showing the As-Is vs Orchestrated pattern:
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant System
+    participant Database
+
+    User->>System: Request data
+    System->>Database: Query
+    Database-->>System: Results
+    System-->>User: Display data
+```
+
+The diagram above is automatically rendered by Mermaid.js thanks to the custom `MermaidCodeBlockRenderer`.
+";
+
+    private string codeBlockDemo = @"
+C# code example:
+
+```csharp
+public class MarkdownService : IMarkdownService
+{
+    public string ConvertToHtml(string markdown)
+    {
+        var pipeline = new MarkdownPipelineBuilder()
+            .UseAdvancedExtensions()
+            .Build();
+
+        return Markdig.Markdown.ToHtml(markdown, pipeline);
+    }
+}
+```
+
+JavaScript example:
+
+```javascript
+window.initMermaid = function () {
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: 'default'
+    });
+};
+```
+";
+
+    private string listTableDemo = @"
+### Unordered List
+
+- Item 1
+- Item 2
+  - Nested item
+- Item 3
+
+### Ordered List
+
+1. First item
+2. Second item
+3. Third item
+
+### Table
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Markdown to HTML | ✅ | Fully working |
+| Mermaid Support | ✅ | Custom renderer |
+| Code Highlighting | ✅ | Language support |
+| Tables | ✅ | GitHub-flavored |
+";
+}

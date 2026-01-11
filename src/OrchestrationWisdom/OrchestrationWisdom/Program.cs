@@ -1,5 +1,6 @@
 using OrchestrationWisdom.Components;
 using OrchestrationWisdom.Services;
+using OrchestrationWisdom.Services.Markdown;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddSingleton<IPatternService, PatternService>();
+builder.Services.AddSingleton<IMarkdownService, MarkdownService>();
 
 var app = builder.Build();
 
