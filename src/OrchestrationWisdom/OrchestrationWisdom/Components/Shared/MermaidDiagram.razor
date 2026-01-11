@@ -1,0 +1,43 @@
+@inject IJSRuntime JS
+
+<div class="mermaid-panel">
+    <div class="mermaid-header">
+        <h4>@Title</h4>
+        <button class="btn btn-secondary btn-sm" @onclick="CopyMermaidCode">Copy Mermaid</button>
+    </div>
+    <div class="mermaid-diagram" id="@DiagramId">
+        <pre class="mermaid">@MermaidCode</pre>
+    </div>
+    @if (!string.IsNullOrEmpty(Summary))
+    {
+        <p class="mermaid-summary" aria-label="Diagram Summary">
+            <strong>Summary:</strong> @Summary
+        </p>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public string MermaidCode { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Summary { get; set; } = string.Empty;
+
+    private string DiagramId => $"diagram-{GetHashCode()}";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("initMermaid");
+        }
+    }
+
+    private async Task CopyMermaidCode()
+    {
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", MermaidCode);
+    }
+}

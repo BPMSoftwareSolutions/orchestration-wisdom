@@ -1,0 +1,21 @@
+.about-section {
+    margin-bottom: var(--spacing-3xl);
+}
+
+.about-section h2 {
+    color: var(--color-primary);
+}
+
+.about-section p,
+.about-section li {
+    font-size: 1.125rem;
+    line-height: 1.8;
+}
+
+.about-section ul {
+    margin: var(--spacing-lg) 0;
+}
+
+.about-section ul li {
+    margin-bottom: var(--spacing-sm);
+}

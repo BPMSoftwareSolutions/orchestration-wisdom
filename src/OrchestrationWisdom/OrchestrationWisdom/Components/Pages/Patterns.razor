@@ -1,0 +1,112 @@
+@page "/patterns"
+@inject IPatternService PatternService
+
+<PageTitle>Pattern Library - Orchestration Wisdom</PageTitle>
+
+<div class="container">
+    <div class="page-header">
+        <h1>Pattern Library</h1>
+        <p>Discover orchestration patterns to transform operational challenges into structured solutions.</p>
+    </div>
+
+    <div class="patterns-layout">
+        <aside class="filters-sidebar">
+            <div class="filter-section">
+                <h3>Industry</h3>
+                @foreach (var industry in FilterConstants.Industries)
+                {
+                    <label class="filter-option">
+                        <input type="checkbox"
+                               checked="@filterOptions.Industries.Contains(industry)"
+                               @onchange="@(e => ToggleFilter(filterOptions.Industries, industry))" />
+                        @industry
+                    </label>
+                }
+            </div>
+
+            <div class="filter-section">
+                <h3>Broken Signals</h3>
+                @foreach (var signal in FilterConstants.BrokenSignals)
+                {
+                    <label class="filter-option">
+                        <input type="checkbox"
+                               checked="@filterOptions.BrokenSignals.Contains(signal)"
+                               @onchange="@(e => ToggleFilter(filterOptions.BrokenSignals, signal))" />
+                        @signal
+                    </label>
+                }
+            </div>
+
+            <div class="filter-section">
+                <h3>Maturity Level</h3>
+                @foreach (var level in FilterConstants.MaturityLevels)
+                {
+                    <label class="filter-option">
+                        <input type="checkbox"
+                               checked="@filterOptions.MaturityLevels.Contains(level)"
+                               @onchange="@(e => ToggleFilter(filterOptions.MaturityLevels, level))" />
+                        @level
+                    </label>
+                }
+            </div>
+
+            <div class="filter-section">
+                <h3>Sort By</h3>
+                <select class="sort-select" @bind="filterOptions.SortBy" @bind:after="ApplyFilters">
+                    <option value="referenced">Most Referenced</option>
+                    <option value="newest">Newest</option>
+                    <option value="clarity">Highest Clarity</option>
+                </select>
+            </div>
+
+            <button class="btn btn-secondary" @onclick="ClearFilters">Clear All Filters</button>
+        </aside>
+
+        <div class="patterns-content">
+            <div class="results-header">
+                <p>@filteredPatterns.Count pattern@(filteredPatterns.Count != 1 ? "s" : "") found</p>
+            </div>
+
+            <div class="pattern-grid">
+                @foreach (var pattern in filteredPatterns)
+                {
+                    <PatternCard Pattern="@pattern" />
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private FilterOptions filterOptions = new();
+    private List<Pattern> filteredPatterns = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ApplyFilters();
+    }
+
+    private async Task ToggleFilter(List<string> list, string value)
+    {
+        if (list.Contains(value))
+        {
+            list.Remove(value);
+        }
+        else
+        {
+            list.Add(value);
+        }
+        await ApplyFilters();
+    }
+
+    private async Task ApplyFilters()
+    {
+        filteredPatterns = await PatternService.FilterPatternsAsync(filterOptions);
+    }
+
+    private async Task ClearFilters()
+    {
+        filterOptions = new FilterOptions();
+        await ApplyFilters();
+    }
+}

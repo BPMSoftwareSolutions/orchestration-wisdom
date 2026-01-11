@@ -1,0 +1,52 @@
+﻿@page "/"
+@inject IPatternService PatternService
+
+<PageTitle>Orchestration Wisdom - Operational Problems Are Orchestration Problems</PageTitle>
+
+<div class="hero">
+    <div class="container">
+        <h1 class="hero-title">Operational problems are orchestration problems.</h1>
+        <p class="hero-subtitle">No-scroll diagrams + implementation-ready playbooks.</p>
+        <div class="hero-cta">
+            <a href="/patterns" class="btn btn-primary">Browse Patterns</a>
+            <a href="/method" class="btn btn-secondary">How it Works</a>
+        </div>
+    </div>
+</div>
+
+<section class="featured-patterns">
+    <div class="container">
+        <h2>Featured Patterns</h2>
+        <div class="pattern-grid">
+            @if (featuredPatterns != null)
+            {
+                @foreach (var pattern in featuredPatterns)
+                {
+                    <PatternCard Pattern="@pattern" />
+                }
+            }
+        </div>
+    </div>
+</section>
+
+<section class="principles-preview">
+    <div class="container-narrow">
+        <h2>Orchestration Principles</h2>
+        <ul class="principles-list">
+            <li><strong>Clarity before conversion</strong> — No popups, no dark patterns, no noisy ads.</li>
+            <li><strong>Systems over blame</strong> — Pattern-based insights, not company-specific claims.</li>
+            <li><strong>Trust is the moat</strong> — Ranking cannot be pay-to-win.</li>
+        </ul>
+        <a href="/principles" class="btn btn-secondary">Read All Principles</a>
+    </div>
+</section>
+
+@code {
+    private List<Pattern>? featuredPatterns;
+
+    protected override async Task OnInitializedAsync()
+    {
+        featuredPatterns = await PatternService.GetFeaturedPatternsAsync(6);
+    }
+}
+

@@ -1,0 +1,232 @@
+@page "/patterns/{slug}"
+@inject IPatternService PatternService
+@inject IJSRuntime JS
+
+<PageTitle>@(pattern?.Title ?? "Pattern") - Orchestration Wisdom</PageTitle>
+
+@if (pattern == null)
+{
+    <div class="container">
+        <p>Loading pattern...</p>
+    </div>
+}
+else
+{
+    <article class="pattern-article">
+        <div class="container-narrow">
+            <header class="article-header">
+                <h1>@pattern.Title</h1>
+                <div class="article-meta">
+                    @foreach (var industry in pattern.Industries)
+                    {
+                        <span class="badge badge-industry">@industry</span>
+                    }
+                    @foreach (var signal in pattern.BrokenSignals)
+                    {
+                        <span class="badge">@signal</span>
+                    }
+                </div>
+            </header>
+
+            <section class="article-section">
+                <div class="hook">@pattern.Hook</div>
+            </section>
+
+            <section class="article-section">
+                <h2>Problem in One Minute</h2>
+                <p>@pattern.ProblemDetail</p>
+            </section>
+
+            <MermaidDiagram Title="As-Is Diagram"
+                            MermaidCode="@pattern.AsIsDiagram"
+                            Summary="Current state showing the problematic workflow" />
+
+            <MermaidDiagram Title="Orchestrated Diagram"
+                            MermaidCode="@pattern.OrchestratedDiagram"
+                            Summary="Improved state with orchestration structure applied" />
+
+            <section class="article-section">
+                <h2>Decision Point That Matters</h2>
+                <div class="decision-point">
+                    @pattern.DecisionPoint
+                </div>
+            </section>
+
+            <section class="article-section">
+                <h2>Metrics & SLAs</h2>
+                <div class="metrics-content">
+                    @((MarkupString)FormatMarkdown(pattern.Metrics))
+                </div>
+            </section>
+
+            <section class="article-section">
+                <h2>Implementation Checklist</h2>
+                <div class="checklist">
+                    @((MarkupString)FormatMarkdown(pattern.Checklist))
+                </div>
+            </section>
+
+            <section class="article-section">
+                <h2>Orchestration Scorecard</h2>
+                <table class="scorecard-table">
+                    <thead>
+                        <tr>
+                            <th>Dimension</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Ownership</td>
+                            <td>@pattern.Scorecard.Ownership / 5</td>
+                        </tr>
+                        <tr>
+                            <td>Time/SLA</td>
+                            <td>@pattern.Scorecard.TimeSLA / 5</td>
+                        </tr>
+                        <tr>
+                            <td>Capacity</td>
+                            <td>@pattern.Scorecard.Capacity / 5</td>
+                        </tr>
+                        <tr>
+                            <td>Visibility</td>
+                            <td>@pattern.Scorecard.Visibility / 5</td>
+                        </tr>
+                        <tr>
+                            <td>Customer Loop</td>
+                            <td>@pattern.Scorecard.CustomerLoop / 5</td>
+                        </tr>
+                        <tr>
+                            <td>Escalation</td>
+                            <td>@pattern.Scorecard.Escalation / 5</td>
+                        </tr>
+                        <tr>
+                            <td>Handoffs</td>
+                            <td>@pattern.Scorecard.Handoffs / 5</td>
+                        </tr>
+                        <tr>
+                            <td>Documentation</td>
+                            <td>@pattern.Scorecard.Documentation / 5</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td><strong>Total Score</strong></td>
+                            <td><strong>@pattern.Scorecard.TotalScore / 40</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="article-section">
+                <div class="closing-insight">
+                    @pattern.ClosingInsight
+                </div>
+            </section>
+
+            @if (pattern.Components.Any())
+            {
+                <section class="article-section build-solution-panel">
+                    <h2>Build a Solution</h2>
+                    <p>This pattern can be implemented through the following components:</p>
+                    <div class="components-list">
+                        @foreach (var component in pattern.Components)
+                        {
+                            <div class="component-card">
+                                <h4>@component.Name</h4>
+                                <p>@component.Description</p>
+                            </div>
+                        }
+                    </div>
+                    <button class="btn btn-primary">Get Help Implementing</button>
+                </section>
+            }
+
+            <div class="article-actions">
+                <button class="btn btn-secondary" @onclick="DownloadArticle">Download ARTICLE.md</button>
+                <button class="btn btn-secondary" @onclick="PrintChecklist">Print Checklist</button>
+            </div>
+        </div>
+    </article>
+}
+
+@code {
+    [Parameter]
+    public string Slug { get; set; } = string.Empty;
+
+    private Pattern? pattern;
+
+    protected override async Task OnInitializedAsync()
+    {
+        pattern = await PatternService.GetPatternBySlugAsync(Slug);
+    }
+
+    private string FormatMarkdown(string markdown)
+    {
+        return markdown.Replace("\n", "<br>");
+    }
+
+    private async Task DownloadArticle()
+    {
+        if (pattern == null) return;
+
+        var content = GenerateMarkdownArticle(pattern);
+        await JS.InvokeVoidAsync("downloadFile", $"{pattern.Slug}.md", content, "text/markdown");
+    }
+
+    private async Task PrintChecklist()
+    {
+        await JS.InvokeVoidAsync("window.print");
+    }
+
+    private string GenerateMarkdownArticle(Pattern p)
+    {
+        return $@"# {p.Title}
+
+{p.Hook}
+
+## Problem in One Minute
+
+{p.ProblemDetail}
+
+## As-Is Diagram
+
+```mermaid
+{p.AsIsDiagram}
+```
+
+## Orchestrated Diagram
+
+```mermaid
+{p.OrchestratedDiagram}
+```
+
+## Decision Point That Matters
+
+{p.DecisionPoint}
+
+## Metrics & SLAs
+
+{p.Metrics}
+
+## Implementation Checklist
+
+{p.Checklist}
+
+## Orchestration Scorecard
+
+- Ownership: {p.Scorecard.Ownership}/5
+- Time/SLA: {p.Scorecard.TimeSLA}/5
+- Capacity: {p.Scorecard.Capacity}/5
+- Visibility: {p.Scorecard.Visibility}/5
+- Customer Loop: {p.Scorecard.CustomerLoop}/5
+- Escalation: {p.Scorecard.Escalation}/5
+- Handoffs: {p.Scorecard.Handoffs}/5
+- Documentation: {p.Scorecard.Documentation}/5
+
+**Total Score: {p.Scorecard.TotalScore}/40**
+
+## Closing Insight
+
+{p.ClosingInsight}
+";
+    }
+}

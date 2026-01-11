@@ -1,0 +1,23 @@
+@using OrchestrationWisdom.Models
+
+<a href="/patterns/@Pattern.Slug" class="pattern-card">
+    <h3 class="pattern-title">@Pattern.Title</h3>
+    <p class="pattern-problem"><strong>Problem:</strong> @Pattern.Problem</p>
+    <p class="pattern-shift"><strong>Orchestration:</strong> @Pattern.OrchestrationShift</p>
+
+    <div class="pattern-badges">
+        @foreach (var signal in Pattern.BrokenSignals.Take(3))
+        {
+            <span class="badge">@signal</span>
+        }
+        @foreach (var industry in Pattern.Industries.Take(2))
+        {
+            <span class="badge badge-industry">@industry</span>
+        }
+    </div>
+</a>
+
+@code {
+    [Parameter]
+    public Pattern Pattern { get; set; } = new();
+}
