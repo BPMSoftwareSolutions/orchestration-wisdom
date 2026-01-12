@@ -1,0 +1,197 @@
+@page "/workspace"
+@inject IWorkspaceService WorkspaceService
+@inject IAuthenticationService AuthenticationService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Creator Workspace - Orchestration Wisdom</PageTitle>
+
+<div class="workspace-container">
+    @if (isLoading)
+    {
+        <div class="loading-state">
+            <p>Loading your workspace...</p>
+        </div>
+    }
+    else if (!isAuthenticated)
+    {
+        <div class="auth-required">
+            <h2>Sign in Required</h2>
+            <p>Please sign in to access the Creator Workspace</p>
+            <a href="/signin?returnUrl=/workspace" class="btn btn-primary">Sign In</a>
+        </div>
+    }
+    else if (workspaceState != null)
+    {
+        <div class="workspace-header">
+            <h1>Creator Workspace</h1>
+            <div class="workspace-stats">
+                <div class="stat">
+                    <span class="stat-value">@workspaceState.Stats.TotalDrafts</span>
+                    <span class="stat-label">Drafts</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">@workspaceState.Stats.PublishedPatterns</span>
+                    <span class="stat-label">Published</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="workspace-content">
+            @if (workspaceState.ShowOnboarding)
+            {
+                <div class="onboarding-section">
+                    <div class="import-card-large">
+                        <div class="import-icon">📄</div>
+                        <h2>Start Creating Your First Pattern</h2>
+                        <p>Import your ARTICLE.md file to begin converting it into a structured orchestration pattern.</p>
+                        <div class="import-dropzone" @ondrop="HandleFileDrop" @ondragover="HandleDragOver" @ondragleave="HandleDragLeave">
+                            <div class="dropzone-content">
+                                <p class="dropzone-text">Drag & drop your ARTICLE.md here</p>
+                                <p class="dropzone-or">or</p>
+                                <label for="file-upload" class="btn btn-primary">Choose File</label>
+                                <InputFile id="file-upload" OnChange="HandleFileSelected" accept=".md,.markdown" />
+                            </div>
+                        </div>
+                        <div class="import-help">
+                            <p>Need an example? <a href="/examples/article-template.md">Download ARTICLE.md template</a></p>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="workspace-sections">
+                    <section class="quick-actions">
+                        <h2>Quick Actions</h2>
+                        <div class="action-cards">
+                            <div class="action-card" @onclick="ShowImportDialog">
+                                <div class="card-icon">📥</div>
+                                <h3>Import ARTICLE.md</h3>
+                                <p>Start a new pattern from markdown</p>
+                            </div>
+                            <div class="action-card">
+                                <div class="card-icon">➕</div>
+                                <h3>Create from Scratch</h3>
+                                <p>Build a pattern manually</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="recent-drafts">
+                        <h2>Recent Drafts</h2>
+                        @if (workspaceState.RecentDrafts.Any())
+                        {
+                            <div class="draft-list">
+                                @foreach (var draft in workspaceState.RecentDrafts)
+                                {
+                                    <div class="draft-card">
+                                        <div class="draft-info">
+                                            <h3>@draft.Title</h3>
+                                            <p class="draft-meta">
+                                                <span class="draft-status">@draft.Status</span>
+                                                <span class="draft-date">Updated @FormatRelativeTime(draft.UpdatedAt)</span>
+                                            </p>
+                                        </div>
+                                        <div class="draft-progress">
+                                            <div class="progress-bar">
+                                                <div class="progress-fill" style="width: @draft.CompletionPercentage%"></div>
+                                            </div>
+                                            <span class="progress-text">@draft.CompletionPercentage%</span>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="empty-state">No drafts yet. Import an ARTICLE.md to get started!</p>
+                        }
+                    </section>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private bool isLoading = true;
+    private bool isAuthenticated = false;
+    private WorkspaceState? workspaceState;
+    private string? sessionToken;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Movement 4, Beat 9: Load Creator Workspace View
+        Console.WriteLine("[WORKSPACE] Loading creator workspace");
+
+        // Check authentication (in production, get from cookie/session)
+        // For demo, use hardcoded user
+        sessionToken = "demo-session-token";
+        isAuthenticated = await AuthenticationService.CheckAuthStatusAsync(sessionToken);
+
+        if (isAuthenticated)
+        {
+            // Movement 4, Beat 10: Initialize Workspace State
+            workspaceState = await WorkspaceService.LoadWorkspaceAsync("user-demo-001");
+            Console.WriteLine($"[WORKSPACE] Workspace loaded - Show onboarding: {workspaceState.ShowOnboarding}");
+        }
+        else
+        {
+            Console.WriteLine("[WORKSPACE] Not authenticated - showing sign-in prompt");
+        }
+
+        isLoading = false;
+    }
+
+    private void HandleFileDrop(DragEventArgs e)
+    {
+        Console.WriteLine("[WORKSPACE] File dropped");
+        // Handle file drop
+    }
+
+    private void HandleDragOver(DragEventArgs e)
+    {
+        // Prevent default to allow drop
+    }
+
+    private void HandleDragLeave(DragEventArgs e)
+    {
+        // Handle drag leave
+    }
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        Console.WriteLine($"[WORKSPACE] File selected: {file.Name}");
+
+        if (file.Name.EndsWith(".md") || file.Name.EndsWith(".markdown"))
+        {
+            Console.WriteLine("[WORKSPACE] Valid markdown file - starting import workflow");
+            // This connects to the content creator workflow
+            // In production: navigate to import processing page
+        }
+        else
+        {
+            Console.WriteLine("[WORKSPACE] Invalid file type");
+        }
+    }
+
+    private void ShowImportDialog()
+    {
+        Console.WriteLine("[WORKSPACE] Show import dialog");
+    }
+
+    private string FormatRelativeTime(DateTime dateTime)
+    {
+        var timeSpan = DateTime.UtcNow - dateTime;
+
+        if (timeSpan.TotalMinutes < 60)
+            return $"{(int)timeSpan.TotalMinutes}m ago";
+        if (timeSpan.TotalHours < 24)
+            return $"{(int)timeSpan.TotalHours}h ago";
+        if (timeSpan.TotalDays < 7)
+            return $"{(int)timeSpan.TotalDays}d ago";
+
+        return dateTime.ToString("MMM dd");
+    }
+}

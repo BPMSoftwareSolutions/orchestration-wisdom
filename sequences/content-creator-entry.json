@@ -1,0 +1,536 @@
+{
+  "id": "content-creator-entry",
+  "name": "Content Creator Entry Workflow",
+  "domainId": "orchestration-wisdom",
+  "status": "active",
+  "description": "Entry point workflow for content creators accessing the pattern creation workspace, including authentication and workspace navigation",
+  "purpose": "Provide a seamless entry experience for content creators to access the pattern creation tools, ensuring proper authentication and smooth transition to the workspace",
+  "trigger": "User visits home page and clicks 'Create Pattern' or 'Creator Portal' button",
+  "businessValue": "Reduces friction for content creators entering the workflow, ensures secure access to creator tools, and provides clear navigation to pattern creation capabilities",
+  "overviewDiagram": "sequenceDiagram\n  autonumber\n\n  actor User as 👤 User / Content Creator\n  participant Home as 🏠 Home Page (View)\n  participant Auth as 🔐 Auth Service\n  participant Workspace as 🧩 Creator Workspace (View)\n\n  Note over User,Workspace: Entry into Content Creator Workflow (MVP)\n\n  User->>Home: Visit home page\n  Home-->>User: Experience: Marketing + Navigation\n\n  User->>Home: Click \"Create Pattern\" / \"Creator Portal\"\n  Home->>Auth: Check authentication\n\n  alt Not Authenticated\n    Auth-->>Home: Auth required\n    Home-->>User: Experience: Sign-in / Access Prompt\n    User->>Auth: Authenticate\n    Auth-->>Home: Auth success\n  else Authenticated\n    Auth-->>Home: Auth OK\n  end\n\n  Home->>Workspace: Navigate to Creator Workspace\n  Workspace-->>User: Experience: Import ARTICLE.md (workflow start)",
+  "userStory": {
+    "persona": "Content Creator / Pattern Author",
+    "goal": "Access the pattern creation workspace to start building orchestration patterns",
+    "benefit": "Seamless entry into content creation tools with proper authentication and immediate access to pattern import capabilities",
+    "diagram": "sequenceDiagram\n  actor Creator as 👤 Content Creator\n  participant Portal as 🌐 Platform Portal\n  participant System as 🔐 System\n\n  Creator->>Portal: Navigate to platform\n  Portal-->>Creator: Show home page with CTA\n  Creator->>Portal: Click \"Create Pattern\"\n  Portal->>System: Verify access\n  \n  alt First-time user\n    System-->>Portal: Need authentication\n    Portal-->>Creator: Sign-in prompt\n    Creator->>System: Authenticate\n    System-->>Creator: Welcome to Creator Workspace\n  else Returning creator\n    System-->>Portal: Access granted\n    Portal-->>Creator: Welcome back to Workspace\n  end"
+  },
+  "governance": {
+    "policies": [
+      "All creator workspace access requires authentication",
+      "Authentication must complete before workspace access is granted",
+      "Failed authentication attempts must redirect to sign-in flow",
+      "Creator workspace must be accessible within 3 seconds of authentication",
+      "Session management must maintain creator context across navigation",
+      "First-time creators receive onboarding guidance in workspace"
+    ],
+    "metrics": [
+      "Creator entry conversion rate (% of visitors who enter workspace)",
+      "Authentication success rate (% of auth attempts that succeed)",
+      "Time to workspace (seconds from homepage to workspace ready)",
+      "Bounce rate at sign-in prompt (% who abandon at auth step)",
+      "Returning creator rate (% who skip auth via existing session)",
+      "Workspace activation rate (% who import pattern after entry)"
+    ]
+  },
+  "movements": [
+    {
+      "number": 1,
+      "name": "Home Page Landing",
+      "description": "User arrives at platform home page and views marketing content and navigation options",
+      "tempo": "Quick",
+      "status": "active",
+      "userStory": {
+        "persona": "Content Creator",
+        "goal": "Understand the platform value proposition and find entry to creator tools",
+        "benefit": "Clear understanding of platform capabilities and obvious path to pattern creation"
+      },
+      "beats": [
+        {
+          "beat": 1,
+          "name": "Render Home Page",
+          "handler": {
+            "name": "HomePageController.Index",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Controllers/HomePageController.cs"
+          },
+          "event": "homepage.rendered",
+          "testFile": "src/OrchestrationWisdom/Tests/Controllers/HomePageControllerTests.cs",
+          "testCase": "Index_RendersHomePage_WithMarketingContent",
+          "acceptanceCriteria": [
+            {
+              "given": "User navigates to platform root URL",
+              "when": "Home page controller renders",
+              "then": "Page displays marketing content, navigation menu, and 'Create Pattern' CTA button"
+            },
+            {
+              "given": "User is already authenticated with valid session",
+              "when": "Home page loads",
+              "then": "Navigation includes 'My Workspace' link and user profile indicator"
+            }
+          ],
+          "notes": [
+            "Home page should load within 1 second",
+            "Marketing content highlights pattern creation value proposition",
+            "CTA button is prominently displayed above the fold",
+            "Mobile-responsive design ensures CTA is accessible on all devices"
+          ]
+        },
+        {
+          "beat": 2,
+          "name": "Track Home Page Visit",
+          "handler": {
+            "name": "AnalyticsService.TrackPageView",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Services/Analytics/AnalyticsService.cs"
+          },
+          "event": "homepage.visited",
+          "testFile": "src/OrchestrationWisdom/Tests/Services/AnalyticsServiceTests.cs",
+          "testCase": "TrackPageView_RecordsVisit_WithSessionContext",
+          "acceptanceCriteria": [
+            {
+              "given": "User loads home page",
+              "when": "Page render completes",
+              "then": "Analytics event is logged with user session ID, timestamp, and referrer"
+            },
+            {
+              "given": "User has visited before",
+              "when": "Analytics tracks page view",
+              "then": "Event includes returning visitor flag and previous visit timestamp"
+            }
+          ],
+          "notes": [
+            "Track referrer source for attribution (direct, search, social, etc.)",
+            "Capture device type and browser for experience optimization",
+            "Record time on page for engagement analysis",
+            "Privacy-compliant tracking with user consent"
+          ]
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "name": "Creator Entry Trigger",
+      "description": "User clicks 'Create Pattern' or 'Creator Portal' button to initiate entry into creator workspace",
+      "tempo": "Quick",
+      "status": "active",
+      "userStory": {
+        "persona": "Content Creator",
+        "goal": "Access the pattern creation workspace",
+        "benefit": "Direct navigation to creator tools without unnecessary steps"
+      },
+      "beats": [
+        {
+          "beat": 3,
+          "name": "Handle Creator Entry Click",
+          "handler": {
+            "name": "CreatorEntryHandler.HandleEntry",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Services/CreatorEntryHandler.cs"
+          },
+          "event": "creator.entry.initiated",
+          "testFile": "src/OrchestrationWisdom/Tests/Services/CreatorEntryHandlerTests.cs",
+          "testCase": "HandleEntry_InitiatesWorkflow_WhenCTAClicked",
+          "acceptanceCriteria": [
+            {
+              "given": "User clicks 'Create Pattern' button on home page",
+              "when": "Entry handler processes click",
+              "then": "System initiates authentication check and logs entry attempt"
+            },
+            {
+              "given": "User clicks 'Creator Portal' navigation link",
+              "when": "Entry handler processes click",
+              "then": "System redirects to workspace with authentication verification"
+            }
+          ],
+          "notes": [
+            "Support multiple entry points (CTA button, nav link, footer link)",
+            "Log entry source for analytics (which button/link was clicked)",
+            "Preserve entry context for post-authentication redirect",
+            "Handle concurrent clicks gracefully (debounce)"
+          ]
+        },
+        {
+          "beat": 4,
+          "name": "Check Authentication Status",
+          "handler": {
+            "name": "AuthenticationService.CheckAuthStatus",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Services/AuthenticationService.cs"
+          },
+          "event": "auth.status.checked",
+          "testFile": "src/OrchestrationWisdom/Tests/Services/AuthenticationServiceTests.cs",
+          "testCase": "CheckAuthStatus_ReturnsValid_WhenSessionExists",
+          "acceptanceCriteria": [
+            {
+              "given": "User has valid authentication session cookie",
+              "when": "Auth status check executes",
+              "then": "Service returns authenticated status with user identity"
+            },
+            {
+              "given": "User has no session or expired session",
+              "when": "Auth status check executes",
+              "then": "Service returns unauthenticated status and clears invalid session"
+            },
+            {
+              "given": "Session exists but token is expired",
+              "when": "Auth status check executes",
+              "then": "Service attempts token refresh or returns unauthenticated"
+            }
+          ],
+          "notes": [
+            "Session validation includes token expiry check",
+            "JWT token validation against signing key",
+            "Support for refresh token flow if access token expired",
+            "Cache auth status for 30 seconds to reduce validation overhead"
+          ]
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "name": "Authentication Flow",
+      "description": "Handle authentication requirement, prompting user to sign in if not authenticated",
+      "tempo": "Measured",
+      "status": "active",
+      "userStory": {
+        "persona": "Unauthenticated Content Creator",
+        "goal": "Complete sign-in to access creator workspace",
+        "benefit": "Secure access to creator tools with minimal friction"
+      },
+      "beats": [
+        {
+          "beat": 5,
+          "name": "Display Sign-In Prompt",
+          "handler": {
+            "name": "AuthenticationController.ShowSignIn",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Controllers/AuthenticationController.cs"
+          },
+          "event": "auth.signin.prompted",
+          "testFile": "src/OrchestrationWisdom/Tests/Controllers/AuthenticationControllerTests.cs",
+          "testCase": "ShowSignIn_DisplaysPrompt_WithReturnUrl",
+          "acceptanceCriteria": [
+            {
+              "given": "User is not authenticated",
+              "when": "Sign-in prompt is displayed",
+              "then": "User sees authentication options (email/password, OAuth providers) with clear CTA"
+            },
+            {
+              "given": "User was attempting to access creator workspace",
+              "when": "Sign-in prompt displays",
+              "then": "Return URL is preserved to redirect user to workspace after authentication"
+            },
+            {
+              "given": "Sign-in prompt is shown",
+              "when": "User views the page",
+              "then": "Prompt explains why authentication is required (access to creator tools)"
+            }
+          ],
+          "notes": [
+            "Support multiple auth providers (Google, GitHub, Microsoft)",
+            "Include email/password option for direct authentication",
+            "Display 'Why do I need to sign in?' contextual help",
+            "Provide 'Create Account' option for first-time users",
+            "Mobile-optimized authentication UI"
+          ]
+        },
+        {
+          "beat": 6,
+          "name": "Process Authentication",
+          "handler": {
+            "name": "AuthenticationService.Authenticate",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Services/AuthenticationService.cs"
+          },
+          "event": "auth.completed",
+          "testFile": "src/OrchestrationWisdom/Tests/Services/AuthenticationServiceTests.cs",
+          "testCase": "Authenticate_CreatesSession_WhenCredentialsValid",
+          "acceptanceCriteria": [
+            {
+              "given": "User submits valid credentials (email/password or OAuth)",
+              "when": "Authentication service processes credentials",
+              "then": "Service creates authenticated session with JWT token and user profile"
+            },
+            {
+              "given": "User submits invalid credentials",
+              "when": "Authentication attempt is processed",
+              "then": "Service returns authentication failure with clear error message"
+            },
+            {
+              "given": "First-time user authenticates via OAuth",
+              "when": "OAuth callback is processed",
+              "then": "Service creates new user account and initiates onboarding flow"
+            }
+          ],
+          "notes": [
+            "Generate secure JWT tokens with appropriate expiration (1 hour access, 7 day refresh)",
+            "Store session in secure, HTTP-only cookie",
+            "Log authentication events for security monitoring",
+            "Handle OAuth provider failures gracefully",
+            "Rate limit authentication attempts to prevent brute force"
+          ]
+        },
+        {
+          "beat": 7,
+          "name": "Create User Session",
+          "handler": {
+            "name": "SessionManager.CreateSession",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Services/SessionManager.cs"
+          },
+          "event": "session.created",
+          "testFile": "src/OrchestrationWisdom/Tests/Services/SessionManagerTests.cs",
+          "testCase": "CreateSession_StoresUserContext_WithExpiryMetadata",
+          "acceptanceCriteria": [
+            {
+              "given": "User authentication succeeds",
+              "when": "Session creation is initiated",
+              "then": "Session is created with user ID, email, role, and expiration timestamp"
+            },
+            {
+              "given": "Session is created",
+              "when": "Session data is persisted",
+              "then": "Session is stored in distributed cache (Redis) with automatic expiration"
+            }
+          ],
+          "notes": [
+            "Store minimal session data (ID, email, role) for performance",
+            "Use distributed cache for session storage (Redis/Azure Cache)",
+            "Set session TTL to match token expiration",
+            "Include creator-specific flags (onboarding_complete, workspace_enabled)"
+          ]
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "name": "Workspace Navigation",
+      "description": "Navigate authenticated user to creator workspace and initialize workspace view",
+      "tempo": "Quick",
+      "status": "active",
+      "userStory": {
+        "persona": "Authenticated Content Creator",
+        "goal": "Access creator workspace and start pattern creation",
+        "benefit": "Immediate access to pattern import and creation tools"
+      },
+      "beats": [
+        {
+          "beat": 8,
+          "name": "Navigate to Creator Workspace",
+          "handler": {
+            "name": "WorkspaceController.Index",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Controllers/WorkspaceController.cs"
+          },
+          "event": "workspace.navigated",
+          "testFile": "src/OrchestrationWisdom/Tests/Controllers/WorkspaceControllerTests.cs",
+          "testCase": "Index_RedirectsToWorkspace_AfterAuthentication",
+          "acceptanceCriteria": [
+            {
+              "given": "User authentication is successful",
+              "when": "Navigation to workspace is initiated",
+              "then": "User is redirected to /workspace or /creator-portal URL"
+            },
+            {
+              "given": "User had a return URL preserved from initial entry",
+              "when": "Post-authentication redirect occurs",
+              "then": "User is sent to original intended destination (workspace)"
+            }
+          ],
+          "notes": [
+            "Preserve query parameters across authentication redirect",
+            "Use 302 redirect for post-authentication navigation",
+            "Log workspace entry event for analytics",
+            "Include user context in redirect (session cookie)"
+          ]
+        },
+        {
+          "beat": 9,
+          "name": "Load Creator Workspace View",
+          "handler": {
+            "name": "WorkspaceService.LoadWorkspace",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Services/WorkspaceService.cs"
+          },
+          "event": "workspace.loaded",
+          "testFile": "src/OrchestrationWisdom/Tests/Services/WorkspaceServiceTests.cs",
+          "testCase": "LoadWorkspace_RendersUI_WithImportOptions",
+          "acceptanceCriteria": [
+            {
+              "given": "Authenticated user accesses workspace",
+              "when": "Workspace view loads",
+              "then": "UI displays 'Import ARTICLE.md' option, recent drafts, and workspace navigation"
+            },
+            {
+              "given": "First-time creator accesses workspace",
+              "when": "Workspace loads",
+              "then": "Onboarding tooltip highlights 'Import ARTICLE.md' as starting point"
+            },
+            {
+              "given": "Returning creator accesses workspace",
+              "when": "Workspace loads",
+              "then": "Recent drafts and patterns are displayed for quick access"
+            }
+          ],
+          "notes": [
+            "Workspace should load within 2 seconds",
+            "Display user profile and workspace settings in header",
+            "Include contextual help for import workflow",
+            "Show onboarding checklist for new creators",
+            "Lazy-load recent drafts to optimize initial page load"
+          ]
+        },
+        {
+          "beat": 10,
+          "name": "Initialize Workspace State",
+          "handler": {
+            "name": "WorkspaceStateManager.Initialize",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Services/WorkspaceStateManager.cs"
+          },
+          "event": "workspace.initialized",
+          "testFile": "src/OrchestrationWisdom/Tests/Services/WorkspaceStateManagerTests.cs",
+          "testCase": "Initialize_LoadsUserDrafts_AndPreferences",
+          "acceptanceCriteria": [
+            {
+              "given": "Workspace view is loaded",
+              "when": "State initialization executes",
+              "then": "User's draft patterns and workspace preferences are loaded from database"
+            },
+            {
+              "given": "User has no previous drafts",
+              "when": "Workspace initializes",
+              "then": "Empty state is displayed with 'Start by importing ARTICLE.md' guidance"
+            }
+          ],
+          "notes": [
+            "Load up to 10 most recent drafts for performance",
+            "Fetch workspace preferences (theme, layout, notifications)",
+            "Initialize file upload handler for ARTICLE.md import",
+            "Set up WebSocket connection for real-time collaboration (future)",
+            "Cache workspace state in browser localStorage for offline support"
+          ]
+        },
+        {
+          "beat": 11,
+          "name": "Display Import ARTICLE.md Entry Point",
+          "handler": {
+            "name": "WorkspaceUIRenderer.RenderImportEntry",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Services/WorkspaceUIRenderer.cs"
+          },
+          "event": "workspace.import.ready",
+          "testFile": "src/OrchestrationWisdom/Tests/Services/WorkspaceUIRendererTests.cs",
+          "testCase": "RenderImportEntry_DisplaysCTA_ForMarkdownImport",
+          "acceptanceCriteria": [
+            {
+              "given": "Workspace is fully initialized",
+              "when": "UI render completes",
+              "then": "Prominent 'Import ARTICLE.md' button/dropzone is displayed as primary action"
+            },
+            {
+              "given": "User hovers over import entry point",
+              "when": "Tooltip displays",
+              "then": "Tooltip explains: 'Upload your markdown file to start creating a pattern'"
+            }
+          ],
+          "notes": [
+            "Support drag-and-drop for ARTICLE.md file",
+            "Include file picker button for traditional upload",
+            "Display accepted file format (.md, .markdown)",
+            "Show example ARTICLE.md link for reference",
+            "Transition smoothly to import workflow on file selection"
+          ]
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "name": "Entry Completion & Analytics",
+      "description": "Log successful entry into creator workspace and track conversion metrics",
+      "tempo": "Quick",
+      "status": "active",
+      "userStory": {
+        "persona": "Platform Analytics Team",
+        "goal": "Measure creator entry funnel effectiveness",
+        "benefit": "Data-driven insights to optimize creator onboarding and reduce friction"
+      },
+      "beats": [
+        {
+          "beat": 12,
+          "name": "Track Creator Entry Completion",
+          "handler": {
+            "name": "AnalyticsService.TrackConversion",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Services/Analytics/AnalyticsService.cs"
+          },
+          "event": "creator.entry.completed",
+          "testFile": "src/OrchestrationWisdom/Tests/Services/AnalyticsServiceTests.cs",
+          "testCase": "TrackConversion_LogsEntrySuccess_WithTimings",
+          "acceptanceCriteria": [
+            {
+              "given": "User successfully enters creator workspace",
+              "when": "Workspace initialization completes",
+              "then": "Analytics event is logged with entry source, authentication method, and time metrics"
+            },
+            {
+              "given": "Analytics event is logged",
+              "when": "Event data is captured",
+              "then": "Event includes: user_id, entry_source, auth_method, time_to_workspace, first_visit_flag"
+            }
+          ],
+          "notes": [
+            "Calculate time from homepage visit to workspace ready",
+            "Track authentication drop-off rate (users who abandon at sign-in)",
+            "Measure conversion by entry source (CTA button vs nav link)",
+            "Flag first-time vs returning creators for cohort analysis",
+            "Send data to analytics platform (Google Analytics, Mixpanel, etc.)"
+          ]
+        },
+        {
+          "beat": 13,
+          "name": "Log Entry Event for Audit",
+          "handler": {
+            "name": "AuditLogger.LogCreatorEntry",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Services/AuditLogger.cs"
+          },
+          "event": "audit.creator.entry",
+          "testFile": "src/OrchestrationWisdom/Tests/Services/AuditLoggerTests.cs",
+          "testCase": "LogCreatorEntry_RecordsEvent_ForSecurityAudit",
+          "acceptanceCriteria": [
+            {
+              "given": "Creator workspace entry completes",
+              "when": "Audit log is written",
+              "then": "Event is logged with timestamp, user ID, IP address, and entry context"
+            },
+            {
+              "given": "Entry event is logged",
+              "when": "Log is persisted",
+              "then": "Log entry is written to secure audit trail with retention policy"
+            }
+          ],
+          "notes": [
+            "Log for security and compliance purposes",
+            "Include IP address and user agent for fraud detection",
+            "Store in append-only audit log (immutable)",
+            "Retain audit logs per compliance requirements (GDPR, SOC2)",
+            "Enable audit trail queries for security investigations"
+          ]
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "author": "Orchestration Wisdom Platform",
+    "created": "2026-01-11",
+    "tags": [
+      "content-creator",
+      "authentication",
+      "workspace-entry",
+      "onboarding",
+      "mvp"
+    ]
+  }
+}

@@ -1,0 +1,180 @@
+@page "/signin"
+@inject IAuthenticationService AuthenticationService
+@inject ISessionManager SessionManager
+@inject IAuditLogger AuditLogger
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.WebUtilities
+
+<PageTitle>Sign In - Orchestration Wisdom</PageTitle>
+
+<div class="signin-container">
+    <div class="signin-card">
+        <div class="signin-header">
+            <h1>Welcome to Creator Portal</h1>
+            <p>Sign in to access pattern creation tools</p>
+        </div>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-error">
+                @errorMessage
+            </div>
+        }
+
+        @if (isLoading)
+        {
+            <div class="loading-state">
+                <p>Signing you in...</p>
+            </div>
+        }
+        else
+        {
+            <div class="signin-form">
+                <EditForm Model="@credentials" OnValidSubmit="HandleSignIn">
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <InputText id="email" @bind-Value="credentials.Email" class="form-control" placeholder="your@email.com" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <InputText id="password" @bind-Value="credentials.Password" type="password" class="form-control" placeholder="Enter password" />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+                </EditForm>
+
+                <div class="divider">
+                    <span>or</span>
+                </div>
+
+                <div class="oauth-providers">
+                    <button class="btn btn-oauth btn-google" @onclick="() => HandleOAuthSignIn(AuthProvider.Google)">
+                        <span class="oauth-icon">G</span>
+                        Continue with Google
+                    </button>
+                    <button class="btn btn-oauth btn-github" @onclick="() => HandleOAuthSignIn(AuthProvider.GitHub)">
+                        <span class="oauth-icon">🐙</span>
+                        Continue with GitHub
+                    </button>
+                    <button class="btn btn-oauth btn-microsoft" @onclick="() => HandleOAuthSignIn(AuthProvider.Microsoft)">
+                        <span class="oauth-icon">Ⓜ</span>
+                        Continue with Microsoft
+                    </button>
+                </div>
+
+                <div class="signin-footer">
+                    <p class="help-text">
+                        Don't have an account? Just sign in - we'll create one for you!
+                    </p>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="signin-info">
+        <h3>Why Sign In?</h3>
+        <ul>
+            <li>✍️ Create and publish orchestration patterns</li>
+            <li>💾 Save drafts and work in progress</li>
+            <li>📊 Track your published patterns' performance</li>
+            <li>🔄 Receive feedback from the community</li>
+        </ul>
+    </div>
+</div>
+
+@code {
+    private AuthenticationCredentials credentials = new();
+    private bool isLoading = false;
+    private string? errorMessage;
+    private string? returnUrl;
+
+    protected override void OnInitialized()
+    {
+        // Movement 3, Beat 5: Display Sign-In Prompt
+        Console.WriteLine("[SIGNIN] Sign-in page loaded");
+
+        // Get return URL from query string
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("returnUrl", out var returnUrlValue))
+        {
+            returnUrl = returnUrlValue;
+        }
+    }
+
+    private async Task HandleSignIn()
+    {
+        // Movement 3, Beat 6: Process Authentication
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            credentials.Provider = AuthProvider.EmailPassword;
+
+            var result = await AuthenticationService.AuthenticateAsync(credentials);
+
+            // Log authentication attempt
+            await AuditLogger.LogAuthenticationAttemptAsync(
+                credentials.Email,
+                AuthProvider.EmailPassword,
+                result.Success,
+                "127.0.0.1" // In production, get real IP
+            );
+
+            if (result.Success)
+            {
+                Console.WriteLine($"[SIGNIN] Authentication successful for {credentials.Email}");
+
+                // Movement 4, Beat 8: Navigate to Creator Workspace
+                var redirectUrl = returnUrl ?? "/workspace";
+                Console.WriteLine($"[SIGNIN] Redirecting to {redirectUrl}");
+
+                // In production: set authentication cookie with session token
+                // For now, navigate directly
+                NavigationManager.NavigateTo(redirectUrl);
+            }
+            else
+            {
+                errorMessage = result.ErrorMessage ?? "Sign in failed. Please try again.";
+                Console.WriteLine($"[SIGNIN] Authentication failed: {errorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "An error occurred during sign in. Please try again.";
+            Console.WriteLine($"[SIGNIN ERROR] {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleOAuthSignIn(AuthProvider provider)
+    {
+        Console.WriteLine($"[SIGNIN] OAuth sign-in initiated: {provider}");
+
+        // In production: redirect to OAuth provider
+        // For demo: simulate OAuth with email
+        var demoEmail = $"user@{provider.ToString().ToLower()}.com";
+
+        credentials.Email = demoEmail;
+        credentials.Provider = provider;
+
+        var result = await AuthenticationService.AuthenticateAsync(credentials);
+
+        await AuditLogger.LogAuthenticationAttemptAsync(
+            demoEmail,
+            provider,
+            result.Success,
+            "127.0.0.1"
+        );
+
+        if (result.Success)
+        {
+            var redirectUrl = returnUrl ?? "/workspace";
+            NavigationManager.NavigateTo(redirectUrl);
+        }
+    }
+}

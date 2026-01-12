@@ -1,0 +1,189 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Orchestration Wisdom Pattern Schema",
+  "description": "Schema for validating orchestration patterns in the OWS platform",
+  "type": "object",
+  "required": [
+    "id",
+    "slug",
+    "title",
+    "hookMarkdown",
+    "problemDetailMarkdown",
+    "asIsDiagramMermaid",
+    "orchestratedDiagramMermaid",
+    "scorecard"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the pattern (e.g., 'support-ticket-escalation')",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "slug": {
+      "type": "string",
+      "description": "URL-friendly slug for the pattern"
+    },
+    "title": {
+      "type": "string",
+      "description": "Display title of the pattern",
+      "minLength": 10,
+      "maxLength": 200
+    },
+    "category": {
+      "type": "string",
+      "description": "Pattern category",
+      "enum": ["orchestration", "communication", "decision", "escalation", "monitoring"]
+    },
+    "hookMarkdown": {
+      "type": "string",
+      "description": "Hook: Attention-grabbing problem statement",
+      "minLength": 20
+    },
+    "problemDetailMarkdown": {
+      "type": "string",
+      "description": "Problem detail: Broken signals and operational impact",
+      "minLength": 100
+    },
+    "asIsDiagramMermaid": {
+      "type": "string",
+      "description": "Mermaid sequence diagram showing the broken workflow"
+    },
+    "orchestratedDiagramMermaid": {
+      "type": "string",
+      "description": "Mermaid sequence diagram showing the improved, orchestrated workflow"
+    },
+    "decisionPointMarkdown": {
+      "type": "string",
+      "description": "Key decision point that improves outcomes"
+    },
+    "metricsMarkdown": {
+      "type": "string",
+      "description": "Metrics and KPIs for success"
+    },
+    "implementationChecklist": {
+      "type": "array",
+      "description": "Actionable implementation steps",
+      "items": {
+        "type": "string",
+        "minLength": 10
+      },
+      "minItems": 3,
+      "maxItems": 10
+    },
+    "commonPitfalls": {
+      "type": "array",
+      "description": "Common failure modes and how to avoid them",
+      "items": {
+        "type": "string"
+      }
+    },
+    "closingInsightMarkdown": {
+      "type": "string",
+      "description": "Memorable closing insight"
+    },
+    "scorecard": {
+      "type": "object",
+      "description": "HQO (High Quality Orchestration) scorecard",
+      "required": ["Ownership", "TimeSLA", "Capacity", "Visibility", "CustomerLoop", "Escalation", "Handoffs", "Documentation"],
+      "properties": {
+        "Ownership": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "description": "Is it clear who owns each step?"
+        },
+        "TimeSLA": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "description": "Are time constraints and SLA visible?"
+        },
+        "Capacity": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "description": "Does the system check capacity before routing?"
+        },
+        "Visibility": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "description": "Can all parties see the current state?"
+        },
+        "CustomerLoop": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "description": "Is the customer kept informed?"
+        },
+        "Escalation": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "description": "Are escalation paths clear?"
+        },
+        "Handoffs": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "description": "Are responsibilities clearly transferred?"
+        },
+        "Documentation": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "description": "Is the pattern fully documented?"
+        }
+      },
+      "additionalProperties": false
+    },
+    "components": {
+      "type": "array",
+      "description": "Orchestration components used (e.g., Smart Router, SLA Monitor)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "industries": {
+      "type": "array",
+      "description": "Industries this pattern applies to",
+      "items": {
+        "type": "string"
+      }
+    },
+    "brokenSignals": {
+      "type": "array",
+      "description": "Which orchestration signals are broken (Ownership, Visibility, Time/SLA, etc.)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "clarityScore": {
+      "type": "number",
+      "description": "Clarity score (0-10) for the pattern explanation",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "referenceCount": {
+      "type": "integer",
+      "description": "Number of references/citations in the pattern"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the pattern was created"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the pattern was last updated"
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "hqoConstraints": {
+      "description": "HQO must total ≥30/40 with no dimension <3",
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,212 @@
+.signin-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+}
+
+.signin-card {
+    background: white;
+    border-radius: 12px;
+    padding: 3rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+}
+
+.signin-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.signin-header h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 2rem;
+    color: #333;
+}
+
+.signin-header p {
+    margin: 0;
+    color: #666;
+    font-size: 1.125rem;
+}
+
+.alert {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.alert-error {
+    background: #fee;
+    color: #c33;
+    border: 1px solid #fcc;
+}
+
+.loading-state {
+    text-align: center;
+    padding: 3rem 0;
+    color: #666;
+}
+
+.signin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.875rem;
+}
+
+.form-control {
+    padding: 0.75rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.btn-block {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.125rem;
+}
+
+.divider {
+    position: relative;
+    text-align: center;
+    margin: 1.5rem 0;
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #e0e0e0;
+}
+
+.divider span {
+    position: relative;
+    background: white;
+    padding: 0 1rem;
+    color: #999;
+    font-size: 0.875rem;
+}
+
+.oauth-providers {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.btn-oauth {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.5rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    background: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-oauth:hover {
+    border-color: #2563eb;
+    background: #f8f9fa;
+}
+
+.oauth-icon {
+    font-size: 1.25rem;
+}
+
+.btn-google:hover {
+    border-color: #db4437;
+}
+
+.btn-github:hover {
+    border-color: #333;
+}
+
+.btn-microsoft:hover {
+    border-color: #00a4ef;
+}
+
+.signin-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+.help-text {
+    margin: 0;
+    color: #666;
+    font-size: 0.875rem;
+}
+
+.signin-info {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    padding: 3rem;
+    color: white;
+}
+
+.signin-info h3 {
+    margin: 0 0 1.5rem 0;
+    font-size: 1.5rem;
+}
+
+.signin-info ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.signin-info li {
+    font-size: 1.125rem;
+    line-height: 1.6;
+}
+
+@media (max-width: 968px) {
+    .signin-container {
+        grid-template-columns: 1fr;
+    }
+
+    .signin-info {
+        order: -1;
+    }
+}
+
+@media (max-width: 600px) {
+    .signin-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .signin-info {
+        padding: 2rem;
+    }
+}

@@ -1,0 +1,1191 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    color: #24292e;
+    background-color: #fafafa;
+    padding: 20px;
+}
+
+.markdown-body {
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 24px;
+    margin-bottom: 16px;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+h1 { font-size: 2em; border-bottom: 3px solid #673ab7; padding-bottom: 10px; }
+h2 { font-size: 1.5em; border-bottom: 2px solid #9575cd; padding-bottom: 8px; }
+h3 { font-size: 1.25em; color: #673ab7; }
+h4 { font-size: 1em; color: #9575cd; }
+
+p { margin-bottom: 16px; }
+
+a { color: #673ab7; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+code {
+    background-color: #f6f8fa;
+    border-radius: 3px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 85%;
+    margin: 0;
+    padding: 0.2em 0.4em;
+    color: #e01e5a;
+}
+
+pre {
+    background-color: #2d2d2d;
+    border-radius: 6px;
+    color: #f8f8f2;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 85%;
+    line-height: 1.45;
+    overflow: auto;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+pre code {
+    background-color: transparent;
+    border: 0;
+    color: #f8f8f2;
+    display: inline;
+    line-height: inherit;
+    margin: 0;
+    overflow: visible;
+    padding: 0;
+    word-wrap: normal;
+}
+
+blockquote {
+    border-left: 4px solid #673ab7;
+    color: #6a737d;
+    padding: 0 15px;
+    margin: 16px 0;
+    background-color: #f6f8fa;
+    border-radius: 4px;
+    padding: 12px 15px;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+    margin-bottom: 16px;
+    overflow: auto;
+}
+
+table th {
+    background-color: #673ab7;
+    color: white;
+    font-weight: 600;
+    padding: 12px;
+    text-align: left;
+}
+
+table td {
+    border: 1px solid #dfe2e5;
+    padding: 8px 12px;
+}
+
+table tr:nth-child(even) {
+    background-color: #f6f8fa;
+}
+
+ul, ol {
+    margin-bottom: 16px;
+    padding-left: 2em;
+}
+
+li { margin-bottom: 4px; }
+
+hr {
+    background-color: #e1e4e8;
+    border: 0;
+    height: 2px;
+    margin: 24px 0;
+}
+
+img {
+    max-width: 100%;
+    box-sizing: content-box;
+}
+
+strong { font-weight: 600; }
+
+em { font-style: italic; }
+
+/* Mermaid diagram styling */
+.mermaid {
+    background-color: #ffffff;
+    border-radius: 6px;
+    padding: 16px;
+    margin: 16px 0;
+    text-align: center;
+    border: 1px solid #e1e4e8;
+}
+    </style>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'default',
+            securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            },
+            sequence: {
+                useMaxWidth: true,
+                wrap: true
+            }
+        });
+
+        // Wait for DOM to be ready
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Find all mermaid diagrams
+            const diagrams = document.querySelectorAll('.mermaid');
+
+            for (let i = 0; i < diagrams.length; i++) {
+                const diagram = diagrams[i];
+                const src = diagram.textContent;
+
+                // Render the diagram
+                const { svg, bindFunctions } = await mermaid.render(`m${i}`, src);
+                diagram.innerHTML = svg;
+                bindFunctions?.(diagram);
+
+                // Apply enhanced styling if it's a sequence diagram
+                if (src.includes('sequenceDiagram')) {
+                    enhanceSequenceDiagram(diagram);
+                }
+            }
+        });
+
+        function enhanceSequenceDiagram(host) {
+            const svgEl = host.querySelector('svg');
+            if (!svgEl) return;
+
+            const svgns = 'http://www.w3.org/2000/svg';
+
+            // Helper functions
+            function findGroupForTextNode(textNode) {
+                let el = textNode;
+                while (el && el.tagName?.toLowerCase() !== 'g') el = el.parentNode;
+                return el;
+            }
+
+            function pickLargestRect(group) {
+                const rects = Array.from(group.querySelectorAll('rect'));
+                if (!rects.length) return null;
+
+                let best = rects[0];
+                let bestArea = 0;
+                for (const r of rects) {
+                    const w = parseFloat(r.getAttribute('width') || '0');
+                    const h = parseFloat(r.getAttribute('height') || '0');
+                    const area = w * h;
+                    if (area > bestArea) {
+                        bestArea = area;
+                        best = r;
+                    }
+                }
+                return best;
+            }
+
+            function ensureDefs() {
+                let defs = svgEl.querySelector('defs');
+                if (!defs) {
+                    defs = document.createElementNS(svgns, 'defs');
+                    svgEl.insertBefore(defs, svgEl.firstChild);
+                }
+                return defs;
+            }
+
+            function hashString(str) {
+                let hash = 0;
+                for (let i = 0; i < str.length; i++) {
+                    const char = str.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash;
+                }
+                return Math.abs(hash);
+            }
+
+            function generateColorTheme(label) {
+                const hash = hashString(label);
+                const hue = hash % 360;
+                const saturation = 60 + (hash % 20);
+                const lightness1 = 95;
+                const lightness2 = 75;
+
+                const top = `hsl(${hue}, ${saturation}%, ${lightness1}%)`;
+                const bottom = `hsl(${hue}, ${saturation}%, ${lightness2}%)`;
+                const stroke = `hsl(${hue}, ${saturation}%, 35%)`;
+
+                return { top, bottom, stroke };
+            }
+
+            function rgbToGradient(rgbString) {
+                const match = rgbString.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+                if (!match) return null;
+
+                const r = parseInt(match[1]);
+                const g = parseInt(match[2]);
+                const b = parseInt(match[3]);
+
+                const darkerR = Math.max(0, r - 20);
+                const darkerG = Math.max(0, g - 20);
+                const darkerB = Math.max(0, b - 20);
+
+                return {
+                    top: `rgb(${r}, ${g}, ${b})`,
+                    bottom: `rgb(${darkerR}, ${darkerG}, ${darkerB})`
+                };
+            }
+
+            // 1) Add base filters to defs
+            const defs = ensureDefs();
+
+            defs.innerHTML += `
+                <!-- Bezel-ish shadow for participants -->
+                <filter id="bezelShadow" x="-35%" y="-35%" width="170%" height="170%">
+                    <feDropShadow dx="0" dy="3.2" stdDeviation="2.2" flood-opacity="0.35"/>
+                    <feDropShadow dx="0" dy="0" stdDeviation="1.2" flood-opacity="0.22"/>
+                </filter>
+
+                <!-- Note callout styling -->
+                <linearGradient id="noteGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#fff7cc"/>
+                    <stop offset="100%" stop-color="#fde68a"/>
+                </linearGradient>
+
+                <filter id="noteShadow" x="-35%" y="-35%" width="170%" height="170%">
+                    <feDropShadow dx="0" dy="2.5" stdDeviation="2" flood-opacity="0.35"/>
+                </filter>
+            `;
+
+            // 2) Style ALL participant boxes automatically
+            const allText = Array.from(svgEl.querySelectorAll('text'));
+            const participantGradients = {};
+            const processedGroups = new Set();
+
+            for (const t of allText) {
+                const label = (t.textContent || '').trim();
+                if (!label) continue;
+
+                const g = findGroupForTextNode(t);
+                if (!g || processedGroups.has(g)) continue;
+
+                const rect = pickLargestRect(g);
+                if (!rect) continue;
+
+                // Check if this looks like a participant box (reasonable size)
+                const w = parseFloat(rect.getAttribute('width') || '0');
+                const h = parseFloat(rect.getAttribute('height') || '0');
+                if (w < 50 || h < 30 || w > 300) continue;
+
+                processedGroups.add(g);
+
+                // Generate or reuse color theme for this participant label
+                const gradId = `pgrad_${hashString(label)}`;
+                if (!participantGradients[gradId]) {
+                    const theme = generateColorTheme(label);
+                    participantGradients[gradId] = theme;
+
+                    // Add gradient to defs (only once per unique label)
+                    const gradientDef = `
+                        <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="${theme.top}"/>
+                            <stop offset="100%" stop-color="${theme.bottom}"/>
+                        </linearGradient>
+                    `;
+                    defs.innerHTML += gradientDef;
+                }
+
+                const theme = participantGradients[gradId];
+
+                // Apply gradient and bezel effect
+                rect.setAttribute('fill', `url(#${gradId})`);
+                rect.setAttribute('rx', '12');
+                rect.setAttribute('ry', '12');
+                rect.setAttribute('stroke', theme.stroke);
+                rect.setAttribute('stroke-width', '4');
+                rect.setAttribute('filter', 'url(#bezelShadow)');
+
+                // Add inner inset panel
+                const x = parseFloat(rect.getAttribute('x') || '0');
+                const y = parseFloat(rect.getAttribute('y') || '0');
+
+                const already = g.querySelector('rect[data-inner-bezel="1"]');
+                if (!already && w > 0 && h > 0) {
+                    const inner = document.createElementNS(svgns, 'rect');
+                    inner.setAttribute('data-inner-bezel', '1');
+                    inner.setAttribute('x', x + 4.5);
+                    inner.setAttribute('y', y + 4.5);
+                    inner.setAttribute('width', Math.max(0, w - 9));
+                    inner.setAttribute('height', Math.max(0, h - 9));
+                    inner.setAttribute('rx', '9');
+                    inner.setAttribute('ry', '9');
+                    inner.setAttribute('fill', 'rgba(255,255,255,0.55)');
+                    inner.setAttribute('stroke', 'rgba(255,255,255,0.65)');
+                    inner.setAttribute('stroke-width', '1');
+                    g.insertBefore(inner, rect.nextSibling);
+                }
+            }
+
+            // 3) Style ALL rect backgrounds (from rect rgb() blocks)
+            const processedRects = new Set();
+            svgEl.querySelectorAll('rect').forEach(r => {
+                const fill = r.getAttribute('fill');
+                if (!fill || !fill.startsWith('rgb(')) return;
+                if (r.hasAttribute('data-inner-bezel')) return;
+                if (processedRects.has(fill)) return;
+
+                const gradient = rgbToGradient(fill);
+                if (!gradient) return;
+
+                processedRects.add(fill);
+
+                // Create gradient for this color
+                const gradId = `rectGrad_${hashString(fill)}`;
+                const gradientDef = `
+                    <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="${gradient.top}"/>
+                        <stop offset="100%" stop-color="${gradient.bottom}"/>
+                    </linearGradient>
+                `;
+                defs.innerHTML += gradientDef;
+
+                // Apply to all rects with this fill
+                svgEl.querySelectorAll('rect').forEach(rect => {
+                    if (rect.getAttribute('fill') === fill && !rect.hasAttribute('data-inner-bezel')) {
+                        rect.setAttribute('fill', `url(#${gradId})`);
+                    }
+                });
+            });
+
+            // 4) Style ALL NOTE boxes
+            const processedNotes = new Set();
+            for (const t of allText) {
+                const text = (t.textContent || '').trim();
+                if (!text || processedNotes.has(text)) continue;
+
+                // Look for text that seems like a note (contains common patterns)
+                const looksLikeNote = text.includes('—') || text.includes('Note') ||
+                                     text.includes('Beat') || text.includes('Movement') ||
+                                     text.length > 30;
+
+                if (!looksLikeNote) continue;
+
+                const g = findGroupForTextNode(t);
+                if (!g) continue;
+
+                const rect = pickLargestRect(g);
+                if (!rect) continue;
+
+                // Check if this looks like a note box (wide and not too tall)
+                const w = parseFloat(rect.getAttribute('width') || '0');
+                const h = parseFloat(rect.getAttribute('height') || '0');
+                if (w < 100 || h < 20 || h > 80) continue;
+
+                processedNotes.add(text);
+
+                // Apply note styling
+                rect.setAttribute('fill', 'url(#noteGrad)');
+                rect.setAttribute('rx', '8');
+                rect.setAttribute('ry', '8');
+                rect.setAttribute('stroke', '#b45309');
+                rect.setAttribute('stroke-width', '2.5');
+                rect.setAttribute('filter', 'url(#noteShadow)');
+
+                // Make text bold
+                t.setAttribute('font-weight', '700');
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="markdown-body">
+        <h1 id="pattern-publication-process">Pattern Publication Process</h1>
+<blockquote>
+<p><strong>Domain</strong>: orchestration-wisdom | <strong>Status</strong>: active | <strong>Auto-generated from</strong>: <a href="../../sequences/pattern-publication-process.json">pattern-publication-process.json</a></p>
+</blockquote>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#user-story">User Story</a></li>
+<li><a href="#business-value">Business Value</a></li>
+<li><a href="#governance">Governance</a></li>
+<li><a href="#workflow-movements">Workflow Movements</a>
+<ul>
+<li><a href="#movement-1-pattern-submission--intake">Movement 1: Pattern Submission &amp; Intake</a>
+<ul>
+<li><a href="#beat-1-receive-pattern-submission">Beat 1: Receive Pattern Submission</a></li>
+<li><a href="#beat-2-extract-pattern-metadata">Beat 2: Extract Pattern Metadata</a></li>
+<li><a href="#beat-3-create-publication-ticket">Beat 3: Create Publication Ticket</a></li>
+</ul>
+</li>
+<li><a href="#movement-2-schema-validation--quality-checks">Movement 2: Schema Validation &amp; Quality Checks</a>
+<ul>
+<li><a href="#beat-4-validate-against-schema">Beat 4: Validate Against Schema</a></li>
+<li><a href="#beat-5-calculate-hqo-scorecard">Beat 5: Calculate HQO Scorecard</a></li>
+<li><a href="#beat-6-validate-diagram-budgets">Beat 6: Validate Diagram Budgets</a></li>
+<li><a href="#beat-7-generate-validation-report">Beat 7: Generate Validation Report</a></li>
+</ul>
+</li>
+<li><a href="#movement-3-editorial-review--approval">Movement 3: Editorial Review &amp; Approval</a>
+<ul>
+<li><a href="#beat-8-route-to-reviewer-queue">Beat 8: Route to Reviewer Queue</a></li>
+<li><a href="#beat-9-conduct-content-review">Beat 9: Conduct Content Review</a></li>
+<li><a href="#beat-10-review-decision--feedback">Beat 10: Review Decision &amp; Feedback</a></li>
+</ul>
+</li>
+<li><a href="#movement-4-build--deployment-preparation">Movement 4: Build &amp; Deployment Preparation</a>
+<ul>
+<li><a href="#beat-11-trigger-cicd-pipeline">Beat 11: Trigger CI/CD Pipeline</a></li>
+<li><a href="#beat-12-run-integration-tests">Beat 12: Run Integration Tests</a></li>
+<li><a href="#beat-13-build-deployment-package">Beat 13: Build Deployment Package</a></li>
+<li><a href="#beat-14-stage-to-staging-environment">Beat 14: Stage to Staging Environment</a></li>
+</ul>
+</li>
+<li><a href="#movement-5-production-deployment--verification">Movement 5: Production Deployment &amp; Verification</a>
+<ul>
+<li><a href="#beat-15-deploy-to-production">Beat 15: Deploy to Production</a></li>
+<li><a href="#beat-16-run-production-smoke-tests">Beat 16: Run Production Smoke Tests</a></li>
+<li><a href="#beat-17-initialize-engagement-tracking">Beat 17: Initialize Engagement Tracking</a></li>
+<li><a href="#beat-18-send-publication-notification">Beat 18: Send Publication Notification</a></li>
+</ul>
+</li>
+<li><a href="#movement-6-post-publication-monitoring--support">Movement 6: Post-Publication Monitoring &amp; Support</a>
+<ul>
+<li><a href="#beat-19-monitor-initial-engagement">Beat 19: Monitor Initial Engagement</a></li>
+<li><a href="#beat-20-collect-user-feedback">Beat 20: Collect User Feedback</a></li>
+<li><a href="#beat-21-escalate-critical-issues">Beat 21: Escalate Critical Issues</a></li>
+<li><a href="#beat-22-track-long-term-impact">Beat 22: Track Long-term Impact</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#metadata">Metadata</a></li>
+</ul>
+<h2 id="overview">Overview</h2>
+<p>Complete end-to-end workflow for validating, reviewing, approving, and publishing orchestration patterns to the platform with monitoring and rollback capabilities</p>
+<p><strong>Purpose</strong>: Ensure patterns meet quality standards, governance requirements, and user needs before publication while providing visibility into the publication process and ability to roll back if issues arise</p>
+<p><strong>Trigger</strong>: Pattern author submits completed pattern for publication review, or system identifies pattern ready for automated publication</p>
+<h3 id="overview-diagram">Overview Diagram</h3>
+<pre class="mermaid">sequenceDiagram
+  participant Author as 📝 Pattern Author
+  participant Platform as 🌐 Publication System
+  participant Reviewer as 👁️ Pattern Reviewer
+  participant CI as 🔧 CI/CD Pipeline
+  participant Live as 📡 Live Platform
+  participant Monitor as 📊 Monitoring
+  
+  Author->>Platform: Submit pattern for publication
+  activate Platform
+  Platform->>Platform: Validate schema & constraints
+  Platform-->>Author: ✓ Validation passed
+  
+  rect rgb(230, 245, 255)
+  Note over Platform,Reviewer: Review Phase
+  Platform->>Reviewer: Route to content reviewer
+  Reviewer->>Reviewer: Review quality & accuracy
+  Reviewer-->>Platform: ✓ Approved
+  end
+  
+  rect rgb(240, 255, 240)
+  Note over Platform,CI: Deployment Phase
+  Platform->>CI: Trigger CI/CD pipeline
+  CI->>CI: Run full test suite
+  CI->>CI: Build artifacts
+  CI-->>Platform: ✓ Build successful
+  Platform->>Live: Deploy to staging
+  Platform->>Live: Run smoke tests
+  Platform-->>Live: ✓ Deploy to production
+  end
+  
+  rect rgb(255, 250, 240)
+  Note over Live,Monitor: Monitoring Phase
+  Live->>Monitor: Track publication metrics
+  Monitor-->>Platform: ✓ Initial metrics healthy
+  Platform-->>Author: ✓ Pattern published successfully
+  end
+  
+  deactivate Platform
+</pre>
+<h2 id="user-story">User Story</h2>
+<p><strong>As a</strong> Pattern Author / Editorial Team,<br />
+<strong>I want to</strong> Publish validated, high-quality patterns to the platform with confidence that they meet all standards,<br />
+<strong>So that</strong> Users receive only patterns that solve real problems, are well-documented, and have been vetted for quality and accuracy.</p>
+<h3 id="user-story-diagram">User Story Diagram</h3>
+<pre class="mermaid">sequenceDiagram
+  participant Author as 📝 Pattern Author
+  participant System as 🔄 Publication System
+  participant Reviewer as 👁️ Reviewer
+  participant Users as 👥 End Users
+  
+  Author->>System: Submit pattern (markdown + diagrams)
+  System->>System: Validate schema, HQO score, diagram budgets
+  System-->>Author: Validation report
+  
+  alt Validation Failed
+    Author->>Author: Fix issues
+    Author->>System: Resubmit
+  else Validation Passed
+    System->>Reviewer: Route for review
+    Reviewer->>Reviewer: Check accuracy & quality
+    
+    alt Review Issues Found
+      Reviewer-->>Author: Request changes
+      Author->>System: Submit revised version
+    else Review Approved
+      Reviewer-->>System: Approve for publication
+      System->>System: Deploy to platform
+      System->>Users: Pattern now available
+      Users-->>Author: Pattern gets engagement
+    end
+  end
+</pre>
+<h2 id="business-value">Business Value</h2>
+<p>Enforces quality gates that prevent low-quality patterns from reaching users, ensures compliance with organizational standards, provides audit trail for governance, and enables rapid iteration on published patterns</p>
+<h2 id="governance">Governance</h2>
+<h3 id="policies">Policies</h3>
+<ul>
+<li>All patterns must pass schema validation before review</li>
+<li>HQO score must be ≥30/40 across 8 dimensions before publication</li>
+<li>Diagram budgets must be enforced (≤7 actors, ≤18 steps, ≤2 alt blocks)</li>
+<li>At least one reviewer approval required before deployment to production</li>
+<li>All patterns must include acceptance criteria and implementation checklist</li>
+<li>Version history must be maintained for all published patterns</li>
+<li>Failed publications must be rolled back within 5 minutes of detection</li>
+<li>All publication events must be logged for audit trail</li>
+</ul>
+<h3 id="metrics">Metrics</h3>
+<ul>
+<li>Publication success rate (% of submissions that publish without rollback)</li>
+<li>Review cycle time (hours from submission to approval)</li>
+<li>Deployment duration (minutes from approval to live)</li>
+<li>Validation failure rate (% of submissions failing validation)</li>
+<li>Post-publication incident rate (critical issues within 24 hours)</li>
+<li>Pattern adoption rate (% of users viewing newly published patterns)</li>
+<li>Time to first fix (hours from issue report to patch deployment)</li>
+</ul>
+<h2 id="workflow-movements">Workflow Movements</h2>
+<h3 id="movement-1-pattern-submission-intake">Movement 1: Pattern Submission &amp; Intake</h3>
+<p>Author submits pattern for publication and system captures metadata</p>
+<p><strong>Tempo</strong>: Measured | <strong>Status</strong>: active</p>
+<h4 id="user-story-1">User Story</h4>
+<p><strong>As a</strong> Pattern Author,<br />
+<strong>I want to</strong> Submit a completed pattern with all required sections,<br />
+<strong>So that</strong> System captures metadata and prepares pattern for validation.</p>
+<p><strong>Beats</strong>: 3</p>
+<h4 id="beat-1-receive-pattern-submission">Beat 1: Receive Pattern Submission</h4>
+<ul>
+<li><strong>Handler</strong>: <code>PatternPublicationService.ReceiveSubmissionAsync</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/PatternPublicationService.cs">src/OrchestrationWisdom/Services/PatternPublicationService.cs</a></li>
+<li><strong>Event</strong>: pattern.submission.received</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/PatternPublicationServiceTests.cs">src/OrchestrationWisdom/Tests/Services/PatternPublicationServiceTests.cs</a> - <code>ReceiveSubmission_CapturesMetadata_WhenValidPayloadProvided</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Pattern author submits JSON payload with required fields (id, name, sections, diagrams)</li>
+<li><strong>When</strong>: ReceiveSubmissionAsync is called</li>
+<li><strong>Then</strong>: Pattern is stored with submission timestamp and author metadata</li>
+<li><strong>Given</strong>: Pattern JSON includes all 9 sections (hook, problem, as-is diagram, etc.)</li>
+<li><strong>When</strong>: System receives submission</li>
+<li><strong>Then</strong>: All sections are indexed and searchable</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Capture submission timestamp in UTC</li>
+<li>Store author ID and email for notifications</li>
+<li>Create submission audit log entry</li>
+<li>Lock pattern from editing during publication process</li>
+</ul>
+<h4 id="beat-2-extract-pattern-metadata">Beat 2: Extract Pattern Metadata</h4>
+<ul>
+<li><strong>Handler</strong>: <code>PatternMetadataExtractor.ExtractAsync</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/PatternMetadataExtractor.cs">src/OrchestrationWisdom/Services/PatternMetadataExtractor.cs</a></li>
+<li><strong>Event</strong>: pattern.metadata.extracted</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/PatternMetadataExtractorTests.cs">src/OrchestrationWisdom/Tests/Services/PatternMetadataExtractorTests.cs</a> - <code>Extract_ParsesDiagrams_WhenMermaidPresent</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Pattern JSON with mermaid diagrams in asIsDiagramMermaid and orchestratedDiagramMermaid fields</li>
+<li><strong>When</strong>: ExtractAsync processes the pattern</li>
+<li><strong>Then</strong>: Diagrams are parsed and analyzed for actor count, step count, and alt blocks</li>
+<li><strong>Given</strong>: Pattern includes HQO scorecard with 8 dimensions</li>
+<li><strong>When</strong>: Metadata extraction runs</li>
+<li><strong>Then</strong>: Score is validated and stored (≥3 each dimension, ≥30 total)</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Parse mermaid syntax for diagram analysis</li>
+<li>Extract all referenced industries and broken signals</li>
+<li>Count total words in pattern sections</li>
+<li>Identify implementation complexity level</li>
+</ul>
+<h4 id="beat-3-create-publication-ticket">Beat 3: Create Publication Ticket</h4>
+<ul>
+<li><strong>Handler</strong>: <code>PublicationWorkflowOrchestrator.CreateTicketAsync</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/PublicationWorkflowOrchestrator.cs">src/OrchestrationWisdom/Services/PublicationWorkflowOrchestrator.cs</a></li>
+<li><strong>Event</strong>: publication.ticket.created</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/PublicationWorkflowOrchestratorTests.cs">src/OrchestrationWisdom/Tests/Services/PublicationWorkflowOrchestratorTests.cs</a> - <code>CreateTicket_GeneratesUniqueTicketId_AndRoutesToQueue</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Pattern metadata has been extracted</li>
+<li><strong>When</strong>: CreateTicketAsync is called</li>
+<li><strong>Then</strong>: Publication ticket is created with unique ID and added to validation queue</li>
+<li><strong>Given</strong>: Ticket created with timestamp and author information</li>
+<li><strong>When</strong>: Ticket enters validation workflow</li>
+<li><strong>Then</strong>: Author receives confirmation email with ticket number and estimated review time</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Generate unique ticket ID (e.g., PUB-2024-001)</li>
+<li>Set initial status to 'submission_received'</li>
+<li>Assign priority based on pattern topic demand</li>
+<li>Send acknowledgment email to author with next steps</li>
+</ul>
+<hr />
+<h3 id="movement-2-schema-validation-quality-checks">Movement 2: Schema Validation &amp; Quality Checks</h3>
+<p>Automated validation of pattern against schema, HQO scoring, and diagram budgets</p>
+<p><strong>Tempo</strong>: Quick | <strong>Status</strong>: active</p>
+<h4 id="user-story-2">User Story</h4>
+<p><strong>As a</strong> Pattern Author,<br />
+<strong>I want to</strong> Get immediate feedback on technical compliance,<br />
+<strong>So that</strong> Know within minutes if pattern meets baseline requirements before human review.</p>
+<p><strong>Beats</strong>: 4</p>
+<h4 id="beat-4-validate-against-schema">Beat 4: Validate Against Schema</h4>
+<ul>
+<li><strong>Handler</strong>: <code>SchemaValidator.ValidateAsync</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/SchemaValidator.cs">src/OrchestrationWisdom/Services/SchemaValidator.cs</a></li>
+<li><strong>Event</strong>: pattern.schema.validated</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/SchemaValidatorTests.cs">src/OrchestrationWisdom/Tests/Services/SchemaValidatorTests.cs</a> - <code>Validate_RejectsPattern_WhenRequiredFieldsMissing</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Pattern JSON missing one or more required fields (hookMarkdown, asIsDiagramMermaid, orchestratedDiagramMermaid, scorecard)</li>
+<li><strong>When</strong>: ValidateAsync executes</li>
+<li><strong>Then</strong>: Validation fails with detailed error listing all missing fields</li>
+<li><strong>Given</strong>: Pattern includes all required fields with valid data types</li>
+<li><strong>When</strong>: Schema validation runs</li>
+<li><strong>Then</strong>: Pattern passes validation and moves to scorecard check</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Use pattern.schema.json (Draft-07) for validation</li>
+<li>Report field-level errors with location and required type</li>
+<li>Provide clear remediation guidance in error messages</li>
+<li>Cache schema validation results for performance</li>
+</ul>
+<h4 id="beat-5-calculate-hqo-scorecard">Beat 5: Calculate HQO Scorecard</h4>
+<ul>
+<li><strong>Handler</strong>: <code>HQOScorecardCalculator.CalculateAndValidateAsync</code></li>
+<li><strong>Source</strong>: <a href="../../Tools/MarkdownViewer/Services/HQOScorecardCalculator.cs">Tools/MarkdownViewer/Services/HQOScorecardCalculator.cs</a></li>
+<li><strong>Event</strong>: pattern.hqo.calculated</li>
+<li><strong>Test</strong>: <a href="../../Tools/MarkdownViewer/Tests/HQOScorecardCalculatorTests.cs">Tools/MarkdownViewer/Tests/HQOScorecardCalculatorTests.cs</a> - <code>Calculate_RejectsScorecard_WhenDimensionBelow3</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: HQO scorecard with one dimension scoring ❤️/5</li>
+<li><strong>When</strong>: CalculateAndValidateAsync evaluates</li>
+<li><strong>Then</strong>: Validation fails with message identifying weak dimensions</li>
+<li><strong>Given</strong>: All dimensions ≥3/5 but total score ❤️0/40</li>
+<li><strong>When</strong>: Scorecard validation runs</li>
+<li><strong>Then</strong>: Validation fails indicating which dimensions need improvement</li>
+<li><strong>Given</strong>: Scorecard meets all thresholds (each ≥3, total ≥30)</li>
+<li><strong>When</strong>: Calculation completes</li>
+<li><strong>Then</strong>: Pattern is flagged as 'quality_approved' and moves to diagram validation</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Score dimensions: Ownership, TimeSLA, Capacity, Visibility, CustomerLoop, Escalation, Handoffs, Documentation</li>
+<li>Each dimension 1-5 scale, total possible 40</li>
+<li>Publication threshold: each ≥3/5, total ≥30/40</li>
+<li>Store score calculation timestamp for audit</li>
+</ul>
+<h4 id="beat-6-validate-diagram-budgets">Beat 6: Validate Diagram Budgets</h4>
+<ul>
+<li><strong>Handler</strong>: <code>MermaidDiagramValidator.ValidateDiagramsAsync</code></li>
+<li><strong>Source</strong>: <a href="../../Tools/MarkdownViewer/Services/MermaidDiagramValidator.cs">Tools/MarkdownViewer/Services/MermaidDiagramValidator.cs</a></li>
+<li><strong>Event</strong>: pattern.diagrams.validated</li>
+<li><strong>Test</strong>: <a href="../../Tools/MarkdownViewer/Tests/MermaidDiagramValidatorTests.cs">Tools/MarkdownViewer/Tests/MermaidDiagramValidatorTests.cs</a> - <code>Validate_RejectsPattern_WhenActorCountExceeds7</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Pattern contains diagram with 8+ actors</li>
+<li><strong>When</strong>: ValidateDiagramsAsync executes</li>
+<li><strong>Then</strong>: Validation fails with message: 'As-Is Diagram exceeds actor budget (8/7)'</li>
+<li><strong>Given</strong>: Pattern includes nested alt blocks in diagram</li>
+<li><strong>When</strong>: Diagram validation runs</li>
+<li><strong>Then</strong>: Validation fails with message: 'Diagrams cannot contain nested alt blocks'</li>
+<li><strong>Given</strong>: Both diagrams (as-is and orchestrated) meet budget constraints</li>
+<li><strong>When</strong>: Validation completes</li>
+<li><strong>Then</strong>: Pattern advances to reviewer queue</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Budget constraints: ≤7 actors per diagram, ≤18 steps, ≤2 alt blocks, no nesting</li>
+<li>Validate both asIsDiagramMermaid and orchestratedDiagramMermaid</li>
+<li>Extract metrics: actual actor count, step count, alt block count for reporting</li>
+<li>Generate visual representation for reviewer dashboard</li>
+</ul>
+<h4 id="beat-7-generate-validation-report">Beat 7: Generate Validation Report</h4>
+<ul>
+<li><strong>Handler</strong>: <code>ValidationReportGenerator.GenerateAsync</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/ValidationReportGenerator.cs">src/OrchestrationWisdom/Services/ValidationReportGenerator.cs</a></li>
+<li><strong>Event</strong>: pattern.validation.report.generated</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/ValidationReportGeneratorTests.cs">src/OrchestrationWisdom/Tests/Services/ValidationReportGeneratorTests.cs</a> - <code>Generate_IncludesAllChecks_InReport</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Pattern has completed schema, HQO, and diagram validation</li>
+<li><strong>When</strong>: GenerateAsync is called</li>
+<li><strong>Then</strong>: Report includes results of all three checks with pass/fail status for each</li>
+<li><strong>Given</strong>: Any validation check fails</li>
+<li><strong>When</strong>: Report generation completes</li>
+<li><strong>Then</strong>: Report includes specific remediation steps author must take</li>
+<li><strong>Given</strong>: All validations pass</li>
+<li><strong>When</strong>: Report is generated</li>
+<li><strong>Then</strong>: Report marks pattern as 'ready_for_review' and routes to reviewer queue</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Report format: JSON for system use, markdown for author notifications</li>
+<li>Include visual dashboard summary for quick review assessment</li>
+<li>Flag patterns with marginal scores (total 30-32/40) for priority review</li>
+<li>Record report generation timestamp for SLA tracking</li>
+</ul>
+<hr />
+<h3 id="movement-3-editorial-review-approval">Movement 3: Editorial Review &amp; Approval</h3>
+<p>Human review of pattern accuracy, usefulness, and alignment with platform standards</p>
+<p><strong>Tempo</strong>: Deliberate | <strong>Status</strong>: active</p>
+<h4 id="user-story-3">User Story</h4>
+<p><strong>As a</strong> Content Reviewer,<br />
+<strong>I want to</strong> Efficiently review patterns and provide constructive feedback,<br />
+<strong>So that</strong> Only high-quality, verified patterns reach users.</p>
+<p><strong>Beats</strong>: 3</p>
+<h4 id="beat-8-route-to-reviewer-queue">Beat 8: Route to Reviewer Queue</h4>
+<ul>
+<li><strong>Handler</strong>: <code>ReviewerQueueManager.RoutePatternAsync</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/ReviewerQueueManager.cs">src/OrchestrationWisdom/Services/ReviewerQueueManager.cs</a></li>
+<li><strong>Event</strong>: pattern.routed.to.reviewer</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/ReviewerQueueManagerTests.cs">src/OrchestrationWisdom/Tests/Services/ReviewerQueueManagerTests.cs</a> - <code>Route_AssignsToSpecialistReviewer_BasedOnIndustry</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Pattern is validated and ready for review</li>
+<li><strong>When</strong>: RoutePatternAsync is called</li>
+<li><strong>Then</strong>: Pattern is assigned to appropriate reviewer based on industry expertise</li>
+<li><strong>Given</strong>: Multiple reviewers available with matching expertise</li>
+<li><strong>When</strong>: Routing logic executes</li>
+<li><strong>Then</strong>: Pattern is assigned to reviewer with lightest current queue load</li>
+<li><strong>Given</strong>: Pattern is assigned to reviewer</li>
+<li><strong>When</strong>: Routing completes</li>
+<li><strong>Then</strong>: Reviewer receives notification with 3-day SLA for initial feedback</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Match reviewer expertise to pattern industries</li>
+<li>Consider reviewer current workload and SLA</li>
+<li>Set review deadline based on pattern priority</li>
+<li>Enable re-routing if reviewer unavailable</li>
+</ul>
+<h4 id="beat-9-conduct-content-review">Beat 9: Conduct Content Review</h4>
+<ul>
+<li><strong>Handler</strong>: <code>ContentReviewDashboard.SubmitReviewAsync</code></li>
+<li><strong>External System</strong>: Internal - Content Review Dashboard (web_ui)</li>
+<li><strong>Event</strong>: pattern.review.submitted</li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Reviewer accesses review dashboard with pattern details</li>
+<li><strong>When</strong>: Reviewer reads sections and views diagrams</li>
+<li><strong>Then</strong>: Reviewer can assess accuracy, clarity, and usefulness</li>
+<li><strong>Given</strong>: Reviewer identifies issues in pattern content</li>
+<li><strong>When</strong>: Reviewer submits review with feedback</li>
+<li><strong>Then</strong>: Feedback is categorized as critical, major, or minor</li>
+<li><strong>Given</strong>: Reviewer verifies all acceptance criteria are achievable</li>
+<li><strong>When</strong>: Review is submitted</li>
+<li><strong>Then</strong>: Reviewer can approve or request changes before approval</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Provide side-by-side diagram visualization</li>
+<li>Enable inline comments on specific sections</li>
+<li>Track review time for performance metrics</li>
+<li>Allow quick approval for patterns meeting all criteria</li>
+</ul>
+<h4 id="beat-10-review-decision-feedback">Beat 10: Review Decision &amp; Feedback</h4>
+<ul>
+<li><strong>Handler</strong>: <code>ReviewDecisionProcessor.ProcessDecisionAsync</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/ReviewDecisionProcessor.cs">src/OrchestrationWisdom/Services/ReviewDecisionProcessor.cs</a></li>
+<li><strong>Event</strong>: pattern.review.decision.recorded</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/ReviewDecisionProcessorTests.cs">src/OrchestrationWisdom/Tests/Services/ReviewDecisionProcessorTests.cs</a> - <code>ProcessDecision_RoutesToApprovalQueue_WhenApprovedDecision</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Reviewer submits approval decision</li>
+<li><strong>When</strong>: ProcessDecisionAsync executes</li>
+<li><strong>Then</strong>: Pattern is moved to approval queue for deployment</li>
+<li><strong>Given</strong>: Reviewer submits rejection with critical issues</li>
+<li><strong>When</strong>: Decision is processed</li>
+<li><strong>Then</strong>: Pattern is returned to author with detailed feedback and opportunity to revise</li>
+<li><strong>Given</strong>: Reviewer requests minor changes before approval</li>
+<li><strong>When</strong>: Decision is recorded</li>
+<li><strong>Then</strong>: Pattern is queued for re-review after author revisions</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Support three decision states: Approved, Rejected, RequestChanges</li>
+<li>For rejections: clear guidance on what author must fix</li>
+<li>For approval: immediate notification to author</li>
+<li>Track decision and feedback for training/improvement</li>
+</ul>
+<hr />
+<h3 id="movement-4-build-deployment-preparation">Movement 4: Build &amp; Deployment Preparation</h3>
+<p>Prepare pattern for deployment by running tests and building artifacts</p>
+<p><strong>Tempo</strong>: Quick | <strong>Status</strong>: active</p>
+<h4 id="user-story-4">User Story</h4>
+<p><strong>As a</strong> DevOps / Release Engineer,<br />
+<strong>I want to</strong> Safely and reliably deploy patterns to production,<br />
+<strong>So that</strong> Patterns are deployed with confidence that all tests pass and no regressions occur.</p>
+<p><strong>Beats</strong>: 4</p>
+<h4 id="beat-11-trigger-cicd-pipeline">Beat 11: Trigger CI/CD Pipeline</h4>
+<ul>
+<li><strong>Handler</strong>: <code>CIPipelineOrchestrator.TriggerBuildAsync</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/CIPipelineOrchestrator.cs">src/OrchestrationWisdom/Services/CIPipelineOrchestrator.cs</a></li>
+<li><strong>Event</strong>: pattern.build.triggered</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/CIPipelineOrchestratorTests.cs">src/OrchestrationWisdom/Tests/Services/CIPipelineOrchestratorTests.cs</a> - <code>Trigger_StartsGitHubActions_WithPatternArtifacts</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Pattern approved for publication</li>
+<li><strong>When</strong>: TriggerBuildAsync is called</li>
+<li><strong>Then</strong>: CI/CD pipeline is initiated with pattern as build artifact</li>
+<li><strong>Given</strong>: Build pipeline starts</li>
+<li><strong>When</strong>: Orchestrator receives webhook confirmation</li>
+<li><strong>Then</strong>: Publication ticket status is updated to 'build_in_progress'</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Integrate with GitHub Actions or similar CI/CD system</li>
+<li>Pass pattern ID and version as build parameters</li>
+<li>Set build timeout to 15 minutes</li>
+<li>Enable build logs accessible to troubleshooting</li>
+</ul>
+<h4 id="beat-12-run-integration-tests">Beat 12: Run Integration Tests</h4>
+<ul>
+<li><strong>Handler</strong>: <code>GitHub Actions Workflow</code></li>
+<li><strong>External System</strong>: GitHub - GitHub Actions (ci_cd_system)</li>
+<li><strong>Event</strong>: pattern.integration.tests.completed</li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Pattern added to test suite</li>
+<li><strong>When</strong>: Integration tests run</li>
+<li><strong>Then</strong>: Tests verify pattern can be loaded, parsed, and displayed without errors</li>
+<li><strong>Given</strong>: Tests run with pattern in live environment simulation</li>
+<li><strong>When</strong>: Testing completes</li>
+<li><strong>Then</strong>: Tests validate pattern interoperability with existing patterns</li>
+<li><strong>Given</strong>: Any test fails</li>
+<li><strong>When</strong>: Build completes</li>
+<li><strong>Then</strong>: Build fails with detailed error logs provided to author</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Include schema validation test</li>
+<li>Test pattern rendering in all supported browsers</li>
+<li>Verify diagram rendering and interactivity</li>
+<li>Check for dead links and missing resources</li>
+</ul>
+<h4 id="beat-13-build-deployment-package">Beat 13: Build Deployment Package</h4>
+<ul>
+<li><strong>Handler</strong>: <code>GitHub Actions Workflow</code></li>
+<li><strong>External System</strong>: GitHub - GitHub Actions (ci_cd_system)</li>
+<li><strong>Event</strong>: pattern.deployment.package.built</li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: All tests pass</li>
+<li><strong>When</strong>: Build stage executes</li>
+<li><strong>Then</strong>: Deployment package is created containing pattern artifacts and metadata</li>
+<li><strong>Given</strong>: Package is built</li>
+<li><strong>When</strong>: Build completes</li>
+<li><strong>Then</strong>: Package is versioned and tagged with pattern ID and publication timestamp</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Include pattern JSON, markdown, diagrams in package</li>
+<li>Generate checksums for integrity verification</li>
+<li>Create deployment manifest with installation instructions</li>
+<li>Store package in artifact repository with 30-day retention</li>
+</ul>
+<h4 id="beat-14-stage-to-staging-environment">Beat 14: Stage to Staging Environment</h4>
+<ul>
+<li><strong>Handler</strong>: <code>DeploymentOrchestrator.DeployToStagingAsync</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/DeploymentOrchestrator.cs">src/OrchestrationWisdom/Services/DeploymentOrchestrator.cs</a></li>
+<li><strong>Event</strong>: pattern.deployed.to.staging</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/DeploymentOrchestratorTests.cs">src/OrchestrationWisdom/Tests/Services/DeploymentOrchestratorTests.cs</a> - <code>Deploy_CreatesBackupBeforeDeployment_AndVerifiesDeployment</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Deployment package is ready</li>
+<li><strong>When</strong>: DeployToStagingAsync executes</li>
+<li><strong>Then</strong>: Pattern is deployed to staging environment for final testing</li>
+<li><strong>Given</strong>: Pattern deployed to staging</li>
+<li><strong>When</strong>: Deployment completes</li>
+<li><strong>Then</strong>: Pattern is accessible and functioning identically to production view</li>
+<li><strong>Given</strong>: Staging deployment succeeds</li>
+<li><strong>When</strong>: Verification tests pass</li>
+<li><strong>Then</strong>: Pattern is approved for production deployment</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Create backup of current production before any deployment</li>
+<li>Run smoke tests in staging environment</li>
+<li>Verify pattern displays correctly in all browsers</li>
+<li>Check analytics tracking is functional</li>
+<li>Enable performance monitoring during staging</li>
+</ul>
+<hr />
+<h3 id="movement-5-production-deployment-verification">Movement 5: Production Deployment &amp; Verification</h3>
+<p>Deploy pattern to production and verify successful publication</p>
+<p><strong>Tempo</strong>: Deliberate | <strong>Status</strong>: active</p>
+<h4 id="user-story-5">User Story</h4>
+<p><strong>As a</strong> DevOps / Platform Operator,<br />
+<strong>I want to</strong> Deploy patterns safely with minimal risk,<br />
+<strong>So that</strong> Patterns are live and available to users with high availability and no downtime.</p>
+<p><strong>Beats</strong>: 4</p>
+<h4 id="beat-15-deploy-to-production">Beat 15: Deploy to Production</h4>
+<ul>
+<li><strong>Handler</strong>: <code>ProductionDeploymentManager.DeployAsync</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/ProductionDeploymentManager.cs">src/OrchestrationWisdom/Services/ProductionDeploymentManager.cs</a></li>
+<li><strong>Event</strong>: pattern.deployed.to.production</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/ProductionDeploymentManagerTests.cs">src/OrchestrationWisdom/Tests/Services/ProductionDeploymentManagerTests.cs</a> - <code>Deploy_RollsBackAutomatically_WhenHealthCheckFails</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Staging verification passed</li>
+<li><strong>When</strong>: DeployAsync is called</li>
+<li><strong>Then</strong>: Pattern is deployed to production using blue-green or canary deployment</li>
+<li><strong>Given</strong>: Production deployment completes</li>
+<li><strong>When</strong>: Post-deployment health checks run</li>
+<li><strong>Then</strong>: Pattern availability and performance are verified within SLA</li>
+<li><strong>Given</strong>: Health checks detect critical issues</li>
+<li><strong>When</strong>: Post-deployment monitoring completes</li>
+<li><strong>Then</strong>: Automatic rollback occurs within 2 minutes</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Use blue-green or canary deployment strategy</li>
+<li>Monitor error rates, latency, and availability during rollout</li>
+<li>Gradual traffic shift (0% → 10% → 25% → 50% → 100%)</li>
+<li>Enable instant rollback if metrics exceed thresholds</li>
+</ul>
+<h4 id="beat-16-run-production-smoke-tests">Beat 16: Run Production Smoke Tests</h4>
+<ul>
+<li><strong>Handler</strong>: <code>ProductionSmokeTestSuite.RunAsync</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/ProductionSmokeTestSuite.cs">src/OrchestrationWisdom/Services/ProductionSmokeTestSuite.cs</a></li>
+<li><strong>Event</strong>: pattern.production.tests.completed</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/ProductionSmokeTestSuiteTests.cs">src/OrchestrationWisdom/Tests/Services/ProductionSmokeTestSuiteTests.cs</a> - <code>Run_VerifiesPatternAccessible_AndSearchable</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Pattern deployed to production</li>
+<li><strong>When</strong>: RunAsync executes production tests</li>
+<li><strong>Then</strong>: Pattern can be accessed directly by URL without errors</li>
+<li><strong>Given</strong>: Smoke tests run</li>
+<li><strong>When</strong>: Tests complete</li>
+<li><strong>Then</strong>: Pattern appears in search and category listings</li>
+<li><strong>Given</strong>: All tests pass</li>
+<li><strong>When</strong>: Verification completes</li>
+<li><strong>Then</strong>: Pattern status updated to 'live'</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Test direct URL access</li>
+<li>Verify search indexing</li>
+<li>Check category and tag associations</li>
+<li>Test related patterns links</li>
+<li>Verify engagement tracking is initialized</li>
+</ul>
+<h4 id="beat-17-initialize-engagement-tracking">Beat 17: Initialize Engagement Tracking</h4>
+<ul>
+<li><strong>Handler</strong>: <code>EngagementTracker.InitializePatternTrackingAsync</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/EngagementTracker.cs">src/OrchestrationWisdom/Services/EngagementTracker.cs</a></li>
+<li><strong>Event</strong>: pattern.engagement.tracking.initialized</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/EngagementTrackerTests.cs">src/OrchestrationWisdom/Tests/Services/EngagementTrackerTests.cs</a> - <code>Initialize_CreatesBaselineMetrics_AndSetsAlerts</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Pattern is live in production</li>
+<li><strong>When</strong>: InitializePatternTrackingAsync executes</li>
+<li><strong>Then</strong>: Engagement metrics collection begins (views, downloads, etc.)</li>
+<li><strong>Given</strong>: Tracking initialized</li>
+<li><strong>When</strong>: Baseline metrics are set</li>
+<li><strong>Then</strong>: Alerts configured for unusual patterns (zero views after 24h, spike in errors)</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Create analytics event stream for pattern</li>
+<li>Set up real-time dashboards for monitoring</li>
+<li>Configure alerts for anomalies</li>
+<li>Start collecting user interaction data</li>
+</ul>
+<h4 id="beat-18-send-publication-notification">Beat 18: Send Publication Notification</h4>
+<ul>
+<li><strong>Handler</strong>: <code>NotificationService.SendPublicationNotificationAsync</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/NotificationService.cs">src/OrchestrationWisdom/Services/NotificationService.cs</a></li>
+<li><strong>Event</strong>: pattern.publication.notification.sent</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/NotificationServiceTests.cs">src/OrchestrationWisdom/Tests/Services/NotificationServiceTests.cs</a> - <code>SendNotification_IncludesPatternDetailsAndLink</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Pattern successfully deployed and verified in production</li>
+<li><strong>When</strong>: SendPublicationNotificationAsync is called</li>
+<li><strong>Then</strong>: Notifications sent to author and editorial team</li>
+<li><strong>Given</strong>: Notification sent</li>
+<li><strong>When</strong>: Message is delivered</li>
+<li><strong>Then</strong>: Notification includes pattern title, link, publication date, and initial metrics</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Send email to pattern author with success confirmation</li>
+<li>Notify editorial team of publication</li>
+<li>Post announcement in Slack/Teams if configured</li>
+<li>Add entry to publication log/changelog</li>
+</ul>
+<hr />
+<h3 id="movement-6-post-publication-monitoring-support">Movement 6: Post-Publication Monitoring &amp; Support</h3>
+<p>Monitor pattern health and provide support for issues</p>
+<p><strong>Tempo</strong>: Continuous | <strong>Status</strong>: active</p>
+<h4 id="user-story-6">User Story</h4>
+<p><strong>As a</strong> Platform Operations / Support Team,<br />
+<strong>I want to</strong> Quickly identify and resolve any issues with published patterns,<br />
+<strong>So that</strong> Users experience high availability, patterns continue to deliver value.</p>
+<p><strong>Beats</strong>: 4</p>
+<h4 id="beat-19-monitor-initial-engagement">Beat 19: Monitor Initial Engagement</h4>
+<ul>
+<li><strong>Handler</strong>: <code>EngagementMonitor.MonitorAsync</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/EngagementMonitor.cs">src/OrchestrationWisdom/Services/EngagementMonitor.cs</a></li>
+<li><strong>Event</strong>: pattern.engagement.monitored</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/EngagementMonitorTests.cs">src/OrchestrationWisdom/Tests/Services/EngagementMonitorTests.cs</a> - <code>Monitor_AlertsOnZeroViewsAfter24Hours</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Pattern live for 24 hours</li>
+<li><strong>When</strong>: MonitorAsync checks engagement metrics</li>
+<li><strong>Then</strong>: Alert is triggered if views are 0 or significantly below category average</li>
+<li><strong>Given</strong>: Pattern receiving normal engagement</li>
+<li><strong>When</strong>: Monitoring runs every hour</li>
+<li><strong>Then</strong>: Metrics are updated and visible on publication dashboard</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Track views, downloads, unique visitors, bounce rate</li>
+<li>Compare against category baseline</li>
+<li>Alert on anomalies (too low, too high)</li>
+<li>Provide daily summary to author</li>
+</ul>
+<h4 id="beat-20-collect-user-feedback">Beat 20: Collect User Feedback</h4>
+<ul>
+<li><strong>Handler</strong>: <code>FeedbackCollector.CollectAsync</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/FeedbackCollector.cs">src/OrchestrationWisdom/Services/FeedbackCollector.cs</a></li>
+<li><strong>Event</strong>: pattern.feedback.collected</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/FeedbackCollectorTests.cs">src/OrchestrationWisdom/Tests/Services/FeedbackCollectorTests.cs</a> - <code>Collect_ProcessesUserRatings_AndComments</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Users viewing pattern in first 2 weeks</li>
+<li><strong>When</strong>: CollectAsync triggers feedback collection</li>
+<li><strong>Then</strong>: Users are prompted for 1-5 star rating and optional comment</li>
+<li><strong>Given</strong>: Feedback submitted</li>
+<li><strong>When</strong>: System receives ratings/comments</li>
+<li><strong>Then</strong>: Feedback is aggregated and visible to author for iteration</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Show feedback prompt after 2 minutes on pattern page</li>
+<li>Collect structured rating and free-form comments</li>
+<li>Allow users to report issues/errors directly</li>
+<li>Aggregate feedback for author visibility</li>
+</ul>
+<h4 id="beat-21-escalate-critical-issues">Beat 21: Escalate Critical Issues</h4>
+<ul>
+<li><strong>Handler</strong>: <code>IssueEscalationManager.EscalateAsync</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/IssueEscalationManager.cs">src/OrchestrationWisdom/Services/IssueEscalationManager.cs</a></li>
+<li><strong>Event</strong>: pattern.issue.escalated</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/IssueEscalationManagerTests.cs">src/OrchestrationWisdom/Tests/Services/IssueEscalationManagerTests.cs</a> - <code>Escalate_AlertsTeamOnMultipleUserReports</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Multiple users report the same issue (3+ reports within 1 hour)</li>
+<li><strong>When</strong>: EscalateAsync detects critical issue</li>
+<li><strong>Then</strong>: Support team and author are immediately notified with issue details</li>
+<li><strong>Given</strong>: Critical issue reported</li>
+<li><strong>When</strong>: Escalation triggered</li>
+<li><strong>Then</strong>: Pattern can be depublished/rolled back if issue is blocking</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Define critical issues: data errors, broken diagrams, harmful guidance</li>
+<li>Trigger escalation at 3+ reports or 100 error rate spike</li>
+<li>Enable immediate rollback decision for critical issues</li>
+<li>Track issue resolution time for metrics</li>
+</ul>
+<h4 id="beat-22-track-long-term-impact">Beat 22: Track Long-term Impact</h4>
+<ul>
+<li><strong>Handler</strong>: <code>ImpactAnalyzer.AnalyzeAsync</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/ImpactAnalyzer.cs">src/OrchestrationWisdom/Services/ImpactAnalyzer.cs</a></li>
+<li><strong>Event</strong>: pattern.impact.analyzed</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/ImpactAnalyzerTests.cs">src/OrchestrationWisdom/Tests/Services/ImpactAnalyzerTests.cs</a> - <code>Analyze_CalculatesROI_BasedOnUsageAndFeedback</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Pattern has been live for 30 days</li>
+<li><strong>When</strong>: AnalyzeAsync runs quarterly impact analysis</li>
+<li><strong>Then</strong>: ROI calculated based on engagement, feedback, and implementation reports</li>
+<li><strong>Given</strong>: Impact analysis complete</li>
+<li><strong>When</strong>: Results are compiled</li>
+<li><strong>Then</strong>: Author receives impact report with usage statistics and user testimonials</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Calculate total views, unique users, time spent</li>
+<li>Estimate implementation count from feedback</li>
+<li>Measure adoption rate vs. similar patterns</li>
+<li>Provide recommendations for iteration or new related patterns</li>
+</ul>
+<hr />
+<h2 id="metadata">Metadata</h2>
+<ul>
+<li><strong>Version</strong>: 1.0</li>
+<li><strong>Author</strong>: Orchestration Wisdom Platform</li>
+<li><strong>Created</strong>: 2026-01-11</li>
+<li><strong>Tags</strong>: pattern-publication, validation, approval-workflow, deployment, quality-assurance, monitoring</li>
+</ul>
+<hr />
+<p><em>This documentation was auto-generated from the canonical sequence definition.</em><br />
+<em><strong>Canonical Reference</strong>: <a href="../../sequences/pattern-publication-process.json">pattern-publication-process.json</a></em></p>
+
+    </div>
+</body>
+</html>

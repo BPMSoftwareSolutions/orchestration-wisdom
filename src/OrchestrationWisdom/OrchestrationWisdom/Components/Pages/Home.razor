@@ -8,7 +8,8 @@
         <h1 class="hero-title">Operational problems are orchestration problems.</h1>
         <p class="hero-subtitle">No-scroll diagrams + implementation-ready playbooks.</p>
         <div class="hero-cta">
-            <a href="/patterns" class="btn btn-primary">Browse Patterns</a>
+            <a href="/workspace" class="btn btn-primary" @onclick="HandleCreatePatternClick" @onclick:preventDefault="true">Create Pattern</a>
+            <a href="/patterns" class="btn btn-secondary">Browse Patterns</a>
             <a href="/method" class="btn btn-secondary">How it Works</a>
         </div>
     </div>
@@ -47,6 +48,13 @@
     protected override async Task OnInitializedAsync()
     {
         featuredPatterns = await PatternService.GetFeaturedPatternsAsync(6);
+    }
+
+    private void HandleCreatePatternClick()
+    {
+        // Track analytics - Movement 2, Beat 3
+        Console.WriteLine("[HOME] Create Pattern clicked - initiating creator entry workflow");
+        // In production, check authentication and redirect accordingly
     }
 }
 

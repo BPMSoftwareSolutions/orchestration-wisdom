@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MVP Pattern Publication Workflow</title>
+    <style>
+        /* Light mode (default) */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #34495e;
+            border-bottom: 2px solid #95a5a6;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        h3 {
+            color: #16a085;
+            margin-top: 25px;
+            margin-bottom: 12px;
+        }
+        h4 {
+            color: #e67e22;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        blockquote {
+            background-color: #ecf0f1;
+            border-left: 4px solid #3498db;
+            padding: 12px 20px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        code {
+            background-color: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            color: #e74c3c;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            line-height: 1.2;
+            color: #2c3e50;
+        }
+        ul {
+            margin: 10px 0;
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ecf0f1;
+            margin: 30px 0;
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        strong {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        .beat-section {
+            background-color: #fafafa;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 3px solid #e67e22;
+            border-radius: 4px;
+        }
+        .metadata {
+            background-color: #f0f8ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 30px;
+        }
+        nav {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 4px;
+            border-left: 4px solid #3498db;
+            margin: 20px 0;
+        }
+        nav ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        nav ul ul {
+            padding-left: 20px;
+        }
+        nav ul ul ul {
+            padding-left: 20px;
+        }
+        nav li {
+            margin: 5px 0;
+        }
+        nav a {
+            text-decoration: none;
+            color: #3498db;
+            transition: color 0.2s;
+        }
+        nav a:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+
+        /* Dark mode */
+        @media (prefers-color-scheme: dark) {
+            body {
+                color: #e4e4e7;
+                background-color: #18181b;
+            }
+            .container {
+                background-color: #27272a;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            }
+            h1 {
+                color: #fafafa;
+                border-bottom-color: #60a5fa;
+            }
+            h2 {
+                color: #e4e4e7;
+                border-bottom-color: #52525b;
+            }
+            h3 {
+                color: #5eead4;
+            }
+            h4 {
+                color: #fb923c;
+            }
+            blockquote {
+                background-color: #3f3f46;
+                border-left-color: #60a5fa;
+                color: #e4e4e7;
+            }
+            code {
+                background-color: #3f3f46;
+                color: #fca5a5;
+            }
+            pre {
+                background-color: #3f3f46;
+                color: #e4e4e7;
+            }
+            hr {
+                border-top-color: #3f3f46;
+            }
+            a {
+                color: #60a5fa;
+            }
+            a:hover {
+                color: #93c5fd;
+            }
+            strong {
+                color: #fafafa;
+            }
+            .beat-section {
+                background-color: #3f3f46;
+                border-left-color: #fb923c;
+            }
+            .metadata {
+                background-color: #1e3a5f;
+            }
+            nav {
+                background-color: #3f3f46;
+                border-left-color: #60a5fa;
+            }
+            nav a {
+                color: #60a5fa;
+            }
+            nav a:hover {
+                color: #93c5fd;
+            }
+            p {
+                color: #d4d4d8;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+<h1>MVP Pattern Publication Workflow</h1>
+
+<blockquote><strong>Domain</strong>: orchestration-wisdom | <strong>Status</strong>: active | <strong>Auto-generated from</strong>: <a href="../../C:/source/repos/bpm/internal/orchestration-wisdom/sequences/mvp-pattern-publication.json">mvp-pattern-publication.json</a></blockquote>
+
+<h2>Table of Contents</h2>
+<nav>
+
+<ul>
+  <li><a href="#overview">Overview</a></li>
+  <li><a href="#user-story">User Story</a></li>
+  <li><a href="#business-value">Business Value</a></li>
+  <li><a href="#governance">Governance</a></li>
+  <li><a href="#workflow-movements">Workflow Movements</a></li>
+  <li><a href="#movement--import-articlemd">Movement : Import ARTICLE.md</a></li>
+  <li><a href="#beat--open-creator-workspace">Beat : Open Creator Workspace</a></li>
+  <li><a href="#beat--select-articlemd-file">Beat : Select ARTICLE.md File</a></li>
+  <li><a href="#beat--upload-file-to-service">Beat : Upload File to Service</a></li>
+  <li><a href="#movement--convert-to-draft-pattern">Movement : Convert to Draft Pattern</a></li>
+  <li><a href="#beat--parse-markdown-structure">Beat : Parse Markdown Structure</a></li>
+  <li><a href="#beat--map-to-draft-pattern-object">Beat : Map to Draft Pattern Object</a></li>
+  <li><a href="#beat--display-draft-preview">Beat : Display Draft Preview</a></li>
+  <li><a href="#movement--run-validation-gates">Movement : Run Validation Gates</a></li>
+  <li><a href="#beat--gate-1-required-fields-check">Beat : Gate 1: Required Fields Check</a></li>
+  <li><a href="#beat--gate-2-diagram-budget-check">Beat : Gate 2: Diagram Budget Check</a></li>
+  <li><a href="#beat--gate-3-hqo-threshold-check">Beat : Gate 3: HQO Threshold Check</a></li>
+  <li><a href="#beat--gate-4-catalog-readiness-check">Beat : Gate 4: Catalog Readiness Check</a></li>
+  <li><a href="#beat--return-validation-report">Beat : Return Validation Report</a></li>
+  <li><a href="#movement--publish-to-catalog-gated">Movement : Publish to Catalog (Gated)</a></li>
+  <li><a href="#beat--publish-draft-to-catalog">Beat : Publish Draft to Catalog</a></li>
+  <li><a href="#beat--index-for-search">Beat : Index for Search</a></li>
+  <li><a href="#beat--return-success-with-live-link">Beat : Return Success with Live Link</a></li>
+  <li><a href="#metadata">Metadata</a></li>
+</ul>
+
+</nav>
+<h2>Overview</h2>
+
+<p>Minimum Viable Product sequence for content creators to import ARTICLE.md files, convert to Draft Patterns, validate against quality gates, and publish to the pattern catalog. No in-platform editing in MVP - fixes happen off-platform with re-import.</p>
+
+<p><strong>Purpose</strong>: Enable rapid pattern publication with hard validation gates ensuring quality and consistency</p>
+
+<p><strong>Trigger</strong>: Content creator has completed ARTICLE.md file (created off-platform with AI or desktop tools) and wants to publish to catalog</p>
+
+<h2>User Story</h2>
+
+<p><strong>As a</strong> Content Creator,</p>
+<p><strong>I want to</strong> Quickly publish validated patterns to catalog without manual data entry,</p>
+<p><strong>So that</strong> Focus on content quality off-platform, let automation handle import and validation.</p>
+
+<h3>User Story Diagram</h3>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Creator as 🧠 Creator</p>
+<p>  participant View as 🧩 Creator Workspace</p>
+<p>  participant System as ⚙️ System Services</p>
+
+<p>  Creator->>View: Import ARTICLE.md</p>
+<p>  View->>System: Upload + Convert</p>
+<p>  System-->>View: ✓ Draft Ready</p>
+
+<p>  Creator->>View: Run Validation</p>
+<p>  System->>System: Check all gates</p>
+
+<p>  alt Validation Passed</p>
+<p>    System-->>View: ✅ All gates passed</p>
+<p>    Creator->>View: Publish to Catalog</p>
+<p>    System-->>View: ✅ Published + Indexed</p>
+<p>  else Validation Failed</p>
+<p>    System-->>View: ❌ Gate failures</p>
+<p>    Creator->>Creator: Fix off-platform</p>
+<p>    Creator->>View: Re-import ARTICLE.md</p>
+<p>  end</p>
+<p>```</p>
+
+<h2>Business Value</h2>
+
+
+
+<h2>Governance</h2>
+
+<h3>Policies</h3>
+<ul>
+  <li>Publish is ONLY allowed after validation passes all gates (hard gate)</li>
+  <li>No in-platform editing in MVP - fixes require off-platform update and re-import</li>
+  <li>All patterns must have: title, slug, hook, problem, as-is diagram, orchestrated diagram, checklist (1+ items)</li>
+  <li>Diagrams must pass budget constraints: ≤7 participants, ≤18 steps, ≤2 alt blocks</li>
+  <li>HQO score must meet threshold (≥30/40 total, no dimension <3)</li>
+</ul>
+
+<h3>Metrics</h3>
+<ul>
+  <li>Time from import to publish</li>
+  <li>Validation pass rate on first attempt</li>
+  <li>Most common validation failures</li>
+  <li>Average re-import cycles per pattern</li>
+  <li>Catalog growth rate (patterns published per week)</li>
+</ul>
+
+<h2>Workflow Movements</h2>
+
+<h3>Movement : Import ARTICLE.md</h3>
+
+<p>Content creator uploads markdown file to platform via Creator Workspace</p>
+
+<p><strong>Tempo</strong>: 120 | <strong>Status</strong>: active</p>
+
+
+<h4>User Story</h4>
+
+<p><strong>As a</strong> Content Creator,</p>
+<p><strong>I want to</strong> Upload markdown file without manual copy-paste,</p>
+<p><strong>So that</strong> Fast, error-free import of content created off-platform.</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Creator</p>
+<p>  participant View</p>
+<p>  participant Upload</p>
+<p>  Creator->>View: Select ARTICLE.md</p>
+<p>  View->>Upload: Upload file</p>
+<p>  Upload-->>View: Upload ref</p>
+<p>  View-->>Creator: Import confirmed</p>
+<p>```</p>
+
+<p><strong>Beats</strong>: 3</p>
+
+<h4>Beat : Open Creator Workspace</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>CreatorWorkspace.razor page navigation</code></li>
+  <li><strong>Event</strong>: workspace.opened</li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: Content Creator</li>
+  <li><strong>Goal</strong>: Access pattern import interface</li>
+  <li><strong>Benefit</strong>: Clear starting point for publishing workflow</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant C as Creator</p>
+<p>  participant V as View</p>
+<p>  C->>V: Navigate /creator</p>
+<p>  V-->>C: Workspace loaded</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Creator as 🧠 Creator</p>
+<p>  participant Browser as 🌐 Browser</p>
+<p>  participant Workspace as 🧩 CreatorWorkspace.razor</p>
+
+<p>  Note over Creator,Workspace: Beat 1: Open Workspace</p>
+
+<p>  Creator->>Browser: Navigate to /creator</p>
+<p>  Browser->>Workspace: GET /creator</p>
+<p>  Workspace->>Workspace: Load page state: EmptyWorkspace</p>
+<p>  Workspace-->>Browser: Render: Import button + instructions</p>
+<p>  Browser-->>Creator: ✅ Creator Workspace ready</p>
+<p>```</p>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>Page should show empty state with clear CTA</li>
+  <li>Consider role-based access control for creator role</li>
+</ul>
+
+<h4>Beat : Select ARTICLE.md File</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>HTML file input element</code></li>
+  <li><strong>Event</strong>: file.selected</li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: Content Creator</li>
+  <li><strong>Goal</strong>: Choose markdown file to upload</li>
+  <li><strong>Benefit</strong>: Familiar file picker interface, no copy-paste</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant C as Creator</p>
+<p>  participant V as View</p>
+<p>  C->>V: Click Import</p>
+<p>  V->>V: Open file picker</p>
+<p>  C->>V: Select file</p>
+<p>  V-->>C: File selected</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Creator as 🧠 Creator</p>
+<p>  participant Workspace as 🧩 Workspace View</p>
+<p>  participant FilePicker as 📁 File Picker</p>
+
+<p>  Note over Creator,FilePicker: Beat 2: Select File</p>
+
+<p>  Creator->>Workspace: Click "Import ARTICLE.md" button</p>
+<p>  Workspace->>FilePicker: Open native file picker (accept=".md")</p>
+<p>  FilePicker-->>Creator: Show file browser</p>
+<p>  Creator->>FilePicker: Navigate to patterns/support-ticket-escalation.md</p>
+<p>  Creator->>FilePicker: Select file</p>
+<p>  FilePicker-->>Workspace: File selected (filename, size, content)</p>
+<p>  Workspace-->>Creator: ✅ File ready for upload</p>
+<p>```</p>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>File picker should filter for .md files</li>
+  <li>Consider max file size limit (e.g., 5MB)</li>
+</ul>
+
+<h4>Beat : Upload File to Service</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>UploadService.UploadMarkdownAsync()</code></li>
+  <li><strong>Event</strong>: markdown.uploaded</li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: Content Creator</li>
+  <li><strong>Goal</strong>: See upload progress and confirmation</li>
+  <li><strong>Benefit</strong>: Confidence that file was received by system</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant V as View</p>
+<p>  participant U as Upload</p>
+<p>  V->>U: Upload file</p>
+<p>  U->>U: Store temp</p>
+<p>  U-->>V: Upload ref</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Workspace as 🧩 Workspace</p>
+<p>  participant UploadService as 📥 Upload Service</p>
+<p>  participant Storage as 💾 Temp Storage</p>
+
+<p>  Note over Workspace,Storage: Beat 3: Upload File</p>
+
+<p>  Workspace->>UploadService: POST /api/upload/markdown</p>
+<p>  UploadService->>Storage: Write file to temp/{guid}.md</p>
+<p>  Storage-->>UploadService: ✓ File stored</p>
+<p>  UploadService->>UploadService: Generate uploadRef (GUID)</p>
+<p>  UploadService->>UploadService: Store metadata: { uploadRef, filename, size, timestamp }</p>
+<p>  UploadService-->>Workspace: { uploadRef: "abc-123", filename: "support-ticket-escalation.md", size: 8432 }</p>
+<p>  Workspace-->>Workspace: Update state: ImportConfirmed</p>
+<p>  Workspace-->>Workspace: ✅ Show: "Import Confirmed" + Convert button</p>
+<p>```</p>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>Store in temp storage with expiration (24 hours)</li>
+  <li>Generate unique uploadRef to prevent collisions</li>
+  <li>Consider upload progress indicator for large files</li>
+</ul>
+
+<hr>
+
+<h3>Movement : Convert to Draft Pattern</h3>
+
+<p>Parse markdown structure and map to Draft Pattern object</p>
+
+<p><strong>Tempo</strong>: 120 | <strong>Status</strong>: active</p>
+
+
+<h4>User Story</h4>
+
+<p><strong>As a</strong> Content Creator,</p>
+<p><strong>I want to</strong> Automatic conversion from markdown to structured pattern,</p>
+<p><strong>So that</strong> No manual field entry, structured data for validation.</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Creator</p>
+<p>  participant View</p>
+<p>  participant Parse</p>
+<p>  participant Convert</p>
+<p>  Creator->>View: Convert to Pattern</p>
+<p>  View->>Parse: Parse markdown</p>
+<p>  Parse-->>View: Parsed structure</p>
+<p>  View->>Convert: Map to Draft</p>
+<p>  Convert-->>View: Draft Pattern</p>
+<p>  View-->>Creator: Draft ready</p>
+<p>```</p>
+
+<p><strong>Beats</strong>: 3</p>
+
+<h4>Beat : Parse Markdown Structure</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>MarkdownParseService.ParseAsync()</code></li>
+  <li><strong>Event</strong>: markdown.parsed</li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: System</li>
+  <li><strong>Goal</strong>: Extract structured data from markdown</li>
+  <li><strong>Benefit</strong>: Reliable parsing regardless of markdown style variations</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant V as View</p>
+<p>  participant P as Parse</p>
+<p>  V->>P: Parse markdown</p>
+<p>  P->>P: Extract sections</p>
+<p>  P-->>V: ParsedDoc</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant View as 🧩 Workspace</p>
+<p>  participant ParseService as 🧾 Markdown Parse Service</p>
+<p>  participant Storage as 💾 Temp Storage</p>
+
+<p>  Note over View,Storage: Beat 1: Parse Markdown</p>
+
+<p>  View->>ParseService: ParseMarkdownAsync(uploadRef)</p>
+<p>  ParseService->>Storage: Read temp/{uploadRef}.md</p>
+<p>  Storage-->>ParseService: ✓ Markdown content</p>
+
+<p>  ParseService->>ParseService: Extract heading: # Title → title</p>
+<p>  ParseService->>ParseService: Extract section: ## Hook → hookMarkdown</p>
+<p>  ParseService->>ParseService: Extract section: ## Problem → problemMarkdown</p>
+<p>  ParseService->>ParseService: Extract first ```mermaid block → asIsDiagram</p>
+<p>  ParseService->>ParseService: Extract second ```mermaid block → orchestratedDiagram</p>
+<p>  ParseService->>ParseService: Extract section: ## Decision Point → decisionPointMarkdown</p>
+<p>  ParseService->>ParseService: Extract section: ## Metrics → metricsMarkdown</p>
+<p>  ParseService->>ParseService: Extract checklist: ## Implementation Checklist → items[]</p>
+<p>  ParseService->>ParseService: Parse frontmatter/tags → metadata</p>
+
+<p>  ParseService->>ParseService: Generate warnings: missing optional sections</p>
+<p>  ParseService-->>View: ParsedDoc { title, sections, diagrams, checklist, warnings }</p>
+<p>  View-->>View: ✅ Parsed successfully</p>
+<p>```</p>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>Use heading-based extraction: ## Hook, ## Problem, etc.</li>
+  <li>First mermaid block = as-is, second = orchestrated</li>
+  <li>Checklist extraction: look for markdown list under Implementation Checklist heading</li>
+</ul>
+
+<h4>Beat : Map to Draft Pattern Object</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>PatternConversionService.ConvertAsync()</code></li>
+  <li><strong>Event</strong>: pattern.converted</li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: System</li>
+  <li><strong>Goal</strong>: Create structured Draft Pattern ready for validation</li>
+  <li><strong>Benefit</strong>: Consistent data structure for validation and publishing</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant V as View</p>
+<p>  participant C as Convert</p>
+<p>  V->>C: Convert ParsedDoc</p>
+<p>  C->>C: Map fields</p>
+<p>  C-->>V: Draft Pattern</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant View as 🧩 Workspace</p>
+<p>  participant ConvertService as 🔁 Pattern Conversion Service</p>
+
+<p>  Note over View,ConvertService: Beat 2: Map to Draft Pattern</p>
+
+<p>  View->>ConvertService: ConvertToDraftPatternAsync(ParsedDoc, uploadRef)</p>
+
+<p>  ConvertService->>ConvertService: Map: title → Title</p>
+<p>  ConvertService->>ConvertService: Generate: slug = kebab-case(title)</p>
+<p>  ConvertService->>ConvertService: Map: hookMarkdown → HookMarkdown</p>
+<p>  ConvertService->>ConvertService: Map: problemMarkdown → ProblemDetailMarkdown</p>
+<p>  ConvertService->>ConvertService: Map: asIsDiagram → AsIsDiagramMermaid</p>
+<p>  ConvertService->>ConvertService: Map: orchestratedDiagram → OrchestratedDiagramMermaid</p>
+<p>  ConvertService->>ConvertService: Map: decisionPointMarkdown → DecisionPointMarkdown (optional)</p>
+<p>  ConvertService->>ConvertService: Map: metricsMarkdown → MetricsMarkdown (optional)</p>
+<p>  ConvertService->>ConvertService: Map: checklist items → ImplementationChecklist[]</p>
+<p>  ConvertService->>ConvertService: Map: metadata → Industries, BrokenSignals, Tags (optional)</p>
+
+<p>  ConvertService->>ConvertService: Add provenance: UploadRef, CreatedAt</p>
+<p>  ConvertService->>ConvertService: Set status: Draft</p>
+
+<p>  ConvertService-->>View: DraftPattern { Id, Title, Slug, ...all fields }</p>
+<p>  View->>View: Store DraftPattern in component state</p>
+<p>  View-->>View: Update UI state: DraftReady</p>
+<p>  View-->>View: ✅ Show: Draft preview + "Run Validation" button</p>
+<p>```</p>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>Slug generation: kebab-case title, ensure uniqueness</li>
+  <li>Preserve markdown formatting in all markdown fields</li>
+  <li>Optional fields default to null if not present</li>
+</ul>
+
+<h4>Beat : Display Draft Preview</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>DraftPreview component rendering</code></li>
+  <li><strong>Event</strong>: draft.previewed</li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: Content Creator</li>
+  <li><strong>Goal</strong>: See how pattern will look when published</li>
+  <li><strong>Benefit</strong>: Visual confirmation before validation and publish</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant V as View</p>
+<p>  participant M as Markdown</p>
+<p>  V->>M: Render preview</p>
+<p>  M-->>V: HTML</p>
+<p>  V-->>V: Show preview</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Workspace as 🧩 Workspace</p>
+<p>  participant Preview as 📄 DraftPreview Component</p>
+<p>  participant MarkdownService as 📝 Markdown Service</p>
+<p>  participant Mermaid as 🎨 Mermaid.js</p>
+
+<p>  Note over Workspace,Mermaid: Beat 3: Display Preview</p>
+
+<p>  Workspace->>Preview: Render DraftPreview component with DraftPattern</p>
+<p>  Preview->>MarkdownService: ConvertToHtml(HookMarkdown)</p>
+<p>  MarkdownService-->>Preview: ✓ HTML</p>
+<p>  Preview->>MarkdownService: ConvertToHtml(ProblemDetailMarkdown)</p>
+<p>  MarkdownService-->>Preview: ✓ HTML</p>
+<p>  Preview->>MarkdownService: ConvertToHtml(DecisionPointMarkdown)</p>
+<p>  MarkdownService-->>Preview: ✓ HTML</p>
+
+<p>  Preview->>Preview: Render <pre class="mermaid">AsIsDiagram</pre></p>
+<p>  Preview->>Preview: Render <pre class="mermaid">OrchestratedDiagram</pre></p>
+<p>  Preview->>Mermaid: Initialize Mermaid.js</p>
+<p>  Mermaid->>Mermaid: Render all mermaid blocks</p>
+<p>  Mermaid-->>Preview: ✓ Interactive diagrams</p>
+
+<p>  Preview->>Preview: Render checklist as bullet list</p>
+<p>  Preview-->>Workspace: ✅ Preview rendered</p>
+<p>  Workspace-->>Workspace: Show: "Run Validation" button enabled</p>
+<p>```</p>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>Use same MarkdownService as pattern detail pages</li>
+  <li>Preview should match published appearance exactly</li>
+</ul>
+
+<hr>
+
+<h3>Movement : Run Validation Gates</h3>
+
+<p>Execute all validation gates: Required Fields, Diagram Budgets, HQO Threshold, Catalog Readiness</p>
+
+<p><strong>Tempo</strong>: 100 | <strong>Status</strong>: active</p>
+
+
+<h4>User Story</h4>
+
+<p><strong>As a</strong> Content Creator,</p>
+<p><strong>I want to</strong> Know if pattern meets all quality standards,</p>
+<p><strong>So that</strong> Clear pass/fail feedback with actionable error messages.</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Creator</p>
+<p>  participant View</p>
+<p>  participant Validate</p>
+<p>  Creator->>View: Run Validation</p>
+<p>  View->>Validate: Validate Draft</p>
+<p>  Validate->>Validate: Gate 1: Required Fields</p>
+<p>  Validate->>Validate: Gate 2: Diagram Budgets</p>
+<p>  Validate->>Validate: Gate 3: HQO Threshold</p>
+<p>  Validate->>Validate: Gate 4: Catalog Readiness</p>
+<p>  alt All Gates Pass</p>
+<p>    Validate-->>View: ✅ Validation Passed</p>
+<p>    View-->>Creator: Publish unlocked</p>
+<p>  else Any Gate Fails</p>
+<p>    Validate-->>View: ❌ Gate failures</p>
+<p>    View-->>Creator: Issue list + fix instructions</p>
+<p>  end</p>
+<p>```</p>
+
+<p><strong>Beats</strong>: 5</p>
+
+<h4>Beat : Gate 1: Required Fields Check</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>ValidationService.ValidateRequiredFieldsAsync()</code></li>
+  <li><strong>Event</strong>: validation.started</li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: Quality Gate</li>
+  <li><strong>Goal</strong>: Ensure pattern has minimum required content</li>
+  <li><strong>Benefit</strong>: Prevent incomplete patterns from being published</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant V as Validate</p>
+<p>  V->>V: Check Title</p>
+<p>  V->>V: Check Slug</p>
+<p>  V->>V: Check Hook</p>
+<p>  V->>V: Check Problem</p>
+<p>  V->>V: Check Diagrams</p>
+<p>  V->>V: Check Checklist</p>
+<p>  V-->>V: Gate 1 result</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Validate as ✅ Validation Service</p>
+
+<p>  Note over Validate: Beat 1: Gate 1 - Required Fields</p>
+
+<p>  Validate->>Validate: Check: Title present & non-empty</p>
+<p>  Validate->>Validate: Check: Slug present & non-empty</p>
+<p>  Validate->>Validate: Check: HookMarkdown present & non-empty</p>
+<p>  Validate->>Validate: Check: ProblemDetailMarkdown present & non-empty</p>
+<p>  Validate->>Validate: Check: AsIsDiagramMermaid present & non-empty</p>
+<p>  Validate->>Validate: Check: OrchestratedDiagramMermaid present & non-empty</p>
+<p>  Validate->>Validate: Check: ImplementationChecklist has ≥1 item</p>
+
+<p>  alt All Required Fields Present</p>
+<p>    Validate-->>Validate: ✅ Gate 1: PASS</p>
+<p>  else Any Required Field Missing</p>
+<p>    Validate->>Validate: Add issue: "Required field missing: {fieldName}"</p>
+<p>    Validate-->>Validate: ❌ Gate 1: FAIL</p>
+<p>  end</p>
+<p>```</p>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>Required: Title, Slug, Hook, Problem, As-Is diagram, Orchestrated diagram, Checklist (≥1)</li>
+  <li>Optional: Decision Point, Metrics, Industries, Tags</li>
+</ul>
+
+<h4>Beat : Gate 2: Diagram Budget Check</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>ValidationService.ValidateDiagramBudgetsAsync()</code></li>
+  <li><strong>Event</strong>: diagrams.validated</li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: Quality Gate</li>
+  <li><strong>Goal</strong>: Ensure diagrams are simple and no-scroll</li>
+  <li><strong>Benefit</strong>: Maintain platform principle of diagram simplicity</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant V as Validate</p>
+<p>  V->>V: Parse As-Is diagram</p>
+<p>  V->>V: Count participants</p>
+<p>  V->>V: Count steps</p>
+<p>  V->>V: Count alt blocks</p>
+<p>  V->>V: Parse Orchestrated diagram</p>
+<p>  V->>V: Validate both</p>
+<p>  V-->>V: Gate 2 result</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Validate as ✅ Validation Service</p>
+<p>  participant Parser as 🔍 Mermaid Parser</p>
+
+<p>  Note over Validate,Parser: Beat 2: Gate 2 - Diagram Budgets</p>
+
+<p>  Validate->>Parser: Parse AsIsDiagramMermaid</p>
+<p>  Parser->>Parser: Extract participants</p>
+<p>  Parser->>Parser: Count interaction steps</p>
+<p>  Parser->>Parser: Count alt/opt blocks</p>
+<p>  Parser-->>Validate: DiagramStructure { participants: 6, steps: 12, altBlocks: 1 }</p>
+
+<p>  Validate->>Validate: Check: participants ≤ 7 ✓</p>
+<p>  Validate->>Validate: Check: steps ≤ 18 ✓</p>
+<p>  Validate->>Validate: Check: altBlocks ≤ 2 ✓</p>
+<p>  Validate->>Validate: Check: syntax parses ✓</p>
+
+<p>  Validate->>Parser: Parse OrchestratedDiagramMermaid</p>
+<p>  Parser-->>Validate: DiagramStructure { participants: 7, steps: 16, altBlocks: 2 }</p>
+
+<p>  Validate->>Validate: Check: participants ≤ 7 ✓</p>
+<p>  Validate->>Validate: Check: steps ≤ 18 ✓</p>
+<p>  Validate->>Validate: Check: altBlocks ≤ 2 ✓</p>
+
+<p>  alt Both Diagrams Within Budget</p>
+<p>    Validate-->>Validate: ✅ Gate 2: PASS</p>
+<p>  else Any Diagram Exceeds Budget</p>
+<p>    Validate->>Validate: Add issue: "Diagram exceeds budget: {constraint}"</p>
+<p>    Validate-->>Validate: ❌ Gate 2: FAIL</p>
+<p>  end</p>
+<p>```</p>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>Budget: ≤7 participants, ≤18 steps, ≤2 alt blocks</li>
+  <li>Also validate that Mermaid syntax parses without errors</li>
+</ul>
+
+<h4>Beat : Gate 3: HQO Threshold Check</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>ValidationService.ValidateHQOThresholdAsync()</code></li>
+  <li><strong>Event</strong>: hqo.calculated</li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: Quality Gate</li>
+  <li><strong>Goal</strong>: Ensure pattern meets High Quality Orchestration standards</li>
+  <li><strong>Benefit</strong>: Only high-quality patterns published to catalog</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant V as Validate</p>
+<p>  V->>V: Calculate HQO dimensions</p>
+<p>  V->>V: Sum total score</p>
+<p>  V->>V: Check minimum per dimension</p>
+<p>  V-->>V: Gate 3 result</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Validate as ✅ Validation Service</p>
+<p>  participant HQO as 📊 HQO Calculator</p>
+
+<p>  Note over Validate,HQO: Beat 3: Gate 3 - HQO Threshold</p>
+
+<p>  Validate->>HQO: CalculateHQOScore(OrchestratedDiagramMermaid)</p>
+<p>  HQO->>HQO: Analyze diagram for orchestration patterns</p>
+<p>  HQO->>HQO: Score Ownership (0-5)</p>
+<p>  HQO->>HQO: Score Time/SLA (0-5)</p>
+<p>  HQO->>HQO: Score Capacity (0-5)</p>
+<p>  HQO->>HQO: Score Visibility (0-5)</p>
+<p>  HQO->>HQO: Score Customer Loop (0-5)</p>
+<p>  HQO->>HQO: Score Escalation (0-5)</p>
+<p>  HQO->>HQO: Score Handoffs (0-5)</p>
+<p>  HQO->>HQO: Score Documentation (0-5)</p>
+<p>  HQO-->>Validate: HQOScorecard { Ownership: 5, TimeSLA: 4, ..., Total: 35 }</p>
+
+<p>  Validate->>Validate: Check: Total ≥ 30</p>
+<p>  Validate->>Validate: Check: No dimension < 3</p>
+
+<p>  alt HQO Threshold Met</p>
+<p>    Validate-->>Validate: ✅ Gate 3: PASS (35/40)</p>
+<p>  else HQO Below Threshold</p>
+<p>    Validate->>Validate: Add issue: "HQO score below threshold: {total}/40"</p>
+<p>    Validate-->>Validate: ❌ Gate 3: FAIL</p>
+<p>  end</p>
+<p>```</p>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>Threshold: Total ≥30/40, no dimension <3/5</li>
+  <li>8 dimensions: Ownership, Time/SLA, Capacity, Visibility, Customer Loop, Escalation, Handoffs, Documentation</li>
+</ul>
+
+<h4>Beat : Gate 4: Catalog Readiness Check</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>ValidationService.ValidateCatalogReadinessAsync()</code></li>
+  <li><strong>Event</strong>: catalog.checked</li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: Quality Gate</li>
+  <li><strong>Goal</strong>: Prevent duplicate slugs and missing search metadata</li>
+  <li><strong>Benefit</strong>: Clean catalog with unique, searchable patterns</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant V as Validate</p>
+<p>  participant C as Catalog</p>
+<p>  V->>C: Check slug uniqueness</p>
+<p>  C-->>V: Available</p>
+<p>  V->>V: Check metadata</p>
+<p>  V-->>V: Gate 4 result</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Validate as ✅ Validation Service</p>
+<p>  participant Catalog as 📚 Catalog Service</p>
+
+<p>  Note over Validate,Catalog: Beat 4: Gate 4 - Catalog Readiness</p>
+
+<p>  Validate->>Catalog: CheckSlugExists(slug)</p>
+<p>  Catalog->>Catalog: Query patterns database for slug</p>
+
+<p>  alt Slug Available</p>
+<p>    Catalog-->>Validate: ✓ Slug available</p>
+<p>    Validate->>Validate: Check: Search metadata has defaults</p>
+<p>    Validate->>Validate: Set: ClarityScore = 0 (new pattern)</p>
+<p>    Validate->>Validate: Set: ReferenceCount = 0</p>
+<p>    Validate->>Validate: Set: PublishEligibility = true</p>
+<p>    Validate-->>Validate: ✅ Gate 4: PASS</p>
+<p>  else Slug Already Exists</p>
+<p>    Catalog-->>Validate: ✗ Slug exists</p>
+<p>    Validate->>Validate: Add issue: "Slug already exists: {slug}"</p>
+<p>    Validate-->>Validate: ❌ Gate 4: FAIL</p>
+<p>  end</p>
+<p>```</p>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>MVP: Slug must be globally unique (no versioning)</li>
+  <li>Apply safe defaults: ClarityScore=0, ReferenceCount=0</li>
+  <li>Future: Consider slug versioning for re-imports</li>
+</ul>
+
+<h4>Beat : Return Validation Report</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>ValidationService.BuildValidationReport()</code></li>
+  <li><strong>Event</strong>: validation.completed</li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: Content Creator</li>
+  <li><strong>Goal</strong>: See clear validation results with actionable feedback</li>
+  <li><strong>Benefit</strong>: Know exactly what needs fixing if validation fails</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant V as Validate</p>
+<p>  participant View</p>
+<p>  V->>V: Aggregate gates</p>
+<p>  V->>View: ValidationReport</p>
+<p>  View-->>View: Display results</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Validate as ✅ Validation Service</p>
+<p>  participant Workspace as 🧩 Workspace</p>
+
+<p>  Note over Validate,Workspace: Beat 5: Return Report</p>
+
+<p>  Validate->>Validate: Aggregate all gate results</p>
+<p>  Validate->>Validate: Build ValidationReport:</p>
+<p>  Validate->>Validate: - Passed: all gates pass</p>
+<p>  Validate->>Validate: - Issues: list of all failures</p>
+<p>  Validate->>Validate: - GateStatuses: [Gate1: PASS, Gate2: PASS, Gate3: PASS, Gate4: PASS]</p>
+
+<p>  alt All Gates Passed</p>
+<p>    Validate-->>Workspace: ValidationReport { Passed: true, Issues: [] }</p>
+<p>    Workspace->>Workspace: Update state: ValidationPassed</p>
+<p>    Workspace->>Workspace: Enable "Publish to Catalog" button</p>
+<p>    Workspace-->>Workspace: ✅ Show: Green checkmark + "Ready to publish"</p>
+<p>  else Any Gate Failed</p>
+<p>    Validate-->>Workspace: ValidationReport { Passed: false, Issues: [...] }</p>
+<p>    Workspace->>Workspace: Update state: ValidationFailed</p>
+<p>    Workspace->>Workspace: Disable "Publish" button</p>
+<p>    Workspace->>Workspace: Show issues grouped by gate</p>
+<p>    Workspace-->>Workspace: ❌ Show: Red X + "Fix issues off-platform and re-import"</p>
+<p>  end</p>
+<p>```</p>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>Issues should include: gate name, field/constraint, remediation guidance</li>
+  <li>Group issues by gate for clear UX display</li>
+</ul>
+
+<hr>
+
+<h3>Movement : Publish to Catalog (Gated)</h3>
+
+<p>Publish validated Draft Pattern to catalog and index for search (only if validation passed)</p>
+
+<p><strong>Tempo</strong>: 110 | <strong>Status</strong>: active</p>
+
+
+<h4>User Story</h4>
+
+<p><strong>As a</strong> Content Creator,</p>
+<p><strong>I want to</strong> Make pattern live and discoverable in catalog,</p>
+<p><strong>So that</strong> Pattern immediately available to users.</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Creator</p>
+<p>  participant View</p>
+<p>  participant Catalog</p>
+<p>  participant Index</p>
+<p>  Creator->>View: Publish to Catalog</p>
+<p>  View->>Catalog: Publish Draft</p>
+<p>  Catalog->>Catalog: Assign ID + timestamp</p>
+<p>  Catalog-->>View: Pattern URL</p>
+<p>  View->>Index: Index for search</p>
+<p>  Index-->>View: Indexed</p>
+<p>  View-->>Creator: ✅ Published + Live link</p>
+<p>```</p>
+
+<p><strong>Beats</strong>: 3</p>
+
+<h4>Beat : Publish Draft to Catalog</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>PatternCatalogService.PublishAsync()</code></li>
+  <li><strong>Event</strong>: pattern.published</li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: Content Creator</li>
+  <li><strong>Goal</strong>: Persist pattern to permanent storage</li>
+  <li><strong>Benefit</strong>: Pattern is now live and version-controlled</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant V as View</p>
+<p>  participant C as Catalog</p>
+<p>  V->>C: Publish Draft</p>
+<p>  C->>C: Assign ID</p>
+<p>  C->>C: Store to DB</p>
+<p>  C-->>V: Pattern URL</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Workspace as 🧩 Workspace</p>
+<p>  participant CatalogService as 📚 Catalog Service</p>
+<p>  participant Database as 🗄️ Patterns Database</p>
+
+<p>  Note over Workspace,Database: Beat 1: Publish to Catalog</p>
+
+<p>  Workspace->>CatalogService: PublishPatternAsync(DraftPattern)</p>
+<p>  CatalogService->>CatalogService: Assign PatternId (new GUID)</p>
+<p>  CatalogService->>CatalogService: Set PublishedDate = DateTime.UtcNow</p>
+<p>  CatalogService->>CatalogService: Set Status = PatternStatus.Published</p>
+<p>  CatalogService->>CatalogService: Copy all Draft fields to Published Pattern</p>
+<p>  CatalogService->>CatalogService: Generate PatternUrl = "/patterns/{slug}"</p>
+
+<p>  CatalogService->>Database: INSERT INTO Patterns (...)</p>
+<p>  Database-->>CatalogService: ✓ Pattern stored (Id: abc-123)</p>
+
+<p>  CatalogService->>CatalogService: Log publication event</p>
+<p>  CatalogService-->>Workspace: PublishedPattern { Id, Slug, PatternUrl }</p>
+<p>  Workspace-->>Workspace: ✅ Publish complete</p>
+<p>```</p>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>Assign permanent GUID as PatternId</li>
+  <li>Set PublishedDate for sorting/filtering</li>
+  <li>PatternUrl format: /patterns/{slug}</li>
+</ul>
+
+<h4>Beat : Index for Search</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>SearchIndexService.IndexPatternAsync()</code></li>
+  <li><strong>Event</strong>: pattern.indexed</li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: Platform User</li>
+  <li><strong>Goal</strong>: Find newly published pattern via search and filters</li>
+  <li><strong>Benefit</strong>: Pattern discoverable immediately after publication</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant C as Catalog</p>
+<p>  participant I as Index</p>
+<p>  C->>I: Index pattern</p>
+<p>  I->>I: Extract metadata</p>
+<p>  I->>I: Build entry</p>
+<p>  I-->>C: Indexed</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Workspace as 🧩 Workspace</p>
+<p>  participant IndexService as 🔎 Search Index Service</p>
+<p>  participant SearchIndex as 🔍 Search Index Store</p>
+
+<p>  Note over Workspace,SearchIndex: Beat 2: Index for Search</p>
+
+<p>  Workspace->>IndexService: IndexPatternAsync(PublishedPattern)</p>
+<p>  IndexService->>IndexService: Extract search fields:</p>
+<p>  IndexService->>IndexService: - Title (searchable)</p>
+<p>  IndexService->>IndexService: - Slug (exact match)</p>
+<p>  IndexService->>IndexService: - ProblemDetailMarkdown (searchable)</p>
+<p>  IndexService->>IndexService: - Industries (filterable)</p>
+<p>  IndexService->>IndexService: - BrokenSignals (filterable)</p>
+<p>  IndexService->>IndexService: - Tags (filterable)</p>
+<p>  IndexService->>IndexService: - PublishedDate (sortable)</p>
+<p>  IndexService->>IndexService: - ClarityScore (sortable)</p>
+
+<p>  IndexService->>SearchIndex: Add entry to index</p>
+<p>  SearchIndex-->>IndexService: ✓ Index entry created</p>
+
+<p>  IndexService->>IndexService: Log indexing event</p>
+<p>  IndexService-->>Workspace: ✅ Pattern indexed and searchable</p>
+<p>```</p>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>Searchable fields: Title, ProblemDetailMarkdown</li>
+  <li>Filterable fields: Industries, BrokenSignals, Tags</li>
+  <li>Sortable fields: PublishedDate, ClarityScore, ReferenceCount</li>
+</ul>
+
+<h4>Beat : Return Success with Live Link</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>CreatorWorkspace UI state update</code></li>
+  <li><strong>Event</strong>: publish.confirmed</li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: Content Creator</li>
+  <li><strong>Goal</strong>: See confirmation and visit published pattern</li>
+  <li><strong>Benefit</strong>: Immediate verification that pattern is live</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant W as Workspace</p>
+<p>  participant C as Creator</p>
+<p>  W->>W: Update state</p>
+<p>  W->>C: Show success</p>
+<p>  C->>W: Click link</p>
+<p>  W-->>C: Navigate to pattern</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Workspace as 🧩 Workspace</p>
+<p>  participant Creator as 🧠 Creator</p>
+<p>  participant Browser as 🌐 Browser</p>
+
+<p>  Note over Workspace,Browser: Beat 3: Return Success</p>
+
+<p>  Workspace->>Workspace: Update state: PublishedSuccess</p>
+<p>  Workspace->>Workspace: Display success message:</p>
+<p>  Workspace->>Workspace: "✅ Pattern Published Successfully!"</p>
+<p>  Workspace->>Workspace: Show: PatternUrl as clickable link</p>
+<p>  Workspace->>Workspace: Show: "Publish another pattern" button</p>
+<p>  Workspace-->>Creator: Success UI displayed</p>
+
+<p>  Creator->>Workspace: Click pattern URL link</p>
+<p>  Workspace->>Browser: Navigate to /patterns/{slug}</p>
+<p>  Browser-->>Creator: ✅ Published pattern page loaded</p>
+<p>```</p>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>Success message should include: pattern title, live URL, timestamp</li>
+  <li>Provide "Publish another pattern" button to reset workflow</li>
+</ul>
+
+<hr>
+
+<h2>Metadata</h2>
+
+<ul>
+  <li><strong>Version</strong>:</li>
+  <li><strong>Author</strong>:</li>
+  <li><strong>Created</strong>:</li>
+  <li><strong>Tags</strong>:</li>
+</ul>
+
+<hr>
+
+<p><em>This documentation was auto-generated from the canonical sequence definition.</em></p>
+<p><em><strong>Canonical Reference</strong>: <a href="../../C:/source/repos/bpm/internal/orchestration-wisdom/sequences/mvp-pattern-publication.json">mvp-pattern-publication.json</a></em></p>
+
+    </div>
+</body>
+</html>

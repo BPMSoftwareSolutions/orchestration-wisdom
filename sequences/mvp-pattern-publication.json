@@ -1,0 +1,503 @@
+{
+  "$schema": "../schemas/musical-sequence.schema.json",
+  "domainId": "orchestration-wisdom",
+  "id": "mvp-pattern-publication",
+  "name": "MVP Pattern Publication Workflow",
+  "title": "Load Markdown → Convert → Validate → Publish to Catalog",
+  "description": "Minimum Viable Product sequence for content creators to import ARTICLE.md files, convert to Draft Patterns, validate against quality gates, and publish to the pattern catalog. No in-platform editing in MVP - fixes happen off-platform with re-import.",
+  "purpose": "Enable rapid pattern publication with hard validation gates ensuring quality and consistency",
+  "trigger": "Content creator has completed ARTICLE.md file (created off-platform with AI or desktop tools) and wants to publish to catalog",
+  "packageName": "OrchestrationWisdom.MVPPublishing",
+  "kind": "orchestration",
+  "status": "active",
+  "key": "C Major",
+  "tempo": 120,
+  "timeSignature": "4/4",
+  "category": "content-publishing",
+  "beats": 12,
+  "governance": {
+    "policies": [
+      "Publish is ONLY allowed after validation passes all gates (hard gate)",
+      "No in-platform editing in MVP - fixes require off-platform update and re-import",
+      "All patterns must have: title, slug, hook, problem, as-is diagram, orchestrated diagram, checklist (1+ items)",
+      "Diagrams must pass budget constraints: ≤7 participants, ≤18 steps, ≤2 alt blocks",
+      "HQO score must meet threshold (≥30/40 total, no dimension <3)"
+    ],
+    "metrics": [
+      "Time from import to publish",
+      "Validation pass rate on first attempt",
+      "Most common validation failures",
+      "Average re-import cycles per pattern",
+      "Catalog growth rate (patterns published per week)"
+    ]
+  },
+  "events": [
+    "markdown.uploaded",
+    "markdown.parsed",
+    "pattern.converted",
+    "validation.started",
+    "validation.passed",
+    "validation.failed",
+    "pattern.published",
+    "pattern.indexed",
+    "reimport.required"
+  ],
+  "userStory": {
+    "persona": "Content Creator",
+    "goal": "Quickly publish validated patterns to catalog without manual data entry",
+    "benefit": "Focus on content quality off-platform, let automation handle import and validation",
+    "diagram": "sequenceDiagram\n  participant Creator as 🧠 Creator\n  participant View as 🧩 Creator Workspace\n  participant System as ⚙️ System Services\n  \n  Creator->>View: Import ARTICLE.md\n  View->>System: Upload + Convert\n  System-->>View: ✓ Draft Ready\n  \n  Creator->>View: Run Validation\n  System->>System: Check all gates\n  \n  alt Validation Passed\n    System-->>View: ✅ All gates passed\n    Creator->>View: Publish to Catalog\n    System-->>View: ✅ Published + Indexed\n  else Validation Failed\n    System-->>View: ❌ Gate failures\n    Creator->>Creator: Fix off-platform\n    Creator->>View: Re-import ARTICLE.md\n  end"
+  },
+  "diagram": "sequenceDiagram\n  autonumber\n  \n  actor Creator as 🧠 Content Creator\n  participant View as 🧩 Creator Workspace (View)\n  participant Upload as 📥 Upload Service\n  participant Parse as 🧾 Markdown Parse Service\n  participant Convert as 🔁 Pattern Conversion Service\n  participant Validate as ✅ Validation Service\n  participant Catalog as 📚 Pattern Catalog Service\n  participant Index as 🔎 Search/Index Service\n  \n  Note over Creator,Index: MVP starts AFTER markdown exists (created off-platform)\n  \n  %% Experience A: Import\n  Creator->>View: Action: Import ARTICLE.md\n  View->>Upload: Store markdown file\n  Upload-->>View: Upload accepted (uploadRef)\n  View-->>Creator: Experience: Import Confirmed (uploadRef + next action)\n  \n  %% Experience B: Convert\n  Creator->>View: Action: Convert to Pattern\n  View->>Parse: Extract sections + diagrams + checklist\n  Parse-->>View: ParsedDoc (structure + warnings)\n  View->>Convert: Map ParsedDoc → Draft Pattern\n  Convert-->>View: Draft Pattern (structured fields)\n  View-->>Creator: Experience: Draft Ready (preview + validate)\n  \n  %% Experience C: Validate\n  Creator->>View: Action: Run Validation\n  View->>Validate: Validate Draft Pattern\n  Validate->>Validate: Gate 1: Required Fields\n  Validate->>Validate: Gate 2: Diagram Budgets\n  Validate->>Validate: Gate 3: HQO Threshold\n  Validate->>Validate: Gate 4: Catalog Readiness\n  Validate-->>View: Validation Report (pass/fail + issues)\n  View-->>Creator: Experience: Validation Results (pass badge OR issues list)\n  \n  alt Validation Failed\n    Note over Creator,View: MVP: Fixes happen off-platform → re-import updated ARTICLE.md\n    Creator->>Creator: Fix issues in MarkdownViewer or with AI\n    Creator->>View: Action: Import updated ARTICLE.md\n    Note over View: Loop back to Convert + Validate\n  else Validation Passed\n    %% Experience D: Publish (hard-gated)\n    Creator->>View: Action: Publish to Catalog\n    View->>Catalog: Publish Draft Pattern\n    Catalog->>Catalog: Assign patternId + publishedDate\n    Catalog->>Catalog: Store to patterns database\n    Catalog-->>View: Published (patternUrl)\n    View->>Index: Index for search + filters\n    Index->>Index: Extract: title, industries, brokenSignals, tags\n    Index->>Index: Build search index entry\n    Index-->>View: Indexed\n    View-->>Creator: Experience: ✅ Published Success (live link)\n  end",
+  "movements": [
+    {
+      "name": "Import ARTICLE.md",
+      "description": "Content creator uploads markdown file to platform via Creator Workspace",
+      "tempo": 120,
+      "status": "active",
+      "userStory": {
+        "persona": "Content Creator",
+        "goal": "Upload markdown file without manual copy-paste",
+        "benefit": "Fast, error-free import of content created off-platform",
+        "diagram": "sequenceDiagram\n  participant Creator\n  participant View\n  participant Upload\n  Creator->>View: Select ARTICLE.md\n  View->>Upload: Upload file\n  Upload-->>View: Upload ref\n  View-->>Creator: Import confirmed"
+      },
+      "diagram": "sequenceDiagram\n  participant Creator as 🧠 Creator\n  participant View as 🧩 Creator Workspace\n  participant Upload as 📥 Upload Service\n  \n  Note over Creator,Upload: Movement 1: Import\n  \n  Creator->>View: Open Creator Workspace\n  View-->>Creator: ✓ Empty workspace ready\n  Creator->>View: Click \"Import ARTICLE.md\"\n  View->>View: Open file picker\n  Creator->>View: Select support-ticket-escalation.md\n  View->>Upload: POST /api/upload/markdown\n  Upload->>Upload: Store file in temp storage\n  Upload->>Upload: Generate uploadRef (unique ID)\n  Upload-->>View: { uploadRef, filename, size }\n  View-->>Creator: ✅ Import Confirmed: \"support-ticket-escalation.md\" uploaded",
+      "beats": [
+        {
+          "name": "Open Creator Workspace",
+          "description": "Navigate to Creator Workspace page",
+          "event": "workspace.opened",
+          "handler": {
+            "name": "CreatorWorkspace.razor page navigation",
+            "scope": "internal",
+            "source": "src/OrchestrationWisdom/Components/Pages/CreatorWorkspace.razor"
+          },
+          "userStory": {
+            "persona": "Content Creator",
+            "goal": "Access pattern import interface",
+            "benefit": "Clear starting point for publishing workflow",
+            "diagram": "sequenceDiagram\n  participant C as Creator\n  participant V as View\n  C->>V: Navigate /creator\n  V-->>C: Workspace loaded"
+          },
+          "diagram": "sequenceDiagram\n  participant Creator as 🧠 Creator\n  participant Browser as 🌐 Browser\n  participant Workspace as 🧩 CreatorWorkspace.razor\n  \n  Note over Creator,Workspace: Beat 1: Open Workspace\n  \n  Creator->>Browser: Navigate to /creator\n  Browser->>Workspace: GET /creator\n  Workspace->>Workspace: Load page state: EmptyWorkspace\n  Workspace-->>Browser: Render: Import button + instructions\n  Browser-->>Creator: ✅ Creator Workspace ready",
+          "acceptanceCriteria": {
+            "given": "User logged in as content creator",
+            "when": "Navigates to /creator",
+            "then": "Creator Workspace page loads with Import button visible"
+          },
+          "test": "src/OrchestrationWisdom/Tests/Pages/CreatorWorkspace.Tests.cs",
+          "notes": [
+            "Page should show empty state with clear CTA",
+            "Consider role-based access control for creator role"
+          ]
+        },
+        {
+          "name": "Select ARTICLE.md File",
+          "description": "User clicks Import button and selects markdown file from local filesystem",
+          "event": "file.selected",
+          "handler": {
+            "name": "HTML file input element",
+            "scope": "internal",
+            "source": "src/OrchestrationWisdom/Components/Pages/CreatorWorkspace.razor"
+          },
+          "userStory": {
+            "persona": "Content Creator",
+            "goal": "Choose markdown file to upload",
+            "benefit": "Familiar file picker interface, no copy-paste",
+            "diagram": "sequenceDiagram\n  participant C as Creator\n  participant V as View\n  C->>V: Click Import\n  V->>V: Open file picker\n  C->>V: Select file\n  V-->>C: File selected"
+          },
+          "diagram": "sequenceDiagram\n  participant Creator as 🧠 Creator\n  participant Workspace as 🧩 Workspace View\n  participant FilePicker as 📁 File Picker\n  \n  Note over Creator,FilePicker: Beat 2: Select File\n  \n  Creator->>Workspace: Click \"Import ARTICLE.md\" button\n  Workspace->>FilePicker: Open native file picker (accept=\".md\")\n  FilePicker-->>Creator: Show file browser\n  Creator->>FilePicker: Navigate to patterns/support-ticket-escalation.md\n  Creator->>FilePicker: Select file\n  FilePicker-->>Workspace: File selected (filename, size, content)\n  Workspace-->>Creator: ✅ File ready for upload",
+          "acceptanceCriteria": {
+            "given": "Creator Workspace loaded",
+            "when": "User clicks Import button and selects .md file",
+            "then": "File is loaded into component state ready for upload"
+          },
+          "test": "src/OrchestrationWisdom/Tests/Pages/CreatorWorkspace.Tests.cs",
+          "notes": [
+            "File picker should filter for .md files",
+            "Consider max file size limit (e.g., 5MB)"
+          ]
+        },
+        {
+          "name": "Upload File to Service",
+          "description": "Send markdown file to Upload Service for temporary storage",
+          "event": "markdown.uploaded",
+          "handler": {
+            "name": "UploadService.UploadMarkdownAsync()",
+            "scope": "internal",
+            "source": "src/OrchestrationWisdom/Services/UploadService.cs"
+          },
+          "userStory": {
+            "persona": "Content Creator",
+            "goal": "See upload progress and confirmation",
+            "benefit": "Confidence that file was received by system",
+            "diagram": "sequenceDiagram\n  participant V as View\n  participant U as Upload\n  V->>U: Upload file\n  U->>U: Store temp\n  U-->>V: Upload ref"
+          },
+          "diagram": "sequenceDiagram\n  participant Workspace as 🧩 Workspace\n  participant UploadService as 📥 Upload Service\n  participant Storage as 💾 Temp Storage\n  \n  Note over Workspace,Storage: Beat 3: Upload File\n  \n  Workspace->>UploadService: POST /api/upload/markdown\n  UploadService->>Storage: Write file to temp/{guid}.md\n  Storage-->>UploadService: ✓ File stored\n  UploadService->>UploadService: Generate uploadRef (GUID)\n  UploadService->>UploadService: Store metadata: { uploadRef, filename, size, timestamp }\n  UploadService-->>Workspace: { uploadRef: \"abc-123\", filename: \"support-ticket-escalation.md\", size: 8432 }\n  Workspace-->>Workspace: Update state: ImportConfirmed\n  Workspace-->>Workspace: ✅ Show: \"Import Confirmed\" + Convert button",
+          "acceptanceCriteria": {
+            "given": "File selected in file picker",
+            "when": "Upload initiated",
+            "then": "File stored in temp storage and uploadRef returned"
+          },
+          "test": "src/OrchestrationWisdom/Tests/Services/UploadService.Tests.cs",
+          "notes": [
+            "Store in temp storage with expiration (24 hours)",
+            "Generate unique uploadRef to prevent collisions",
+            "Consider upload progress indicator for large files"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Convert to Draft Pattern",
+      "description": "Parse markdown structure and map to Draft Pattern object",
+      "tempo": 120,
+      "status": "active",
+      "userStory": {
+        "persona": "Content Creator",
+        "goal": "Automatic conversion from markdown to structured pattern",
+        "benefit": "No manual field entry, structured data for validation",
+        "diagram": "sequenceDiagram\n  participant Creator\n  participant View\n  participant Parse\n  participant Convert\n  Creator->>View: Convert to Pattern\n  View->>Parse: Parse markdown\n  Parse-->>View: Parsed structure\n  View->>Convert: Map to Draft\n  Convert-->>View: Draft Pattern\n  View-->>Creator: Draft ready"
+      },
+      "diagram": "sequenceDiagram\n  participant Creator as 🧠 Creator\n  participant View as 🧩 Workspace\n  participant Parse as 🧾 Parse Service\n  participant Convert as 🔁 Convert Service\n  \n  Note over Creator,Convert: Movement 2: Convert\n  \n  Creator->>View: Click \"Convert to Pattern\"\n  View->>Parse: ParseMarkdown(uploadRef)\n  Parse->>Parse: Extract sections by heading\n  Parse->>Parse: Extract mermaid blocks\n  Parse->>Parse: Extract checklist items\n  Parse-->>View: ParsedDoc + warnings\n  View->>Convert: ConvertToDraftPattern(ParsedDoc)\n  Convert->>Convert: Map fields\n  Convert->>Convert: Generate slug from title\n  Convert-->>View: Draft Pattern object\n  View-->>Creator: ✅ Draft Ready + Preview",
+      "beats": [
+        {
+          "name": "Parse Markdown Structure",
+          "description": "Extract sections, diagrams, and checklist from markdown",
+          "event": "markdown.parsed",
+          "handler": {
+            "name": "MarkdownParseService.ParseAsync()",
+            "scope": "internal",
+            "source": "src/OrchestrationWisdom/Services/MarkdownParseService.cs"
+          },
+          "userStory": {
+            "persona": "System",
+            "goal": "Extract structured data from markdown",
+            "benefit": "Reliable parsing regardless of markdown style variations",
+            "diagram": "sequenceDiagram\n  participant V as View\n  participant P as Parse\n  V->>P: Parse markdown\n  P->>P: Extract sections\n  P-->>V: ParsedDoc"
+          },
+          "diagram": "sequenceDiagram\n  participant View as 🧩 Workspace\n  participant ParseService as 🧾 Markdown Parse Service\n  participant Storage as 💾 Temp Storage\n  \n  Note over View,Storage: Beat 1: Parse Markdown\n  \n  View->>ParseService: ParseMarkdownAsync(uploadRef)\n  ParseService->>Storage: Read temp/{uploadRef}.md\n  Storage-->>ParseService: ✓ Markdown content\n  \n  ParseService->>ParseService: Extract heading: # Title → title\n  ParseService->>ParseService: Extract section: ## Hook → hookMarkdown\n  ParseService->>ParseService: Extract section: ## Problem → problemMarkdown\n  ParseService->>ParseService: Extract first ```mermaid block → asIsDiagram\n  ParseService->>ParseService: Extract second ```mermaid block → orchestratedDiagram\n  ParseService->>ParseService: Extract section: ## Decision Point → decisionPointMarkdown\n  ParseService->>ParseService: Extract section: ## Metrics → metricsMarkdown\n  ParseService->>ParseService: Extract checklist: ## Implementation Checklist → items[]\n  ParseService->>ParseService: Parse frontmatter/tags → metadata\n  \n  ParseService->>ParseService: Generate warnings: missing optional sections\n  ParseService-->>View: ParsedDoc { title, sections, diagrams, checklist, warnings }\n  View-->>View: ✅ Parsed successfully",
+          "acceptanceCriteria": {
+            "given": "Valid ARTICLE.md uploaded",
+            "when": "Parse service called",
+            "then": "Returns ParsedDoc with all extracted sections"
+          },
+          "test": "src/OrchestrationWisdom/Tests/Services/MarkdownParseService.Tests.cs",
+          "notes": [
+            "Use heading-based extraction: ## Hook, ## Problem, etc.",
+            "First mermaid block = as-is, second = orchestrated",
+            "Checklist extraction: look for markdown list under Implementation Checklist heading"
+          ]
+        },
+        {
+          "name": "Map to Draft Pattern Object",
+          "description": "Convert ParsedDoc to Draft Pattern with all required fields",
+          "event": "pattern.converted",
+          "handler": {
+            "name": "PatternConversionService.ConvertAsync()",
+            "scope": "internal",
+            "source": "src/OrchestrationWisdom/Services/PatternConversionService.cs"
+          },
+          "userStory": {
+            "persona": "System",
+            "goal": "Create structured Draft Pattern ready for validation",
+            "benefit": "Consistent data structure for validation and publishing",
+            "diagram": "sequenceDiagram\n  participant V as View\n  participant C as Convert\n  V->>C: Convert ParsedDoc\n  C->>C: Map fields\n  C-->>V: Draft Pattern"
+          },
+          "diagram": "sequenceDiagram\n  participant View as 🧩 Workspace\n  participant ConvertService as 🔁 Pattern Conversion Service\n  \n  Note over View,ConvertService: Beat 2: Map to Draft Pattern\n  \n  View->>ConvertService: ConvertToDraftPatternAsync(ParsedDoc, uploadRef)\n  \n  ConvertService->>ConvertService: Map: title → Title\n  ConvertService->>ConvertService: Generate: slug = kebab-case(title)\n  ConvertService->>ConvertService: Map: hookMarkdown → HookMarkdown\n  ConvertService->>ConvertService: Map: problemMarkdown → ProblemDetailMarkdown\n  ConvertService->>ConvertService: Map: asIsDiagram → AsIsDiagramMermaid\n  ConvertService->>ConvertService: Map: orchestratedDiagram → OrchestratedDiagramMermaid\n  ConvertService->>ConvertService: Map: decisionPointMarkdown → DecisionPointMarkdown (optional)\n  ConvertService->>ConvertService: Map: metricsMarkdown → MetricsMarkdown (optional)\n  ConvertService->>ConvertService: Map: checklist items → ImplementationChecklist[]\n  ConvertService->>ConvertService: Map: metadata → Industries, BrokenSignals, Tags (optional)\n  \n  ConvertService->>ConvertService: Add provenance: UploadRef, CreatedAt\n  ConvertService->>ConvertService: Set status: Draft\n  \n  ConvertService-->>View: DraftPattern { Id, Title, Slug, ...all fields }\n  View->>View: Store DraftPattern in component state\n  View-->>View: Update UI state: DraftReady\n  View-->>View: ✅ Show: Draft preview + \"Run Validation\" button",
+          "acceptanceCriteria": {
+            "given": "ParsedDoc with extracted sections",
+            "when": "Conversion service called",
+            "then": "Returns Draft Pattern object with all mapped fields"
+          },
+          "test": "src/OrchestrationWisdom/Tests/Services/PatternConversionService.Tests.cs",
+          "notes": [
+            "Slug generation: kebab-case title, ensure uniqueness",
+            "Preserve markdown formatting in all markdown fields",
+            "Optional fields default to null if not present"
+          ]
+        },
+        {
+          "name": "Display Draft Preview",
+          "description": "Render Draft Pattern in preview pane using MarkdownService",
+          "event": "draft.previewed",
+          "handler": {
+            "name": "DraftPreview component rendering",
+            "scope": "internal",
+            "source": "src/OrchestrationWisdom/Components/Shared/DraftPreview.razor"
+          },
+          "userStory": {
+            "persona": "Content Creator",
+            "goal": "See how pattern will look when published",
+            "benefit": "Visual confirmation before validation and publish",
+            "diagram": "sequenceDiagram\n  participant V as View\n  participant M as Markdown\n  V->>M: Render preview\n  M-->>V: HTML\n  V-->>V: Show preview"
+          },
+          "diagram": "sequenceDiagram\n  participant Workspace as 🧩 Workspace\n  participant Preview as 📄 DraftPreview Component\n  participant MarkdownService as 📝 Markdown Service\n  participant Mermaid as 🎨 Mermaid.js\n  \n  Note over Workspace,Mermaid: Beat 3: Display Preview\n  \n  Workspace->>Preview: Render DraftPreview component with DraftPattern\n  Preview->>MarkdownService: ConvertToHtml(HookMarkdown)\n  MarkdownService-->>Preview: ✓ HTML\n  Preview->>MarkdownService: ConvertToHtml(ProblemDetailMarkdown)\n  MarkdownService-->>Preview: ✓ HTML\n  Preview->>MarkdownService: ConvertToHtml(DecisionPointMarkdown)\n  MarkdownService-->>Preview: ✓ HTML\n  \n  Preview->>Preview: Render <pre class=\"mermaid\">AsIsDiagram</pre>\n  Preview->>Preview: Render <pre class=\"mermaid\">OrchestratedDiagram</pre>\n  Preview->>Mermaid: Initialize Mermaid.js\n  Mermaid->>Mermaid: Render all mermaid blocks\n  Mermaid-->>Preview: ✓ Interactive diagrams\n  \n  Preview->>Preview: Render checklist as bullet list\n  Preview-->>Workspace: ✅ Preview rendered\n  Workspace-->>Workspace: Show: \"Run Validation\" button enabled",
+          "acceptanceCriteria": {
+            "given": "Draft Pattern object in state",
+            "when": "Preview component renders",
+            "then": "Shows formatted content with rendered Mermaid diagrams"
+          },
+          "test": "src/OrchestrationWisdom/Tests/Components/DraftPreview.Tests.cs",
+          "notes": [
+            "Use same MarkdownService as pattern detail pages",
+            "Preview should match published appearance exactly"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Run Validation Gates",
+      "description": "Execute all validation gates: Required Fields, Diagram Budgets, HQO Threshold, Catalog Readiness",
+      "tempo": 100,
+      "status": "active",
+      "userStory": {
+        "persona": "Content Creator",
+        "goal": "Know if pattern meets all quality standards",
+        "benefit": "Clear pass/fail feedback with actionable error messages",
+        "diagram": "sequenceDiagram\n  participant Creator\n  participant View\n  participant Validate\n  Creator->>View: Run Validation\n  View->>Validate: Validate Draft\n  Validate->>Validate: Gate 1: Required Fields\n  Validate->>Validate: Gate 2: Diagram Budgets\n  Validate->>Validate: Gate 3: HQO Threshold\n  Validate->>Validate: Gate 4: Catalog Readiness\n  alt All Gates Pass\n    Validate-->>View: ✅ Validation Passed\n    View-->>Creator: Publish unlocked\n  else Any Gate Fails\n    Validate-->>View: ❌ Gate failures\n    View-->>Creator: Issue list + fix instructions\n  end"
+      },
+      "diagram": "sequenceDiagram\n  participant Creator as 🧠 Creator\n  participant View as 🧩 Workspace\n  participant Validate as ✅ Validation Service\n  \n  Note over Creator,Validate: Movement 3: Validation\n  \n  Creator->>View: Click \"Run Validation\"\n  View->>Validate: ValidateDraftPatternAsync(DraftPattern)\n  \n  Validate->>Validate: Gate 1: Check required fields\n  Validate->>Validate: Gate 2: Validate diagram budgets\n  Validate->>Validate: Gate 3: Calculate HQO score\n  Validate->>Validate: Gate 4: Check catalog readiness\n  \n  alt All Gates Pass\n    Validate-->>View: ValidationReport { passed: true, issues: [] }\n    View-->>Creator: ✅ Validation Passed + Publish button enabled\n  else Any Gate Fails\n    Validate-->>View: ValidationReport { passed: false, issues: [...] }\n    View-->>Creator: ❌ Gate failures + Re-import instructions\n  end",
+      "beats": [
+        {
+          "name": "Gate 1: Required Fields Check",
+          "description": "Verify all required fields are present and non-empty",
+          "event": "validation.started",
+          "handler": {
+            "name": "ValidationService.ValidateRequiredFieldsAsync()",
+            "scope": "internal",
+            "source": "src/OrchestrationWisdom/Services/ValidationService.cs"
+          },
+          "userStory": {
+            "persona": "Quality Gate",
+            "goal": "Ensure pattern has minimum required content",
+            "benefit": "Prevent incomplete patterns from being published",
+            "diagram": "sequenceDiagram\n  participant V as Validate\n  V->>V: Check Title\n  V->>V: Check Slug\n  V->>V: Check Hook\n  V->>V: Check Problem\n  V->>V: Check Diagrams\n  V->>V: Check Checklist\n  V-->>V: Gate 1 result"
+          },
+          "diagram": "sequenceDiagram\n  participant Validate as ✅ Validation Service\n  \n  Note over Validate: Beat 1: Gate 1 - Required Fields\n  \n  Validate->>Validate: Check: Title present & non-empty\n  Validate->>Validate: Check: Slug present & non-empty\n  Validate->>Validate: Check: HookMarkdown present & non-empty\n  Validate->>Validate: Check: ProblemDetailMarkdown present & non-empty\n  Validate->>Validate: Check: AsIsDiagramMermaid present & non-empty\n  Validate->>Validate: Check: OrchestratedDiagramMermaid present & non-empty\n  Validate->>Validate: Check: ImplementationChecklist has ≥1 item\n  \n  alt All Required Fields Present\n    Validate-->>Validate: ✅ Gate 1: PASS\n  else Any Required Field Missing\n    Validate->>Validate: Add issue: \"Required field missing: {fieldName}\"\n    Validate-->>Validate: ❌ Gate 1: FAIL\n  end",
+          "acceptanceCriteria": {
+            "given": "Draft Pattern object",
+            "when": "Required fields validation runs",
+            "then": "Returns pass if all required fields present, fail with field list if missing"
+          },
+          "test": "src/OrchestrationWisdom/Tests/Services/ValidationService.RequiredFields.Tests.cs",
+          "notes": [
+            "Required: Title, Slug, Hook, Problem, As-Is diagram, Orchestrated diagram, Checklist (≥1)",
+            "Optional: Decision Point, Metrics, Industries, Tags"
+          ]
+        },
+        {
+          "name": "Gate 2: Diagram Budget Check",
+          "description": "Validate both Mermaid diagrams meet budget constraints",
+          "event": "diagrams.validated",
+          "handler": {
+            "name": "ValidationService.ValidateDiagramBudgetsAsync()",
+            "scope": "internal",
+            "source": "src/OrchestrationWisdom/Services/ValidationService.cs"
+          },
+          "userStory": {
+            "persona": "Quality Gate",
+            "goal": "Ensure diagrams are simple and no-scroll",
+            "benefit": "Maintain platform principle of diagram simplicity",
+            "diagram": "sequenceDiagram\n  participant V as Validate\n  V->>V: Parse As-Is diagram\n  V->>V: Count participants\n  V->>V: Count steps\n  V->>V: Count alt blocks\n  V->>V: Parse Orchestrated diagram\n  V->>V: Validate both\n  V-->>V: Gate 2 result"
+          },
+          "diagram": "sequenceDiagram\n  participant Validate as ✅ Validation Service\n  participant Parser as 🔍 Mermaid Parser\n  \n  Note over Validate,Parser: Beat 2: Gate 2 - Diagram Budgets\n  \n  Validate->>Parser: Parse AsIsDiagramMermaid\n  Parser->>Parser: Extract participants\n  Parser->>Parser: Count interaction steps\n  Parser->>Parser: Count alt/opt blocks\n  Parser-->>Validate: DiagramStructure { participants: 6, steps: 12, altBlocks: 1 }\n  \n  Validate->>Validate: Check: participants ≤ 7 ✓\n  Validate->>Validate: Check: steps ≤ 18 ✓\n  Validate->>Validate: Check: altBlocks ≤ 2 ✓\n  Validate->>Validate: Check: syntax parses ✓\n  \n  Validate->>Parser: Parse OrchestratedDiagramMermaid\n  Parser-->>Validate: DiagramStructure { participants: 7, steps: 16, altBlocks: 2 }\n  \n  Validate->>Validate: Check: participants ≤ 7 ✓\n  Validate->>Validate: Check: steps ≤ 18 ✓\n  Validate->>Validate: Check: altBlocks ≤ 2 ✓\n  \n  alt Both Diagrams Within Budget\n    Validate-->>Validate: ✅ Gate 2: PASS\n  else Any Diagram Exceeds Budget\n    Validate->>Validate: Add issue: \"Diagram exceeds budget: {constraint}\"\n    Validate-->>Validate: ❌ Gate 2: FAIL\n  end",
+          "acceptanceCriteria": {
+            "given": "Draft Pattern with Mermaid diagrams",
+            "when": "Diagram budget validation runs",
+            "then": "Returns pass if both diagrams within constraints, fail with specific violations"
+          },
+          "test": "src/OrchestrationWisdom/Tests/Services/ValidationService.DiagramBudgets.Tests.cs",
+          "notes": [
+            "Budget: ≤7 participants, ≤18 steps, ≤2 alt blocks",
+            "Also validate that Mermaid syntax parses without errors"
+          ]
+        },
+        {
+          "name": "Gate 3: HQO Threshold Check",
+          "description": "Calculate HQO scorecard and verify threshold met",
+          "event": "hqo.calculated",
+          "handler": {
+            "name": "ValidationService.ValidateHQOThresholdAsync()",
+            "scope": "internal",
+            "source": "src/OrchestrationWisdom/Services/ValidationService.cs"
+          },
+          "userStory": {
+            "persona": "Quality Gate",
+            "goal": "Ensure pattern meets High Quality Orchestration standards",
+            "benefit": "Only high-quality patterns published to catalog",
+            "diagram": "sequenceDiagram\n  participant V as Validate\n  V->>V: Calculate HQO dimensions\n  V->>V: Sum total score\n  V->>V: Check minimum per dimension\n  V-->>V: Gate 3 result"
+          },
+          "diagram": "sequenceDiagram\n  participant Validate as ✅ Validation Service\n  participant HQO as 📊 HQO Calculator\n  \n  Note over Validate,HQO: Beat 3: Gate 3 - HQO Threshold\n  \n  Validate->>HQO: CalculateHQOScore(OrchestratedDiagramMermaid)\n  HQO->>HQO: Analyze diagram for orchestration patterns\n  HQO->>HQO: Score Ownership (0-5)\n  HQO->>HQO: Score Time/SLA (0-5)\n  HQO->>HQO: Score Capacity (0-5)\n  HQO->>HQO: Score Visibility (0-5)\n  HQO->>HQO: Score Customer Loop (0-5)\n  HQO->>HQO: Score Escalation (0-5)\n  HQO->>HQO: Score Handoffs (0-5)\n  HQO->>HQO: Score Documentation (0-5)\n  HQO-->>Validate: HQOScorecard { Ownership: 5, TimeSLA: 4, ..., Total: 35 }\n  \n  Validate->>Validate: Check: Total ≥ 30\n  Validate->>Validate: Check: No dimension < 3\n  \n  alt HQO Threshold Met\n    Validate-->>Validate: ✅ Gate 3: PASS (35/40)\n  else HQO Below Threshold\n    Validate->>Validate: Add issue: \"HQO score below threshold: {total}/40\"\n    Validate-->>Validate: ❌ Gate 3: FAIL\n  end",
+          "acceptanceCriteria": {
+            "given": "Draft Pattern with Orchestrated diagram",
+            "when": "HQO validation runs",
+            "then": "Returns pass if total ≥30 and no dimension <3, fail with scores"
+          },
+          "test": "src/OrchestrationWisdom/Tests/Services/ValidationService.HQOThreshold.Tests.cs",
+          "notes": [
+            "Threshold: Total ≥30/40, no dimension <3/5",
+            "8 dimensions: Ownership, Time/SLA, Capacity, Visibility, Customer Loop, Escalation, Handoffs, Documentation"
+          ]
+        },
+        {
+          "name": "Gate 4: Catalog Readiness Check",
+          "description": "Verify pattern ready for catalog publication (slug uniqueness, metadata)",
+          "event": "catalog.checked",
+          "handler": {
+            "name": "ValidationService.ValidateCatalogReadinessAsync()",
+            "scope": "internal",
+            "source": "src/OrchestrationWisdom/Services/ValidationService.cs"
+          },
+          "userStory": {
+            "persona": "Quality Gate",
+            "goal": "Prevent duplicate slugs and missing search metadata",
+            "benefit": "Clean catalog with unique, searchable patterns",
+            "diagram": "sequenceDiagram\n  participant V as Validate\n  participant C as Catalog\n  V->>C: Check slug uniqueness\n  C-->>V: Available\n  V->>V: Check metadata\n  V-->>V: Gate 4 result"
+          },
+          "diagram": "sequenceDiagram\n  participant Validate as ✅ Validation Service\n  participant Catalog as 📚 Catalog Service\n  \n  Note over Validate,Catalog: Beat 4: Gate 4 - Catalog Readiness\n  \n  Validate->>Catalog: CheckSlugExists(slug)\n  Catalog->>Catalog: Query patterns database for slug\n  \n  alt Slug Available\n    Catalog-->>Validate: ✓ Slug available\n    Validate->>Validate: Check: Search metadata has defaults\n    Validate->>Validate: Set: ClarityScore = 0 (new pattern)\n    Validate->>Validate: Set: ReferenceCount = 0\n    Validate->>Validate: Set: PublishEligibility = true\n    Validate-->>Validate: ✅ Gate 4: PASS\n  else Slug Already Exists\n    Catalog-->>Validate: ✗ Slug exists\n    Validate->>Validate: Add issue: \"Slug already exists: {slug}\"\n    Validate-->>Validate: ❌ Gate 4: FAIL\n  end",
+          "acceptanceCriteria": {
+            "given": "Draft Pattern with slug",
+            "when": "Catalog readiness validation runs",
+            "then": "Returns pass if slug unique, fail if slug collision"
+          },
+          "test": "src/OrchestrationWisdom/Tests/Services/ValidationService.CatalogReadiness.Tests.cs",
+          "notes": [
+            "MVP: Slug must be globally unique (no versioning)",
+            "Apply safe defaults: ClarityScore=0, ReferenceCount=0",
+            "Future: Consider slug versioning for re-imports"
+          ]
+        },
+        {
+          "name": "Return Validation Report",
+          "description": "Aggregate all gate results into validation report",
+          "event": "validation.completed",
+          "handler": {
+            "name": "ValidationService.BuildValidationReport()",
+            "scope": "internal",
+            "source": "src/OrchestrationWisdom/Services/ValidationService.cs"
+          },
+          "userStory": {
+            "persona": "Content Creator",
+            "goal": "See clear validation results with actionable feedback",
+            "benefit": "Know exactly what needs fixing if validation fails",
+            "diagram": "sequenceDiagram\n  participant V as Validate\n  participant View\n  V->>V: Aggregate gates\n  V->>View: ValidationReport\n  View-->>View: Display results"
+          },
+          "diagram": "sequenceDiagram\n  participant Validate as ✅ Validation Service\n  participant Workspace as 🧩 Workspace\n  \n  Note over Validate,Workspace: Beat 5: Return Report\n  \n  Validate->>Validate: Aggregate all gate results\n  Validate->>Validate: Build ValidationReport:\n  Validate->>Validate: - Passed: all gates pass\n  Validate->>Validate: - Issues: list of all failures\n  Validate->>Validate: - GateStatuses: [Gate1: PASS, Gate2: PASS, Gate3: PASS, Gate4: PASS]\n  \n  alt All Gates Passed\n    Validate-->>Workspace: ValidationReport { Passed: true, Issues: [] }\n    Workspace->>Workspace: Update state: ValidationPassed\n    Workspace->>Workspace: Enable \"Publish to Catalog\" button\n    Workspace-->>Workspace: ✅ Show: Green checkmark + \"Ready to publish\"\n  else Any Gate Failed\n    Validate-->>Workspace: ValidationReport { Passed: false, Issues: [...] }\n    Workspace->>Workspace: Update state: ValidationFailed\n    Workspace->>Workspace: Disable \"Publish\" button\n    Workspace->>Workspace: Show issues grouped by gate\n    Workspace-->>Workspace: ❌ Show: Red X + \"Fix issues off-platform and re-import\"\n  end",
+          "acceptanceCriteria": {
+            "given": "All gates executed",
+            "when": "Validation report built",
+            "then": "Returns comprehensive report with pass/fail and all issues"
+          },
+          "test": "src/OrchestrationWisdom/Tests/Services/ValidationService.BuildReport.Tests.cs",
+          "notes": [
+            "Issues should include: gate name, field/constraint, remediation guidance",
+            "Group issues by gate for clear UX display"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Publish to Catalog (Gated)",
+      "description": "Publish validated Draft Pattern to catalog and index for search (only if validation passed)",
+      "tempo": 110,
+      "status": "active",
+      "userStory": {
+        "persona": "Content Creator",
+        "goal": "Make pattern live and discoverable in catalog",
+        "benefit": "Pattern immediately available to users",
+        "diagram": "sequenceDiagram\n  participant Creator\n  participant View\n  participant Catalog\n  participant Index\n  Creator->>View: Publish to Catalog\n  View->>Catalog: Publish Draft\n  Catalog->>Catalog: Assign ID + timestamp\n  Catalog-->>View: Pattern URL\n  View->>Index: Index for search\n  Index-->>View: Indexed\n  View-->>Creator: ✅ Published + Live link"
+      },
+      "diagram": "sequenceDiagram\n  participant Creator as 🧠 Creator\n  participant View as 🧩 Workspace\n  participant Catalog as 📚 Catalog Service\n  participant Index as 🔎 Search Index\n  \n  Note over Creator,Index: Movement 4: Publish (Hard-Gated)\n  \n  Creator->>View: Click \"Publish to Catalog\"\n  View->>Catalog: PublishPatternAsync(DraftPattern)\n  Catalog->>Catalog: Assign PatternId (GUID)\n  Catalog->>Catalog: Set PublishedDate = now()\n  Catalog->>Catalog: Set Status = Published\n  Catalog->>Catalog: Store to patterns database\n  Catalog-->>View: PublishedPattern { Id, Slug, PatternUrl }\n  View->>Index: IndexPatternAsync(PublishedPattern)\n  Index->>Index: Extract search fields\n  Index->>Index: Build index entry\n  Index-->>View: ✓ Indexed\n  View-->>Creator: ✅ Published Success: /patterns/{slug}",
+      "beats": [
+        {
+          "name": "Publish Draft to Catalog",
+          "description": "Convert Draft Pattern to Published Pattern and store in catalog database",
+          "event": "pattern.published",
+          "handler": {
+            "name": "PatternCatalogService.PublishAsync()",
+            "scope": "internal",
+            "source": "src/OrchestrationWisdom/Services/PatternCatalogService.cs"
+          },
+          "userStory": {
+            "persona": "Content Creator",
+            "goal": "Persist pattern to permanent storage",
+            "benefit": "Pattern is now live and version-controlled",
+            "diagram": "sequenceDiagram\n  participant V as View\n  participant C as Catalog\n  V->>C: Publish Draft\n  C->>C: Assign ID\n  C->>C: Store to DB\n  C-->>V: Pattern URL"
+          },
+          "diagram": "sequenceDiagram\n  participant Workspace as 🧩 Workspace\n  participant CatalogService as 📚 Catalog Service\n  participant Database as 🗄️ Patterns Database\n  \n  Note over Workspace,Database: Beat 1: Publish to Catalog\n  \n  Workspace->>CatalogService: PublishPatternAsync(DraftPattern)\n  CatalogService->>CatalogService: Assign PatternId (new GUID)\n  CatalogService->>CatalogService: Set PublishedDate = DateTime.UtcNow\n  CatalogService->>CatalogService: Set Status = PatternStatus.Published\n  CatalogService->>CatalogService: Copy all Draft fields to Published Pattern\n  CatalogService->>CatalogService: Generate PatternUrl = \"/patterns/{slug}\"\n  \n  CatalogService->>Database: INSERT INTO Patterns (...)\n  Database-->>CatalogService: ✓ Pattern stored (Id: abc-123)\n  \n  CatalogService->>CatalogService: Log publication event\n  CatalogService-->>Workspace: PublishedPattern { Id, Slug, PatternUrl }\n  Workspace-->>Workspace: ✅ Publish complete",
+          "acceptanceCriteria": {
+            "given": "Draft Pattern with validation passed",
+            "when": "Publish triggered",
+            "then": "Pattern stored in database with unique ID and published status"
+          },
+          "test": "src/OrchestrationWisdom/Tests/Services/PatternCatalogService.Tests.cs",
+          "notes": [
+            "Assign permanent GUID as PatternId",
+            "Set PublishedDate for sorting/filtering",
+            "PatternUrl format: /patterns/{slug}"
+          ]
+        },
+        {
+          "name": "Index for Search",
+          "description": "Extract search metadata and add pattern to search index",
+          "event": "pattern.indexed",
+          "handler": {
+            "name": "SearchIndexService.IndexPatternAsync()",
+            "scope": "internal",
+            "source": "src/OrchestrationWisdom/Services/SearchIndexService.cs"
+          },
+          "userStory": {
+            "persona": "Platform User",
+            "goal": "Find newly published pattern via search and filters",
+            "benefit": "Pattern discoverable immediately after publication",
+            "diagram": "sequenceDiagram\n  participant C as Catalog\n  participant I as Index\n  C->>I: Index pattern\n  I->>I: Extract metadata\n  I->>I: Build entry\n  I-->>C: Indexed"
+          },
+          "diagram": "sequenceDiagram\n  participant Workspace as 🧩 Workspace\n  participant IndexService as 🔎 Search Index Service\n  participant SearchIndex as 🔍 Search Index Store\n  \n  Note over Workspace,SearchIndex: Beat 2: Index for Search\n  \n  Workspace->>IndexService: IndexPatternAsync(PublishedPattern)\n  IndexService->>IndexService: Extract search fields:\n  IndexService->>IndexService: - Title (searchable)\n  IndexService->>IndexService: - Slug (exact match)\n  IndexService->>IndexService: - ProblemDetailMarkdown (searchable)\n  IndexService->>IndexService: - Industries (filterable)\n  IndexService->>IndexService: - BrokenSignals (filterable)\n  IndexService->>IndexService: - Tags (filterable)\n  IndexService->>IndexService: - PublishedDate (sortable)\n  IndexService->>IndexService: - ClarityScore (sortable)\n  \n  IndexService->>SearchIndex: Add entry to index\n  SearchIndex-->>IndexService: ✓ Index entry created\n  \n  IndexService->>IndexService: Log indexing event\n  IndexService-->>Workspace: ✅ Pattern indexed and searchable",
+          "acceptanceCriteria": {
+            "given": "Published Pattern in catalog",
+            "when": "Indexing triggered",
+            "then": "Pattern searchable by title, problem text, and filterable by metadata"
+          },
+          "test": "src/OrchestrationWisdom/Tests/Services/SearchIndexService.Tests.cs",
+          "notes": [
+            "Searchable fields: Title, ProblemDetailMarkdown",
+            "Filterable fields: Industries, BrokenSignals, Tags",
+            "Sortable fields: PublishedDate, ClarityScore, ReferenceCount"
+          ]
+        },
+        {
+          "name": "Return Success with Live Link",
+          "description": "Show success message with link to published pattern",
+          "event": "publish.confirmed",
+          "handler": {
+            "name": "CreatorWorkspace UI state update",
+            "scope": "internal",
+            "source": "src/OrchestrationWisdom/Components/Pages/CreatorWorkspace.razor"
+          },
+          "userStory": {
+            "persona": "Content Creator",
+            "goal": "See confirmation and visit published pattern",
+            "benefit": "Immediate verification that pattern is live",
+            "diagram": "sequenceDiagram\n  participant W as Workspace\n  participant C as Creator\n  W->>W: Update state\n  W->>C: Show success\n  C->>W: Click link\n  W-->>C: Navigate to pattern"
+          },
+          "diagram": "sequenceDiagram\n  participant Workspace as 🧩 Workspace\n  participant Creator as 🧠 Creator\n  participant Browser as 🌐 Browser\n  \n  Note over Workspace,Browser: Beat 3: Return Success\n  \n  Workspace->>Workspace: Update state: PublishedSuccess\n  Workspace->>Workspace: Display success message:\n  Workspace->>Workspace: \"✅ Pattern Published Successfully!\"\n  Workspace->>Workspace: Show: PatternUrl as clickable link\n  Workspace->>Workspace: Show: \"Publish another pattern\" button\n  Workspace-->>Creator: Success UI displayed\n  \n  Creator->>Workspace: Click pattern URL link\n  Workspace->>Browser: Navigate to /patterns/{slug}\n  Browser-->>Creator: ✅ Published pattern page loaded",
+          "acceptanceCriteria": {
+            "given": "Pattern published and indexed",
+            "when": "Success state rendered",
+            "then": "Shows success message with clickable link to live pattern"
+          },
+          "test": "src/OrchestrationWisdom/Tests/Pages/CreatorWorkspace.PublishSuccess.Tests.cs",
+          "notes": [
+            "Success message should include: pattern title, live URL, timestamp",
+            "Provide \"Publish another pattern\" button to reset workflow"
+          ]
+        }
+      ]
+    }
+  ],
+  "version": "1.0.0",
+  "author": "Orchestration Wisdom Team",
+  "created": "2026-01-11",
+  "updated": "2026-01-11",
+  "tags": ["mvp", "pattern-publication", "validation-gates", "catalog-publishing", "no-editing"]
+}
