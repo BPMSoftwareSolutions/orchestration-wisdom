@@ -1,0 +1,575 @@
+{
+  "domainId": "orchestration-wisdom",
+  "id": "mvp-v0-static-telemetry",
+  "name": "MVP v0: Static-first, Telemetry-rich (No Login)",
+  "title": "MVP v0: Static-first, Telemetry-rich",
+  "description": "Simplest path to production - ship static content with rich telemetry to learn what to build next. No authentication, no ingestion pipeline, pure speed to market.",
+  "purpose": "Validate content market fit and gather demand signals before investing in full platform features",
+  "trigger": "Content creator completes ARTICLE.md and wants to publish to web platform",
+  "status": "active",
+  "category": "deployment",
+  "userStory": {
+    "persona": "Content Creator & Platform Owner",
+    "goal": "Ship orchestration patterns to web with zero friction and maximum learning",
+    "benefit": "Get traffic and telemetry immediately to inform next features, avoid premature optimization"
+  },
+  "diagram": "sequenceDiagram\n  autonumber\n\n  actor Human as 👤 Human\n  participant AI as 🤖 AI (Research+Refine)\n  participant Local as 🖥️ MarkdownViewer (Local App)\n  participant Azure as ☁️ Azure Storage ($web)\n  participant Web as 🌐 Web Platform (Static)\n  participant User as 👥 End User\n  participant Analytics as 📊 Analytics System\n\n  Note over Human,Analytics: MVP v0 Supply Chain - Content → Deploy → Learn\n\n  %% Content Creation\n  Human->>AI: Select topic from market signals\n  AI->>AI: Deep research (examples, metrics, edge cases)\n  AI->>AI: Refinement loop (diagrams + HQO gates)\n  AI-->>Human: Generate ARTICLE.md (canonical source)\n\n  %% Local Conversion\n  Human->>Local: Import ARTICLE.md\n  Local->>Local: Convert MD → HTML + render Mermaid diagrams\n  Local->>Local: Extract metadata → pattern.json\n  Local->>Local: Update catalog.json\n\n  %% Azure Deployment\n  Local->>Azure: Upload HTML + assets + metadata to $web\n  Azure-->>Local: Deployment verified\n\n  %% User Discovery & Engagement\n  User->>Web: Navigate to orchestrationwisdom.com\n  Web->>User: Load catalog → filter/search → select pattern\n  User->>Web: Read pattern → scroll → view diagrams → click CTA\n  Web->>Analytics: Track: page_view, scroll_depth, cta_click, outbound_click\n\n  %% Analytics & Learning\n  Analytics->>Analytics: Aggregate session data\n  Analytics->>Analytics: Calculate demand score: views × scroll × CTA\n  Analytics-->>Human: Insights: high-demand topics, drop-offs, user intent",
+  "movements": [
+    {
+      "id": 1,
+      "name": "Content Creation (Offline)",
+      "number": 1,
+      "description": "Human picks topic, AI researches and refines, produces ARTICLE.md",
+      "userStory": {
+        "persona": "Content Creator",
+        "goal": "Create high-quality orchestration pattern documentation",
+        "benefit": "Produce canonical source artifact ready for conversion and deployment"
+      },
+      "diagram": "sequenceDiagram\n  autonumber\n\n  actor Human as 👤 Content Creator\n  participant AI as 🤖 AI (ChatGPT)\n  participant Output as 📄 ARTICLE.md\n\n  Note over Human,Output: Movement 1 - Content Creation (Offline)\n\n  Human->>Human: Identify topic from real-world pain + market signals\n  Human->>AI: Request deep research on topic\n  AI->>AI: Collect examples, metrics, edge cases, industry context\n  AI-->>Human: Return research enrichment\n\n  Human->>AI: Request pattern refinement\n  AI->>AI: Create sequence diagrams (As-Is vs Orchestrated)\n  AI->>AI: Write checklist + implementation details\n  AI->>AI: Apply HQO quality gates + diagram budgets\n  AI-->>Human: Return refined content\n\n  Human->>AI: Validate quality threshold met\n  alt Quality passes HQO threshold\n    AI->>Output: Generate ARTICLE.md (canonical source)\n    Output-->>Human: ARTICLE.md ready for deployment\n  else Quality below threshold\n    AI->>AI: Refine further (loop)\n  end",
+      "beats": [
+        {
+          "beat": 1,
+          "name": "Human Identifies Topic",
+          "event": "topic.selected",
+          "handler": {
+            "name": "HumanTopicSelection",
+            "scope": "external",
+            "kind": "external-integration"
+          },
+          "testFile": "",
+          "userStory": {
+            "persona": "Content Creator",
+            "goal": "Identify valuable topic from real-world pain points",
+            "benefit": "Ensure pattern addresses actual market needs"
+          },
+          "acceptanceCriteria": [
+            {
+              "given": ["Market signals indicate pain point", "Real-world experience validates need"],
+              "when": ["Creator selects topic for pattern development"],
+              "then": ["Topic is documented", "Event topic.selected is emitted"]
+            }
+          ],
+          "notes": ["Topics come from customer feedback, market observation, or operational experience"]
+        },
+        {
+          "beat": 2,
+          "name": "AI Deep Research",
+          "event": "research.completed",
+          "handler": {
+            "name": "ChatGPTDeepResearch",
+            "scope": "external",
+            "kind": "external-integration",
+            "externalSystem": {
+              "vendor": "OpenAI",
+              "system": "ChatGPT Deep Research",
+              "type": "api",
+              "description": "AI-powered research to collect examples, metrics, edge cases, and industry context"
+            }
+          },
+          "testFile": "",
+          "userStory": {
+            "persona": "AI Research Assistant",
+            "goal": "Gather comprehensive data to enrich pattern documentation",
+            "benefit": "Provide evidence-based content with real examples and metrics"
+          },
+          "acceptanceCriteria": [
+            {
+              "given": ["Topic has been selected"],
+              "when": ["AI performs deep research"],
+              "then": ["Examples collected", "Metrics gathered", "Edge cases documented", "Industry context added"]
+            }
+          ],
+          "notes": ["Research phase is critical for quality and credibility"]
+        },
+        {
+          "beat": 3,
+          "name": "AI Refinement Loop",
+          "event": "refinement.complete",
+          "handler": {
+            "name": "AI RefinementLoop",
+            "scope": "external",
+            "kind": "external-integration"
+          },
+          "testFile": "",
+          "userStory": {
+            "persona": "Content Creator & AI",
+            "goal": "Create sequence diagrams and orchestrate problem/solution narrative",
+            "benefit": "Achieve high quality documentation through iterative refinement"
+          },
+          "acceptanceCriteria": [
+            {
+              "given": ["Research data is complete"],
+              "when": ["AI and human iterate on diagrams and narrative"],
+              "then": ["Sequence diagrams created", "Problem clearly articulated", "Solution orchestrated", "Quality threshold met"]
+            }
+          ],
+          "notes": ["Multiple iterations expected until clarity and completeness achieved"]
+        },
+        {
+          "beat": 4,
+          "name": "Generate ARTICLE.md",
+          "event": "article.generated",
+          "handler": {
+            "name": "ArticleGenerator",
+            "scope": "external",
+            "kind": "automation"
+          },
+          "testFile": "",
+          "userStory": {
+            "persona": "AI Content Generator",
+            "goal": "Produce markdown article with embedded diagrams",
+            "benefit": "Create canonical source artifact for all downstream conversions"
+          },
+          "acceptanceCriteria": [
+            {
+              "given": ["Refinement is complete"],
+              "when": ["AI generates ARTICLE.md"],
+              "then": ["Markdown file created with frontmatter", "Mermaid diagrams embedded", "Content includes As-Is and Orchestrated scenarios", "File is valid markdown"]
+            }
+          ],
+          "notes": ["ARTICLE.md is the single source of truth"]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Local Conversion & Metadata",
+      "number": 2,
+      "description": "MarkdownViewer app converts MD to HTML and generates metadata",
+      "userStory": {
+        "persona": "Local App (MarkdownViewer)",
+        "goal": "Convert canonical markdown to web-ready HTML and extract metadata",
+        "benefit": "Prepare all artifacts needed for static deployment"
+      },
+      "diagram": "sequenceDiagram\n  autonumber\n\n  actor User as 👤 Creator\n  participant App as 🖥️ MarkdownViewer\n  participant MD as 📄 ARTICLE.md\n  participant HTML as 🌐 HTML Output\n  participant Meta as 📋 pattern.json\n  participant Catalog as 📚 catalog.json\n\n  Note over User,Catalog: Movement 2 - Local Conversion & Metadata\n\n  User->>App: Import ARTICLE.md\n  App->>MD: Read markdown file\n  App->>App: Parse markdown with Markdig\n  App->>App: Render Mermaid diagrams with Mermaid.js\n  App->>HTML: Generate HTML with CSS/JS assets\n  HTML-->>App: HTML ready\n\n  App->>MD: Extract frontmatter metadata\n  App->>Meta: Generate pattern.json (slug, title, industries, tags, publishedUtc)\n  Meta-->>App: Metadata ready\n\n  App->>Catalog: Update catalog.json with new pattern entry\n  Catalog-->>App: Catalog updated\n\n  App-->>User: Conversion complete (HTML + metadata ready for deployment)",
+      "beats": [
+        {
+          "beat": 5,
+          "name": "Convert MD to HTML",
+          "event": "html.generated",
+          "handler": {
+            "name": "MarkdownToHtmlConverter",
+            "scope": "plugin",
+            "kind": "automation",
+            "sourcePath": "tools/MarkdownViewer/Services/MarkdownService.cs"
+          },
+          "testFile": "tools/MarkdownViewer/Tests/MarkdownServiceTests.cs",
+          "userStory": {
+            "persona": "MarkdownViewer Local App",
+            "goal": "Parse ARTICLE.md and render HTML with styling and diagrams",
+            "benefit": "Create web-ready HTML that users can view in browsers"
+          },
+          "acceptanceCriteria": [
+            {
+              "given": ["ARTICLE.md file exists and is valid"],
+              "when": ["Markdown converter processes file"],
+              "then": ["HTML file generated with proper structure", "Mermaid diagrams rendered", "Syntax highlighting applied", "Table of contents created", "Assets folder created with images/css"]
+            }
+          ],
+          "notes": ["Uses Markdig library for markdown parsing", "Mermaid.js for diagram rendering"]
+        },
+        {
+          "beat": 6,
+          "name": "Generate pattern.json",
+          "event": "metadata.extracted",
+          "handler": {
+            "name": "PatternMetadataExtractor",
+            "scope": "plugin",
+            "kind": "automation",
+            "sourcePath": "tools/MarkdownViewer/Services/PatternMetadataExtractor.cs"
+          },
+          "testFile": "tools/MarkdownViewer/Tests/PatternMetadataExtractorTests.cs",
+          "userStory": {
+            "persona": "Metadata Extractor",
+            "goal": "Extract structured metadata from markdown frontmatter",
+            "benefit": "Enable discovery and filtering without backend database"
+          },
+          "acceptanceCriteria": [
+            {
+              "given": ["HTML is generated", "Frontmatter exists in ARTICLE.md"],
+              "when": ["Extractor parses frontmatter"],
+              "then": ["pattern.json created with slug", "Title extracted", "Industries array populated", "ServiceTypes array populated", "Tags array populated", "PublishedUtc timestamp set"]
+            }
+          ],
+          "notes": ["Schema: {slug, title, industries[], serviceTypes[], tags[], publishedUtc}"]
+        },
+        {
+          "beat": 7,
+          "name": "Update catalog.json",
+          "event": "catalog.updated",
+          "handler": {
+            "name": "CatalogUpdater",
+            "scope": "plugin",
+            "kind": "automation",
+            "sourcePath": "tools/MarkdownViewer/Services/CatalogService.cs"
+          },
+          "testFile": "tools/MarkdownViewer/Tests/CatalogServiceTests.cs",
+          "userStory": {
+            "persona": "Catalog Manager",
+            "goal": "Maintain central index of all published patterns",
+            "benefit": "Single JSON file powers entire discovery UX without database"
+          },
+          "acceptanceCriteria": [
+            {
+              "given": ["pattern.json metadata extracted"],
+              "when": ["Catalog updater appends new entry"],
+              "then": ["catalog.json updated with new pattern", "Array remains valid JSON", "No duplicates for same slug", "File written to /catalog.json"]
+            }
+          ],
+          "notes": ["catalog.json is array of all pattern.json entries"]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Azure Deployment",
+      "number": 3,
+      "description": "Push static files to Azure for public access",
+      "userStory": {
+        "persona": "Deployment System",
+        "goal": "Upload all generated files to Azure CDN",
+        "benefit": "Make patterns publicly accessible with global CDN distribution"
+      },
+      "diagram": "Local files → Azure Storage upload → CDN cache → deployment verification",
+      "beats": [
+        {
+          "beat": 8,
+          "name": "Push to Azure Storage",
+          "event": "deployment.completed",
+          "handler": {
+            "name": "AzureStorageUploader",
+            "scope": "plugin",
+            "kind": "automation",
+            "sourcePath": "tools/MarkdownViewer/Services/AzureDeploymentService.cs"
+          },
+          "testFile": "tools/MarkdownViewer/Tests/AzureDeploymentServiceTests.cs",
+          "userStory": {
+            "persona": "Azure Deployment Service",
+            "goal": "Upload HTML, assets, and metadata to Azure Storage Static Website",
+            "benefit": "Patterns are live and accessible via CDN"
+          },
+          "acceptanceCriteria": [
+            {
+              "given": ["catalog.json is updated", "HTML and assets are generated"],
+              "when": ["Uploader pushes files to $web container"],
+              "then": ["Files uploaded to /patterns/<slug>/", "Content-Type headers set correctly", "Cache-Control headers configured", "catalog.json uploaded to root", "Event deployment.completed emitted"]
+            }
+          ],
+          "notes": ["URL structure: /patterns/<slug>/index.html", "Assets: /patterns/<slug>/assets/*", "Content-Type: text/html, application/json, text/css, application/javascript", "Cache: public, max-age=3600"]
+        },
+        {
+          "beat": 9,
+          "name": "Verify Deployment",
+          "event": "deployment.verified",
+          "handler": {
+            "name": "DeploymentVerifier",
+            "scope": "plugin",
+            "kind": "validation"
+          },
+          "testFile": "tools/MarkdownViewer/Tests/DeploymentVerifierTests.cs",
+          "userStory": {
+            "persona": "Deployment System",
+            "goal": "Confirm URLs are accessible and content loads correctly",
+            "benefit": "Catch deployment issues before users do"
+          },
+          "acceptanceCriteria": [
+            {
+              "given": ["Files have been uploaded"],
+              "when": ["Verifier checks URLs"],
+              "then": ["GET /patterns/<slug>/ returns 200", "HTML content loads", "Assets are accessible", "catalog.json is valid JSON"]
+            }
+          ],
+          "notes": ["Retry upload on failure", "Report specific errors to console"]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Pattern Discovery",
+      "number": 4,
+      "description": "User discovers and navigates pattern catalog",
+      "userStory": {
+        "persona": "End User",
+        "goal": "Find relevant orchestration patterns for their needs",
+        "benefit": "Quickly discover patterns by industry, service type, or keyword"
+      },
+      "diagram": "User visits site → catalog loads → filters/searches → selects pattern",
+      "beats": [
+        {
+          "beat": 10,
+          "name": "Load Catalog Page",
+          "event": "catalog.fetched",
+          "handler": {
+            "name": "CatalogPageLoader",
+            "scope": "system",
+            "kind": "automation"
+          },
+          "testFile": "",
+          "userStory": {
+            "persona": "Web Browser",
+            "goal": "Load orchestrationwisdom.com and fetch catalog data",
+            "benefit": "Display all available patterns for browsing"
+          },
+          "acceptanceCriteria": [
+            {
+              "given": ["User navigates to orchestrationwisdom.com"],
+              "when": ["Page loads"],
+              "then": ["Landing page HTML rendered", "catalog.json fetched from CDN", "Telemetry event page_view tracked", "Pattern cards displayed"]
+            }
+          ],
+          "notes": ["Telemetry: page_url, referrer, user_agent, timestamp"]
+        },
+        {
+          "beat": 11,
+          "name": "Filter & Browse Patterns",
+          "event": "filter.applied",
+          "handler": {
+            "name": "ClientSideFilter",
+            "scope": "system",
+            "kind": "automation"
+          },
+          "testFile": "",
+          "userStory": {
+            "persona": "End User",
+            "goal": "Filter patterns by industry, service type, tags, or search keyword",
+            "benefit": "Narrow down to patterns relevant to specific needs"
+          },
+          "acceptanceCriteria": [
+            {
+              "given": ["Catalog is loaded"],
+              "when": ["User applies filter or searches"],
+              "then": ["Pattern list filtered client-side", "Result count updated", "Telemetry event filter_applied tracked", "Empty state shown if no matches"]
+            }
+          ],
+          "notes": ["Telemetry: filter_type, filter_value, result_count"]
+        },
+        {
+          "beat": 12,
+          "name": "Navigate to Pattern",
+          "event": "pattern_detail.loaded",
+          "handler": {
+            "name": "PatternNavigation",
+            "scope": "system",
+            "kind": "automation"
+          },
+          "testFile": "",
+          "userStory": {
+            "persona": "End User",
+            "goal": "View full pattern details after selecting from catalog",
+            "benefit": "Read complete orchestration pattern documentation"
+          },
+          "acceptanceCriteria": [
+            {
+              "given": ["User clicks pattern card"],
+              "when": ["Browser navigates to /patterns/<slug>/"],
+              "then": ["Pattern HTML page loads", "Telemetry event pattern_view tracked", "Slug, referrer, time_on_catalog recorded"]
+            }
+          ],
+          "notes": ["URL: /patterns/<slug>/index.html"]
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Pattern Engagement",
+      "number": 5,
+      "description": "User reads pattern and interacts with content",
+      "userStory": {
+        "persona": "End User",
+        "goal": "Consume orchestration wisdom and determine if pattern solves their problem",
+        "benefit": "Understand As-Is vs Orchestrated scenarios, evaluate implementation"
+      },
+      "diagram": "Read content → scroll → view diagrams → click CTAs → follow links",
+      "beats": [
+        {
+          "beat": 13,
+          "name": "Read Pattern Content",
+          "event": "content.scrolled",
+          "handler": {
+            "name": "ScrollDepthTracker",
+            "scope": "system",
+            "kind": "metrics"
+          },
+          "testFile": "",
+          "userStory": {
+            "persona": "End User",
+            "goal": "Read pattern sections and view diagrams",
+            "benefit": "Understand problem, solution, and implementation approach"
+          },
+          "acceptanceCriteria": [
+            {
+              "given": ["Pattern page is loaded"],
+              "when": ["User scrolls through content"],
+              "then": ["Scroll depth tracked at 25%, 50%, 75%, 90%", "Time on page measured", "Diagram views recorded", "Telemetry events emitted"]
+            }
+          ],
+          "notes": ["Telemetry: pattern_slug, depth_percent, time_on_page, thresholds [25,50,75,90]"]
+        },
+        {
+          "beat": 14,
+          "name": "Interact with CTAs",
+          "event": "cta.clicked",
+          "handler": {
+            "name": "CTAClickTracker",
+            "scope": "system",
+            "kind": "metrics"
+          },
+          "testFile": "",
+          "userStory": {
+            "persona": "End User",
+            "goal": "Take action: subscribe, book call, download checklist, copy link",
+            "benefit": "Conversion signal indicates user found value"
+          },
+          "acceptanceCriteria": [
+            {
+              "given": ["User is reading pattern"],
+              "when": ["User clicks CTA button"],
+              "then": ["Telemetry event cta_click tracked", "CTA type and label recorded", "Scroll depth at click captured", "Time on page at click captured"]
+            }
+          ],
+          "notes": ["High signal metric - indicates strong interest"]
+        },
+        {
+          "beat": 15,
+          "name": "Follow Outbound Links",
+          "event": "outbound.clicked",
+          "handler": {
+            "name": "OutboundLinkTracker",
+            "scope": "system",
+            "kind": "metrics"
+          },
+          "testFile": "",
+          "userStory": {
+            "persona": "End User",
+            "goal": "Explore related resources: GitHub repos, documentation, tools",
+            "benefit": "Interest signal captured for demand analysis"
+          },
+          "acceptanceCriteria": [
+            {
+              "given": ["User is reading pattern"],
+              "when": ["User clicks external link"],
+              "then": ["Telemetry event outbound_click tracked", "Link URL and text recorded", "Time on page captured"]
+            }
+          ],
+          "notes": ["Indicates user wants to implement or learn more"]
+        },
+        {
+          "beat": 16,
+          "name": "Exit Pattern",
+          "event": "pattern.exited",
+          "handler": {
+            "name": "ExitTracker",
+            "scope": "system",
+            "kind": "metrics"
+          },
+          "testFile": "",
+          "userStory": {
+            "persona": "Analytics System",
+            "goal": "Capture complete session data when user leaves pattern",
+            "benefit": "Session data aggregated for demand analysis"
+          },
+          "acceptanceCriteria": [
+            {
+              "given": ["User was reading pattern"],
+              "when": ["User navigates away, closes tab, or times out"],
+              "then": ["Total time on page recorded", "Max scroll depth captured", "CTA clicked status recorded", "Exit type tracked (back/close/navigate/timeout)"]
+            }
+          ],
+          "notes": ["Session data used to calculate demand scores"]
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Analytics & Learning",
+      "number": 6,
+      "description": "Process telemetry to identify next best moves",
+      "userStory": {
+        "persona": "Platform Owner",
+        "goal": "Analyze telemetry to identify high-demand patterns and next features",
+        "benefit": "Data-driven decisions on what to build next"
+      },
+      "diagram": "Telemetry aggregation → demand scoring → insights generation → next move",
+      "beats": [
+        {
+          "beat": 17,
+          "name": "Aggregate Telemetry",
+          "event": "telemetry.aggregated",
+          "handler": {
+            "name": "TelemetryAggregator",
+            "scope": "system",
+            "kind": "metrics",
+            "externalSystem": {
+              "vendor": "Microsoft",
+              "system": "Azure Application Insights",
+              "type": "service",
+              "description": "Collect and aggregate client-side events and Azure logs"
+            }
+          },
+          "testFile": "",
+          "userStory": {
+            "persona": "Analytics System",
+            "goal": "Collect all client-side events and server logs",
+            "benefit": "Structured analytics data ready for analysis"
+          },
+          "acceptanceCriteria": [
+            {
+              "given": ["Telemetry events are being emitted"],
+              "when": ["Aggregator processes events"],
+              "then": ["Client-side JS events collected", "Azure Storage logs collected", "CDN logs collected", "Data stored with 90+ day retention"]
+            }
+          ],
+          "notes": ["Sources: Client JS, Azure Storage logs, CDN logs"]
+        },
+        {
+          "beat": 18,
+          "name": "Calculate Demand Scores",
+          "event": "demand.calculated",
+          "handler": {
+            "name": "DemandScoreCalculator",
+            "scope": "system",
+            "kind": "metrics"
+          },
+          "testFile": "",
+          "userStory": {
+            "persona": "Analytics System",
+            "goal": "Compute interest score per pattern using formula",
+            "benefit": "Patterns ranked by demand for prioritization"
+          },
+          "acceptanceCriteria": [
+            {
+              "given": ["Telemetry is aggregated"],
+              "when": ["Calculator computes demand scores"],
+              "then": ["Formula applied: views × (avg_scroll_depth / 100) × cta_click_rate", "Patterns ranked by score", "Top performers identified", "Low performers flagged"]
+            }
+          ],
+          "notes": ["Identifies which topics resonate most with users"]
+        },
+        {
+          "beat": 19,
+          "name": "Identify Next Best Move",
+          "event": "insights.generated",
+          "handler": {
+            "name": "InsightsGenerator",
+            "scope": "system",
+            "kind": "reporting"
+          },
+          "testFile": "",
+          "userStory": {
+            "persona": "Platform Owner",
+            "goal": "Review demand signals to decide next actions",
+            "benefit": "Data-driven prioritization of content and features"
+          },
+          "acceptanceCriteria": [
+            {
+              "given": ["Demand scores calculated"],
+              "when": ["Human reviews insights"],
+              "then": ["Topics for next patterns identified", "Patterns to enhance listed", "Feature requests validated by demand", "Decision made and documented"]
+            }
+          ],
+          "notes": ["Outputs: Next pattern topics, enhancement candidates, feature prioritization"]
+        }
+      ]
+    }
+  ]
+}

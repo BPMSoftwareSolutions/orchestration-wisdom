@@ -27,8 +27,8 @@ namespace OrchestrationWisdom.Tools.MarkdownViewer.Services
     public class ValidationResult
     {
         public bool IsValid { get; set; }
-        public List<string> Errors { get; set; } = new();
-        public List<string> Warnings { get; set; } = new();
+        public List<string> Errors { get; set; } = new List<string>();
+        public List<string> Warnings { get; set; } = new List<string>();
         public DiagramMetrics Metrics { get; set; }
     }
 
@@ -39,7 +39,7 @@ namespace OrchestrationWisdom.Tools.MarkdownViewer.Services
         public int AltBlockCount { get; set; }
         public int MaxAltBranchLength { get; set; }
         public bool HasNestedAlt { get; set; }
-        public List<string> Participants { get; set; } = new();
+        public List<string> Participants { get; set; } = new List<string>();
     }
 
     /// <summary>

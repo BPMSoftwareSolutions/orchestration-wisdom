@@ -1,0 +1,771 @@
+{
+  "id": "production-authentication",
+  "name": "Production Authentication & Session Management",
+  "domainId": "orchestration-wisdom",
+  "status": "active",
+  "description": "Production-ready authentication with password hashing, OAuth integration, and persistent session management using cookies and distributed cache",
+  "purpose": "Replace demo authentication with secure, scalable authentication suitable for production deployment with proper password security, OAuth flows, and session persistence",
+  "trigger": "User attempts to sign in with credentials or OAuth provider, or system validates existing session",
+  "businessValue": "Ensures user data security, enables horizontal scaling with session persistence, provides seamless OAuth integration, and meets security compliance requirements (SOC2, GDPR)",
+  "overviewDiagram": "sequenceDiagram\n  participant User as 👤 User\n  participant Browser as 🌐 Browser\n  participant App as 🔐 Auth Service\n  participant DB as 💾 User Database\n  participant Cache as 📦 Redis Cache\n  participant OAuth as 🔑 OAuth Provider\n\n  Note over User,OAuth: Email/Password Authentication\n  User->>Browser: Enter email/password\n  Browser->>App: POST /api/auth/signin\n  App->>DB: Lookup user by email\n  DB-->>App: User record with password hash\n  App->>App: Verify password hash (bcrypt)\n  App->>Cache: Store session (24h TTL)\n  App->>Browser: Set HTTP-only cookie\n  Browser-->>User: Redirect to workspace\n\n  Note over User,OAuth: OAuth Flow\n  User->>Browser: Click \"Continue with Google\"\n  Browser->>App: GET /api/auth/oauth/google\n  App-->>Browser: Redirect to Google OAuth\n  Browser->>OAuth: Authorization request\n  OAuth-->>Browser: Redirect with auth code\n  Browser->>App: GET /api/auth/callback?code=xxx\n  App->>OAuth: Exchange code for token\n  OAuth-->>App: Access token + user info\n  App->>DB: Create/update user from OAuth\n  App->>Cache: Store session\n  App->>Browser: Set HTTP-only cookie\n  Browser-->>User: Redirect to workspace",
+  "userStory": {
+    "persona": "Platform User / Content Creator",
+    "goal": "Sign in securely with email/password or OAuth and maintain authenticated session across browser sessions",
+    "benefit": "Secure access to creator tools with industry-standard authentication, seamless OAuth integration, and persistent sessions that survive server restarts",
+    "diagram": "sequenceDiagram\n  participant User as 👤 User\n  participant System as 🔐 Auth System\n\n  User->>System: Sign in with Google\n  System->>System: OAuth flow\n  System-->>User: Authenticated + session cookie\n  \n  Note over User,System: Session persists across requests\n  \n  User->>System: Navigate to workspace\n  System->>System: Validate session from cookie\n  System-->>User: Workspace access granted\n  \n  Note over User,System: Days later, still authenticated\n  \n  User->>System: Return to platform\n  System->>System: Check session validity\n  System-->>User: Still authenticated - no re-login"
+  },
+  "governance": {
+    "policies": [
+      "All passwords must be hashed with bcrypt (cost factor 12)",
+      "Sessions must be stored in distributed cache (Redis) for horizontal scaling",
+      "Session cookies must be HTTP-only and Secure (HTTPS-only)",
+      "OAuth tokens must be validated with provider before creating session",
+      "Failed authentication attempts must be rate-limited (5 attempts per 15 minutes)",
+      "User passwords must never be logged or exposed in error messages",
+      "Session expiration must be configurable (default 24 hours)",
+      "OAuth state parameter must be validated to prevent CSRF attacks"
+    ],
+    "metrics": [
+      "Authentication success rate (% of attempts that succeed)",
+      "OAuth provider distribution (% using Google vs GitHub vs Microsoft)",
+      "Average authentication time (milliseconds from submit to session created)",
+      "Session cache hit rate (% of session validations served from cache)",
+      "Failed authentication attempts per user (detect brute force)",
+      "Session duration (average time between creation and expiration)",
+      "Password reset request rate (% of users requesting reset)"
+    ]
+  },
+  "movements": [
+    {
+      "number": 1,
+      "name": "Password Security Implementation",
+      "description": "Implement secure password hashing with bcrypt and validation",
+      "tempo": "Measured",
+      "status": "active",
+      "userStory": {
+        "persona": "Security Engineer",
+        "goal": "Ensure user passwords are stored securely using industry-standard hashing",
+        "benefit": "Protect user accounts even if database is compromised"
+      },
+      "beats": [
+        {
+          "beat": 1,
+          "name": "Install BCrypt.Net Package",
+          "handler": {
+            "name": "NuGet Package Manager",
+            "scope": "external",
+            "externalSystem": {
+              "vendor": "NuGet",
+              "system": "Package Manager",
+              "type": "dependency_manager"
+            }
+          },
+          "event": "package.bcrypt.installed",
+          "acceptanceCriteria": [
+            {
+              "given": "Project requires password hashing",
+              "when": "BCrypt.Net-Next package is installed",
+              "then": "Package is added to project dependencies with version ≥4.0.3"
+            }
+          ],
+          "notes": [
+            "Use BCrypt.Net-Next (maintained fork)",
+            "Version 4.0.3 or higher recommended",
+            "Install via: dotnet add package BCrypt.Net-Next"
+          ]
+        },
+        {
+          "beat": 2,
+          "name": "Create Password Hashing Service",
+          "handler": {
+            "name": "PasswordHashingService.HashPassword",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Services/Security/PasswordHashingService.cs"
+          },
+          "event": "password.hashed",
+          "testFile": "src/OrchestrationWisdom/Tests/Services/PasswordHashingServiceTests.cs",
+          "testCase": "HashPassword_GeneratesDifferentHashes_ForSamePassword",
+          "acceptanceCriteria": [
+            {
+              "given": "Plain text password provided",
+              "when": "HashPassword is called",
+              "then": "BCrypt hash is generated with cost factor 12 (2^12 iterations)"
+            },
+            {
+              "given": "Same password hashed multiple times",
+              "when": "Hashes are compared",
+              "then": "Each hash is unique due to random salt"
+            }
+          ],
+          "notes": [
+            "Use BCrypt.HashPassword(password, workFactor: 12)",
+            "Work factor 12 = ~300ms hash time (good balance)",
+            "Salt is automatically included in hash",
+            "Hash length: 60 characters"
+          ]
+        },
+        {
+          "beat": 3,
+          "name": "Implement Password Verification",
+          "handler": {
+            "name": "PasswordHashingService.VerifyPassword",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Services/Security/PasswordHashingService.cs"
+          },
+          "event": "password.verified",
+          "testFile": "src/OrchestrationWisdom/Tests/Services/PasswordHashingServiceTests.cs",
+          "testCase": "VerifyPassword_ReturnsTrue_WhenPasswordMatches",
+          "acceptanceCriteria": [
+            {
+              "given": "Correct password and stored hash",
+              "when": "VerifyPassword is called",
+              "then": "Returns true indicating password match"
+            },
+            {
+              "given": "Incorrect password and stored hash",
+              "when": "VerifyPassword is called",
+              "then": "Returns false indicating password mismatch"
+            },
+            {
+              "given": "Password verification takes excessive time",
+              "when": "Verification completes",
+              "then": "Security event is logged (potential timing attack)"
+            }
+          ],
+          "notes": [
+            "Use BCrypt.Verify(password, hash)",
+            "Timing-safe comparison (constant time)",
+            "Log failed attempts for security monitoring",
+            "Never expose whether email or password was wrong"
+          ]
+        },
+        {
+          "beat": 4,
+          "name": "Update User Registration with Hashing",
+          "handler": {
+            "name": "AuthenticationService.RegisterUser",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Services/AuthenticationService.cs"
+          },
+          "event": "user.registered",
+          "testFile": "src/OrchestrationWisdom/Tests/Services/AuthenticationServiceTests.cs",
+          "testCase": "RegisterUser_StoresHashedPassword_NeverPlaintext",
+          "acceptanceCriteria": [
+            {
+              "given": "New user registration with password",
+              "when": "User is created in database",
+              "then": "Password is hashed before storage, plaintext never persisted"
+            },
+            {
+              "given": "User already exists with email",
+              "when": "Registration is attempted",
+              "then": "Registration fails with clear error message"
+            }
+          ],
+          "notes": [
+            "Validate password strength (min 8 chars, complexity)",
+            "Hash password before any database operation",
+            "Never log or expose plaintext password",
+            "Return generic error for existing email (prevent enumeration)"
+          ]
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "name": "Redis Session Storage",
+      "description": "Implement distributed session storage using Redis for horizontal scaling",
+      "tempo": "Measured",
+      "status": "active",
+      "userStory": {
+        "persona": "DevOps Engineer",
+        "goal": "Enable horizontal scaling with persistent session storage",
+        "benefit": "Sessions survive server restarts and work across multiple application instances"
+      },
+      "beats": [
+        {
+          "beat": 5,
+          "name": "Install StackExchange.Redis Package",
+          "handler": {
+            "name": "NuGet Package Manager",
+            "scope": "external"
+          },
+          "event": "package.redis.installed",
+          "acceptanceCriteria": [
+            {
+              "given": "Project requires distributed caching",
+              "when": "StackExchange.Redis package is installed",
+              "then": "Package version ≥2.7.0 is added to dependencies"
+            }
+          ],
+          "notes": [
+            "Install via: dotnet add package StackExchange.Redis",
+            "Also install: Microsoft.Extensions.Caching.StackExchangeRedis",
+            "Version 2.7.0+ recommended for .NET 8+"
+          ]
+        },
+        {
+          "beat": 6,
+          "name": "Configure Redis Connection",
+          "handler": {
+            "name": "Program.ConfigureRedis",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Program.cs"
+          },
+          "event": "redis.configured",
+          "testFile": "src/OrchestrationWisdom/Tests/Integration/RedisConnectionTests.cs",
+          "testCase": "Redis_ConnectsSuccessfully_WithConfiguration",
+          "acceptanceCriteria": [
+            {
+              "given": "Redis connection string in appsettings.json",
+              "when": "Application starts",
+              "then": "Redis connection is established and validated"
+            },
+            {
+              "given": "Redis is unavailable at startup",
+              "when": "Connection attempt fails",
+              "then": "Application falls back to in-memory cache with warning logged"
+            }
+          ],
+          "notes": [
+            "Connection string format: localhost:6379,password=xxx",
+            "Use IDistributedCache abstraction for testability",
+            "Configure connection pooling and retry policy",
+            "Local dev: docker run -p 6379:6379 redis"
+          ]
+        },
+        {
+          "beat": 7,
+          "name": "Implement Redis Session Manager",
+          "handler": {
+            "name": "RedisSessionManager.CreateSessionAsync",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Services/RedisSessionManager.cs"
+          },
+          "event": "session.stored.redis",
+          "testFile": "src/OrchestrationWisdom/Tests/Services/RedisSessionManagerTests.cs",
+          "testCase": "CreateSession_StoresInRedis_WithExpiration",
+          "acceptanceCriteria": [
+            {
+              "given": "New user session created",
+              "when": "Session is stored in Redis",
+              "then": "Session data is serialized to JSON and stored with 24h TTL"
+            },
+            {
+              "given": "Session stored in Redis",
+              "when": "TTL expires",
+              "then": "Redis automatically deletes session (no manual cleanup needed)"
+            }
+          ],
+          "notes": [
+            "Use IDistributedCache.SetAsync with DistributedCacheEntryOptions",
+            "Serialize UserSession to JSON (System.Text.Json)",
+            "Key format: session:{sessionId}",
+            "Set SlidingExpiration for auto-renewal on access"
+          ]
+        },
+        {
+          "beat": 8,
+          "name": "Implement Session Retrieval from Redis",
+          "handler": {
+            "name": "RedisSessionManager.GetSessionAsync",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Services/RedisSessionManager.cs"
+          },
+          "event": "session.retrieved.redis",
+          "testFile": "src/OrchestrationWisdom/Tests/Services/RedisSessionManagerTests.cs",
+          "testCase": "GetSession_RetrievesFromRedis_AndDeserializes",
+          "acceptanceCriteria": [
+            {
+              "given": "Valid session token provided",
+              "when": "GetSessionAsync is called",
+              "then": "Session data is retrieved from Redis and deserialized to UserSession object"
+            },
+            {
+              "given": "Session does not exist in Redis",
+              "when": "GetSessionAsync is called",
+              "then": "Returns null without throwing exception"
+            },
+            {
+              "given": "Session accessed before expiration",
+              "when": "Using SlidingExpiration",
+              "then": "TTL is automatically renewed for another 24 hours"
+            }
+          ],
+          "notes": [
+            "Use IDistributedCache.GetAsync",
+            "Deserialize JSON to UserSession",
+            "Handle deserialization errors gracefully",
+            "SlidingExpiration automatically renews TTL on read"
+          ]
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "name": "HTTP Cookie Authentication",
+      "description": "Implement secure HTTP-only cookie-based authentication",
+      "tempo": "Quick",
+      "status": "active",
+      "userStory": {
+        "persona": "Frontend Developer",
+        "goal": "Automatically include authentication with every request without manual token management",
+        "benefit": "Browser automatically sends session cookie, reducing client-side complexity and XSS risk"
+      },
+      "beats": [
+        {
+          "beat": 9,
+          "name": "Configure Cookie Authentication",
+          "handler": {
+            "name": "Program.ConfigureCookieAuth",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Program.cs"
+          },
+          "event": "cookie.auth.configured",
+          "acceptanceCriteria": [
+            {
+              "given": "Application uses cookie-based authentication",
+              "when": "Cookie middleware is configured",
+              "then": "Cookies are HTTP-only, Secure (HTTPS), and SameSite=Strict"
+            }
+          ],
+          "notes": [
+            "Use AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)",
+            "Configure: HttpOnly=true, Secure=true, SameSite=Strict",
+            "Cookie name: .OrchestrationWisdom.Session",
+            "ExpireTimeSpan: 24 hours"
+          ]
+        },
+        {
+          "beat": 10,
+          "name": "Create Authentication Cookie on Sign In",
+          "handler": {
+            "name": "AuthenticationService.SignInAsync",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Services/AuthenticationService.cs"
+          },
+          "event": "cookie.created",
+          "testFile": "src/OrchestrationWisdom/Tests/Services/AuthenticationServiceTests.cs",
+          "testCase": "SignIn_SetsCookie_WithSessionToken",
+          "acceptanceCriteria": [
+            {
+              "given": "User successfully authenticates",
+              "when": "Session is created",
+              "then": "HTTP-only cookie is set with session token and proper security flags"
+            },
+            {
+              "given": "Cookie is set",
+              "when": "Response is sent to browser",
+              "then": "Cookie includes: HttpOnly=true, Secure=true, SameSite=Strict, Path=/"
+            }
+          ],
+          "notes": [
+            "Use HttpContext.SignInAsync with ClaimsPrincipal",
+            "Store session token in cookie value",
+            "Set cookie expiration to match session TTL",
+            "Include user ID and email as claims"
+          ]
+        },
+        {
+          "beat": 11,
+          "name": "Validate Session from Cookie",
+          "handler": {
+            "name": "SessionValidationMiddleware.Invoke",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Middleware/SessionValidationMiddleware.cs"
+          },
+          "event": "session.validated.cookie",
+          "testFile": "src/OrchestrationWisdom/Tests/Middleware/SessionValidationMiddlewareTests.cs",
+          "testCase": "Middleware_ValidatesSession_OnEachRequest",
+          "acceptanceCriteria": [
+            {
+              "given": "Request includes authentication cookie",
+              "when": "Middleware executes",
+              "then": "Session token is extracted and validated against Redis"
+            },
+            {
+              "given": "Session is valid in Redis",
+              "when": "Validation completes",
+              "then": "User context is set in HttpContext.User for downstream handlers"
+            },
+            {
+              "given": "Session is expired or invalid",
+              "when": "Validation fails",
+              "then": "Cookie is deleted and user is redirected to sign-in"
+            }
+          ],
+          "notes": [
+            "Run middleware early in pipeline (after routing)",
+            "Extract session token from cookie",
+            "Validate against Redis session store",
+            "Set HttpContext.User with ClaimsPrincipal",
+            "Log validation failures for security monitoring"
+          ]
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "name": "OAuth Integration",
+      "description": "Implement production OAuth flows for Google, GitHub, and Microsoft",
+      "tempo": "Deliberate",
+      "status": "active",
+      "userStory": {
+        "persona": "User",
+        "goal": "Sign in quickly using existing Google/GitHub/Microsoft account",
+        "benefit": "No password to remember, faster onboarding, trusted authentication provider"
+      },
+      "beats": [
+        {
+          "beat": 12,
+          "name": "Install OAuth Authentication Packages",
+          "handler": {
+            "name": "NuGet Package Manager",
+            "scope": "external"
+          },
+          "event": "package.oauth.installed",
+          "acceptanceCriteria": [
+            {
+              "given": "Application supports OAuth providers",
+              "when": "OAuth packages are installed",
+              "then": "Microsoft.AspNetCore.Authentication.Google, GitHub, and Microsoft packages are added"
+            }
+          ],
+          "notes": [
+            "Install: Microsoft.AspNetCore.Authentication.Google",
+            "Install: AspNet.Security.OAuth.GitHub",
+            "Install: Microsoft.AspNetCore.Authentication.MicrosoftAccount",
+            "All packages should match ASP.NET Core version"
+          ]
+        },
+        {
+          "beat": 13,
+          "name": "Register OAuth Applications",
+          "handler": {
+            "name": "OAuth Provider Consoles",
+            "scope": "external",
+            "externalSystem": {
+              "vendor": "Google/GitHub/Microsoft",
+              "system": "Developer Console",
+              "type": "oauth_provider"
+            }
+          },
+          "event": "oauth.app.registered",
+          "acceptanceCriteria": [
+            {
+              "given": "OAuth provider selected (Google, GitHub, Microsoft)",
+              "when": "Application is registered",
+              "then": "Client ID and Client Secret are obtained for configuration"
+            },
+            {
+              "given": "Redirect URIs configured",
+              "when": "OAuth flow executes",
+              "then": "Callback URL matches registered URI: /signin-google, /signin-github, /signin-microsoft"
+            }
+          ],
+          "notes": [
+            "Google: console.cloud.google.com/apis/credentials",
+            "GitHub: github.com/settings/developers",
+            "Microsoft: portal.azure.com (Azure AD app registration)",
+            "Store Client ID and Secret in appsettings.json (use User Secrets for dev)",
+            "Configure authorized redirect URIs for each provider"
+          ]
+        },
+        {
+          "beat": 14,
+          "name": "Configure OAuth Providers",
+          "handler": {
+            "name": "Program.ConfigureOAuth",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Program.cs"
+          },
+          "event": "oauth.configured",
+          "testFile": "src/OrchestrationWisdom/Tests/Integration/OAuthConfigurationTests.cs",
+          "testCase": "OAuth_ConfiguredCorrectly_ForAllProviders",
+          "acceptanceCriteria": [
+            {
+              "given": "OAuth configuration in appsettings.json",
+              "when": "Application starts",
+              "then": "Google, GitHub, and Microsoft OAuth handlers are registered with correct client IDs"
+            }
+          ],
+          "notes": [
+            "Use AddAuthentication().AddGoogle().AddGitHub().AddMicrosoft()",
+            "Configure ClientId and ClientSecret from configuration",
+            "Set SaveTokens = true to retrieve access token",
+            "Configure scopes: email, profile for each provider"
+          ]
+        },
+        {
+          "beat": 15,
+          "name": "Implement OAuth Challenge",
+          "handler": {
+            "name": "AuthController.OAuthChallenge",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Controllers/AuthController.cs"
+          },
+          "event": "oauth.challenge.initiated",
+          "testFile": "src/OrchestrationWisdom/Tests/Controllers/AuthControllerTests.cs",
+          "testCase": "OAuthChallenge_RedirectsToProvider_WithState",
+          "acceptanceCriteria": [
+            {
+              "given": "User clicks 'Continue with Google'",
+              "when": "OAuth challenge is initiated",
+              "then": "User is redirected to Google OAuth with state parameter for CSRF protection"
+            },
+            {
+              "given": "OAuth state parameter generated",
+              "when": "State is created",
+              "then": "State is stored in session for validation on callback"
+            }
+          ],
+          "notes": [
+            "Use HttpContext.ChallengeAsync(provider)",
+            "Generate and store state parameter (CSRF protection)",
+            "Set returnUrl for post-authentication redirect",
+            "Handle provider parameter: google, github, microsoft"
+          ]
+        },
+        {
+          "beat": 16,
+          "name": "Handle OAuth Callback",
+          "handler": {
+            "name": "AuthController.OAuthCallback",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Controllers/AuthController.cs"
+          },
+          "event": "oauth.callback.processed",
+          "testFile": "src/OrchestrationWisdom/Tests/Controllers/AuthControllerTests.cs",
+          "testCase": "OAuthCallback_ExchangesCode_CreatesSession",
+          "acceptanceCriteria": [
+            {
+              "given": "OAuth provider redirects back with authorization code",
+              "when": "Callback is processed",
+              "then": "Code is exchanged for access token and user info is retrieved"
+            },
+            {
+              "given": "User info retrieved from OAuth provider",
+              "when": "User lookup in database",
+              "then": "Existing user is found or new user is created with OAuth profile data"
+            },
+            {
+              "given": "OAuth state parameter in callback",
+              "when": "State is validated",
+              "then": "State matches stored value or callback is rejected (CSRF protection)"
+            }
+          ],
+          "notes": [
+            "Use HttpContext.AuthenticateAsync(provider)",
+            "Extract claims: email, name, picture from OAuth result",
+            "Validate state parameter against stored value",
+            "Create or update user in database",
+            "Create session and set authentication cookie",
+            "Redirect to returnUrl (workspace)"
+          ]
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "name": "Security Hardening",
+      "description": "Implement rate limiting, CSRF protection, and security monitoring",
+      "tempo": "Measured",
+      "status": "active",
+      "userStory": {
+        "persona": "Security Engineer",
+        "goal": "Protect authentication endpoints from abuse and attacks",
+        "benefit": "Prevent brute force attacks, CSRF, and other authentication vulnerabilities"
+      },
+      "beats": [
+        {
+          "beat": 17,
+          "name": "Implement Rate Limiting",
+          "handler": {
+            "name": "RateLimitingMiddleware.Invoke",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Middleware/RateLimitingMiddleware.cs"
+          },
+          "event": "rate.limit.enforced",
+          "testFile": "src/OrchestrationWisdom/Tests/Middleware/RateLimitingMiddlewareTests.cs",
+          "testCase": "RateLimit_Blocks_After5FailedAttempts",
+          "acceptanceCriteria": [
+            {
+              "given": "User attempts authentication 5 times with wrong password",
+              "when": "6th attempt is made within 15 minutes",
+              "then": "Request is blocked with 429 Too Many Requests status"
+            },
+            {
+              "given": "Rate limit exceeded",
+              "when": "User waits 15 minutes",
+              "then": "Rate limit counter resets and authentication is allowed again"
+            }
+          ],
+          "notes": [
+            "Use AspNetCoreRateLimit package",
+            "Configure: 5 attempts per IP per 15 minutes",
+            "Track by IP address and email (whichever is stricter)",
+            "Return 429 with Retry-After header",
+            "Log rate limit violations for security monitoring"
+          ]
+        },
+        {
+          "beat": 18,
+          "name": "Add CSRF Token Validation",
+          "handler": {
+            "name": "AntiforgeryMiddleware.Validate",
+            "scope": "internal"
+          },
+          "event": "csrf.validated",
+          "acceptanceCriteria": [
+            {
+              "given": "Authentication form submitted",
+              "when": "Request is processed",
+              "then": "CSRF token is validated before authentication proceeds"
+            },
+            {
+              "given": "CSRF token missing or invalid",
+              "when": "Validation executes",
+              "then": "Request is rejected with 400 Bad Request"
+            }
+          ],
+          "notes": [
+            "ASP.NET Core includes built-in antiforgery",
+            "Add [ValidateAntiForgeryToken] to auth endpoints",
+            "Include @Html.AntiForgeryToken() in forms",
+            "OAuth state parameter provides CSRF protection for OAuth flows"
+          ]
+        },
+        {
+          "beat": 19,
+          "name": "Implement Security Logging",
+          "handler": {
+            "name": "SecurityLogger.LogAuthEvent",
+            "scope": "internal",
+            "sourcePath": "src/OrchestrationWisdom/Services/Security/SecurityLogger.cs"
+          },
+          "event": "security.event.logged",
+          "testFile": "src/OrchestrationWisdom/Tests/Services/SecurityLoggerTests.cs",
+          "testCase": "SecurityLogger_LogsFailedAttempts_WithDetails",
+          "acceptanceCriteria": [
+            {
+              "given": "Failed authentication attempt",
+              "when": "Security event is logged",
+              "then": "Log includes: timestamp, IP, email (if provided), reason for failure"
+            },
+            {
+              "given": "Multiple failed attempts from same IP",
+              "when": "Pattern is detected",
+              "then": "Alert is triggered for potential brute force attack"
+            }
+          ],
+          "notes": [
+            "Log all authentication events (success and failure)",
+            "Include: timestamp, IP, user agent, email, result",
+            "Never log passwords or tokens",
+            "Send alerts for suspicious patterns (many failures, credential stuffing)",
+            "Integrate with SIEM for security monitoring"
+          ]
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "name": "Testing & Validation",
+      "description": "Comprehensive testing of authentication flows and security",
+      "tempo": "Measured",
+      "status": "active",
+      "userStory": {
+        "persona": "QA Engineer",
+        "goal": "Verify all authentication flows work correctly and securely",
+        "benefit": "Confidence that authentication is production-ready and secure"
+      },
+      "beats": [
+        {
+          "beat": 20,
+          "name": "Unit Test Password Hashing",
+          "handler": {
+            "name": "xUnit Test Runner",
+            "scope": "external"
+          },
+          "event": "tests.password.passed",
+          "testFile": "src/OrchestrationWisdom/Tests/Services/PasswordHashingServiceTests.cs",
+          "testCase": "PasswordHashing_AllScenarios_Pass",
+          "acceptanceCriteria": [
+            {
+              "given": "Password hashing service tests",
+              "when": "All tests run",
+              "then": "Hash generation, verification, and salt uniqueness tests pass"
+            }
+          ],
+          "notes": [
+            "Test: Hash generates different output for same password",
+            "Test: Correct password verifies successfully",
+            "Test: Incorrect password fails verification",
+            "Test: Hash length is 60 characters"
+          ]
+        },
+        {
+          "beat": 21,
+          "name": "Integration Test Redis Session Storage",
+          "handler": {
+            "name": "xUnit Test Runner with Testcontainers",
+            "scope": "external"
+          },
+          "event": "tests.redis.passed",
+          "testFile": "src/OrchestrationWisdom/Tests/Integration/RedisSessionTests.cs",
+          "testCase": "Redis_SessionLifecycle_WorksCorrectly",
+          "acceptanceCriteria": [
+            {
+              "given": "Redis container running via Testcontainers",
+              "when": "Session lifecycle tests execute",
+              "then": "Create, retrieve, expire, and delete operations work correctly"
+            }
+          ],
+          "notes": [
+            "Use Testcontainers.Redis for integration tests",
+            "Test: Session stored and retrieved correctly",
+            "Test: Session expires after TTL",
+            "Test: Session renewal on access (sliding expiration)"
+          ]
+        },
+        {
+          "beat": 22,
+          "name": "End-to-End Test OAuth Flow",
+          "handler": {
+            "name": "Playwright Test Runner",
+            "scope": "external"
+          },
+          "event": "tests.oauth.passed",
+          "testFile": "tests/e2e/oauth-flow.spec.ts",
+          "testCase": "OAuth_CompleteFlow_GoogleGitHubMicrosoft",
+          "acceptanceCriteria": [
+            {
+              "given": "OAuth provider credentials configured",
+              "when": "E2E test simulates OAuth flow",
+              "then": "User completes OAuth and lands in workspace with valid session"
+            }
+          ],
+          "notes": [
+            "Use Playwright for browser automation",
+            "Test each provider: Google, GitHub, Microsoft",
+            "Verify: Redirect to provider, callback handling, session creation",
+            "Mock OAuth providers in test environment"
+          ]
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "author": "Orchestration Wisdom Platform",
+    "created": "2026-01-11",
+    "tags": [
+      "authentication",
+      "security",
+      "oauth",
+      "redis",
+      "session-management",
+      "production-ready"
+    ]
+  }
+}

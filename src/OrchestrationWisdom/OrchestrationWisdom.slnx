@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="../../tools/MarkdownViewer/MarkdownViewer.csproj" />
   <Project Path="OrchestrationWisdom/OrchestrationWisdom.csproj" />
 </Solution>

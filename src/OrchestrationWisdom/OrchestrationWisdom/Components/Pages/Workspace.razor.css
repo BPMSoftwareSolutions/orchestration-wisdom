@@ -268,6 +268,37 @@
     font-style: italic;
 }
 
+.alert {
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.alert-info {
+    background: #e0f2fe;
+    border: 1px solid #7dd3fc;
+    color: #0c4a6e;
+}
+
+.alert strong {
+    font-size: 1.125rem;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.alert p {
+    margin: 0;
+    line-height: 1.6;
+}
+
+.alert button {
+    align-self: flex-start;
+    margin-top: 0.5rem;
+}
+
 @media (max-width: 768px) {
     .workspace-header {
         flex-direction: column;

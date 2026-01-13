@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MVP v0: User Experience Journey</title>
+    <style>
+        /* Light mode (default) */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #34495e;
+            border-bottom: 2px solid #95a5a6;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        h3 {
+            color: #16a085;
+            margin-top: 25px;
+            margin-bottom: 12px;
+        }
+        h4 {
+            color: #e67e22;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        blockquote {
+            background-color: #ecf0f1;
+            border-left: 4px solid #3498db;
+            padding: 12px 20px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        code {
+            background-color: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            color: #e74c3c;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            line-height: 1.2;
+            color: #2c3e50;
+        }
+        ul {
+            margin: 10px 0;
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ecf0f1;
+            margin: 30px 0;
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        strong {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        .beat-section {
+            background-color: #fafafa;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 3px solid #e67e22;
+            border-radius: 4px;
+        }
+        .metadata {
+            background-color: #f0f8ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 30px;
+        }
+        nav {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 4px;
+            border-left: 4px solid #3498db;
+            margin: 20px 0;
+        }
+        nav ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        nav ul ul {
+            padding-left: 20px;
+        }
+        nav ul ul ul {
+            padding-left: 20px;
+        }
+        nav li {
+            margin: 5px 0;
+        }
+        nav a {
+            text-decoration: none;
+            color: #3498db;
+            transition: color 0.2s;
+        }
+        nav a:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+
+        /* Dark mode */
+        @media (prefers-color-scheme: dark) {
+            body {
+                color: #e4e4e7;
+                background-color: #18181b;
+            }
+            .container {
+                background-color: #27272a;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            }
+            h1 {
+                color: #fafafa;
+                border-bottom-color: #60a5fa;
+            }
+            h2 {
+                color: #e4e4e7;
+                border-bottom-color: #52525b;
+            }
+            h3 {
+                color: #5eead4;
+            }
+            h4 {
+                color: #fb923c;
+            }
+            blockquote {
+                background-color: #3f3f46;
+                border-left-color: #60a5fa;
+                color: #e4e4e7;
+            }
+            code {
+                background-color: #3f3f46;
+                color: #fca5a5;
+            }
+            pre {
+                background-color: #3f3f46;
+                color: #e4e4e7;
+            }
+            hr {
+                border-top-color: #3f3f46;
+            }
+            a {
+                color: #60a5fa;
+            }
+            a:hover {
+                color: #93c5fd;
+            }
+            strong {
+                color: #fafafa;
+            }
+            .beat-section {
+                background-color: #3f3f46;
+                border-left-color: #fb923c;
+            }
+            .metadata {
+                background-color: #1e3a5f;
+            }
+            nav {
+                background-color: #3f3f46;
+                border-left-color: #60a5fa;
+            }
+            nav a {
+                color: #60a5fa;
+            }
+            nav a:hover {
+                color: #93c5fd;
+            }
+            p {
+                color: #d4d4d8;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+<h1>MVP v0: User Experience Journey</h1>
+
+<blockquote><strong>Domain</strong>: orchestration-wisdom | <strong>Status</strong>: active | <strong>Auto-generated from</strong>: <a href="../../sequences/mvp-v0-user-experience.json">mvp-v0-user-experience.json</a></blockquote>
+
+<h2>Table of Contents</h2>
+<nav>
+
+<ul>
+  <li><a href="#overview">Overview</a></li>
+  <li><a href="#user-story">User Story</a></li>
+  <li><a href="#business-value">Business Value</a></li>
+  <li><a href="#governance">Governance</a></li>
+  <li><a href="#workflow-movements">Workflow Movements</a></li>
+  <li><a href="#movement-1-ai-assisted-pattern-generation">Movement 1: AI-Assisted Pattern Generation</a></li>
+  <li><a href="#beat-1-load-template-and-structure">Beat 1: Load Template and Structure</a></li>
+  <li><a href="#beat-2-generate-hook">Beat 2: Generate Hook</a></li>
+  <li><a href="#beat-3-generate-problem-detail">Beat 3: Generate Problem Detail</a></li>
+  <li><a href="#beat-4-generate-mermaid-diagrams">Beat 4: Generate Mermaid Diagrams</a></li>
+  <li><a href="#beat-5-complete-remaining-sections">Beat 5: Complete Remaining Sections</a></li>
+  <li><a href="#movement-2-desktop-preview--validation">Movement 2: Desktop Preview & Validation</a></li>
+  <li><a href="#beat-1-render-markdown-preview">Beat 1: Render Markdown Preview</a></li>
+  <li><a href="#beat-2-edit-and-refine-content">Beat 2: Edit and Refine Content</a></li>
+  <li><a href="#beat-3-validate-diagram-budgets">Beat 3: Validate Diagram Budgets</a></li>
+  <li><a href="#beat-4-calculate-hqo-scorecard">Beat 4: Calculate HQO Scorecard</a></li>
+  <li><a href="#beat-5-export-html-preview">Beat 5: Export HTML Preview</a></li>
+  <li><a href="#movement-3-json-conversion--publication">Movement 3: JSON Conversion & Publication</a></li>
+  <li><a href="#beat-1-convert-markdown-to-json">Beat 1: Convert Markdown to JSON</a></li>
+  <li><a href="#beat-2-validate-json-schema">Beat 2: Validate JSON Schema</a></li>
+  <li><a href="#beat-3-commit-to-repository">Beat 3: Commit to Repository</a></li>
+  <li><a href="#beat-4-deploy-to-platform">Beat 4: Deploy to Platform</a></li>
+  <li><a href="#beat-5-track-publication-event">Beat 5: Track Publication Event</a></li>
+  <li><a href="#metadata">Metadata</a></li>
+</ul>
+
+</nav>
+<h2>Overview</h2>
+
+<p>Documents how AI researchers and content creators use the Orchestration Wisdom platform to author, preview, and publish operational patterns from initial research through final publication</p>
+
+<p><strong>Purpose</strong>: Enable rapid, high-quality pattern creation using AI-assisted authoring with desktop preview and structured validation</p>
+
+<p><strong>Trigger</strong>: AI researcher identifies new operational pattern or receives request to document known anti-pattern</p>
+
+<h2>User Story</h2>
+
+<p><strong>As a</strong> AI Content Researcher,</p>
+<p><strong>I want to</strong> Transform operational research into structured, publishable orchestration patterns,</p>
+<p><strong>So that</strong> Accelerate knowledge capture and sharing with consistent quality and structure.</p>
+
+<h3>User Story Diagram</h3>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Researcher as ðŸ§‘â€ðŸ’» AI Researcher</p>
+<p>  participant AI as ðŸ¤– Claude/GPT-4</p>
+<p>  participant Viewer as ðŸ–¥ï¸ MarkdownViewer</p>
+<p>  participant Platform as ðŸŒ OW Platform</p>
+
+<p>  Researcher->>AI: Research escalation anti-pattern</p>
+<p>  rect rgb(230, 245, 255)</p>
+<p>  Note over Researcher,Viewer: Movement 1: Pattern Generation</p>
+<p>  AI-->>Researcher: âœ“ ARTICLE.md with Mermaid diagrams</p>
+<p>  Researcher->>Viewer: Open in MarkdownViewer</p>
+<p>  Viewer-->>Researcher: âœ“ Live preview with diagrams</p>
+<p>  end</p>
+
+<p>  rect rgb(255, 245, 230)</p>
+<p>  Note over Researcher,Viewer: Movement 2: Refinement & Validation  </p>
+<p>  Researcher->>Viewer: Edit markdown, refine diagrams</p>
+<p>  Viewer->>Viewer: âœ“ Validate diagram budgets</p>
+<p>  Viewer->>Viewer: âœ“ Calculate HQO scorecard</p>
+<p>  Viewer-->>Researcher: âœ“ Score: 35/40 (Ready to publish)</p>
+<p>  end</p>
+
+<p>  rect rgb(240, 255, 240)</p>
+<p>  Note over Researcher,Platform: Movement 3: Publication</p>
+<p>  Researcher->>Viewer: Export to OWS JSON</p>
+<p>  Viewer-->>Researcher: âœ“ pattern.json created</p>
+<p>  Researcher->>Platform: Upload pattern</p>
+<p>  Platform-->>Researcher: âœ… Published: /patterns/escalation-backlog</p>
+<p>  end</p>
+<p>```</p>
+
+<h2>Business Value</h2>
+
+
+
+<h2>Governance</h2>
+
+<h3>Policies</h3>
+<ul>
+  <li>All patterns must score â‰¥30/40 on HQO rubric before publication</li>
+  <li>No dimension may score below 3 on HQO rubric</li>
+  <li>Mermaid diagrams must adhere to budget constraints (â‰¤7 actors, â‰¤18 steps)</li>
+  <li>Patterns must include all required sections per OWS template</li>
+  <li>AI-generated content must be reviewed and refined by human expert</li>
+</ul>
+
+<h3>Metrics</h3>
+<ul>
+  <li>Pattern generation time (research â†’ publication)</li>
+  <li>HQO score distribution across published patterns</li>
+  <li>AI token usage per pattern</li>
+  <li>Pattern revision cycles before publication</li>
+  <li>User engagement metrics (views, downloads, implementations)</li>
+</ul>
+
+<h2>Workflow Movements</h2>
+
+<h3>Movement 1: AI-Assisted Pattern Generation</h3>
+
+<p>Use AI (Claude, GPT-4) to research and generate initial pattern draft in markdown format following OWS template structure</p>
+
+<p><strong>Tempo</strong>: 120 | <strong>Status</strong>: active</p>
+
+
+<h4>User Story</h4>
+
+<p><strong>As a</strong> AI Content Researcher,</p>
+<p><strong>I want to</strong> Generate comprehensive pattern draft from operational anti-pattern research,</p>
+<p><strong>So that</strong> Accelerate initial content creation from hours to minutes with AI assistance.</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Researcher as ðŸ§‘â€ðŸ’» Researcher</p>
+<p>  participant AI as ðŸ¤– AI Assistant</p>
+<p>  participant Template as ðŸ“„ OWS Template</p>
+
+<p>  Note over Researcher,Template: Movement 1: AI-Assisted Pattern Generation</p>
+
+<p>  Researcher->>AI: Prompt: Research support ticket escalation backlog pattern</p>
+<p>  AI->>AI: Analyze problem space</p>
+<p>  AI->>Template: Load OWS ARTICLE.md structure</p>
+<p>  AI->>AI: Generate Hook (1-2 sentences)</p>
+<p>  AI->>AI: Generate Problem Detail (context + impact)</p>
+<p>  AI->>AI: Create As-Is Mermaid diagram (current broken state)</p>
+<p>  AI->>AI: Create Orchestrated Mermaid diagram (improved state)</p>
+<p>  AI->>AI: Identify Decision Point (critical choice)</p>
+<p>  AI->>AI: Define Metrics & SLAs</p>
+<p>  AI->>AI: Build Implementation Checklist</p>
+<p>  AI->>AI: Calculate Orchestration Scorecard (8 dimensions)</p>
+<p>  AI->>AI: Write Closing Insight</p>
+<p>  AI-->>Researcher: âœ… Complete ARTICLE.md draft ready for review</p>
+<p>```</p>
+
+<p><strong>Beats</strong>: 5</p>
+
+<h4>Beat 1: Load Template and Structure</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>AI Prompt Engineering with OWS Template</code></li>
+  <li><strong>External System</strong>: Anthropic / OpenAI - Claude 3.5 Sonnet / GPT-4 (api)</li>
+  <li><strong>Integration</strong>: AI model receives OWS template as context in system prompt</li>
+  <li><strong>Event</strong>: template.loaded</li>
+  <li><strong>Test</strong>: <a href="../../docs/examples/article-template.md">docs/examples/article-template.md</a> - <code>AI can parse and identify all 9 required sections</code></li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: AI Researcher</li>
+  <li><strong>Goal</strong>: Ensure AI understands expected pattern structure</li>
+  <li><strong>Benefit</strong>: Generates properly formatted content matching platform requirements</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant R as Researcher</p>
+<p>  participant AI</p>
+<p>  R->>AI: Load ARTICLE.md template</p>
+<p>  AI-->>R: âœ“ Template structure loaded</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Researcher as ðŸ§‘â€ðŸ’» Researcher</p>
+<p>  participant AI as ðŸ¤– AI</p>
+<p>  participant Template as ðŸ“„ Template Store</p>
+
+<p>  Note over Researcher,Template: Beat 1: Load Template and Structure</p>
+
+<p>  Researcher->>Template: Get OWS ARTICLE.md template</p>
+<p>  Template-->>Researcher: âœ“ Template markdown</p>
+<p>  Researcher->>AI: System Prompt: Use this OWS template structure</p>
+<p>  AI->>AI: Parse template sections (Hook, Problem, Diagrams...)</p>
+<p>  AI-->>Researcher: âœ… Template structure understood (9 sections identified)</p>
+<p>```</p>
+
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+  <li><strong>Given</strong>: OWS ARTICLE.md template available</li>
+  <li><strong>When</strong>: Researcher provides template to AI</li>
+  <li><strong>Then</strong>: AI acknowledges template structure</li>
+</ul>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>Template should include inline examples for each section</li>
+  <li>Diagram budget constraints should be explicit in template comments</li>
+</ul>
+
+<h4>Beat 2: Generate Hook</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>AI Content Generation</code></li>
+  <li><strong>External System</strong>: Anthropic - Claude 3.5 Sonnet (api)</li>
+  <li><strong>Integration</strong>: Generate compelling hook that resonates with practitioners</li>
+  <li><strong>Event</strong>: hook.generated</li>
+  <li><strong>Test</strong>: <a href="../../N/A - AI generated content">N/A - AI generated content</a> - <code>Generated hooks score â‰¥7/10 on readability and engagement</code></li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: Content Creator</li>
+  <li><strong>Goal</strong>: Create hook that immediately resonates with target audience</li>
+  <li><strong>Benefit</strong>: Increase pattern engagement and readership</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant AI</p>
+<p>  AI->>AI: Generate hook</p>
+<p>  AI-->>AI: âœ“ Compelling hook created</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Researcher as ðŸ§‘â€ðŸ’» Researcher</p>
+<p>  participant AI as ðŸ¤– AI</p>
+
+<p>  Note over Researcher,AI: Beat 2: Generate Hook</p>
+
+<p>  Researcher->>AI: Generate hook for escalation backlog pattern</p>
+<p>  AI->>AI: Identify universal pain point</p>
+<p>  AI->>AI: Craft 1-2 sentence hook (emotional resonance)</p>
+<p>  AI-->>Researcher: âœ“ "Every support team knows the pain: escalated tickets that somehow become invisible."</p>
+<p>```</p>
+
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+  <li><strong>Given</strong>: Pattern topic identified</li>
+  <li><strong>When</strong>: AI generates hook</li>
+  <li><strong>Then</strong>: Returns 1-2 sentence hook</li>
+</ul>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>Good hooks use concrete language, not abstractions</li>
+  <li>Example: 'Escalated tickets disappear into a queue' vs 'Escalation process lacks visibility'</li>
+</ul>
+
+<h4>Beat 3: Generate Problem Detail</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>AI Content Generation with Research</code></li>
+  <li><strong>External System</strong>: Anthropic - Claude 3.5 Sonnet (api)</li>
+  <li><strong>Integration</strong>: Generate detailed problem analysis with broken signal identification</li>
+  <li><strong>Event</strong>: problem.detailed</li>
+  <li><strong>Test</strong>: <a href="../../N/A - AI generated content">N/A - AI generated content</a> - <code>Problem descriptions identify orchestration gaps in â‰¥80% of cases</code></li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: Operator seeking solutions</li>
+  <li><strong>Goal</strong>: Understand root cause and systemic nature of problem</li>
+  <li><strong>Benefit</strong>: Recognize own operational challenges in pattern description</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant AI</p>
+<p>  AI->>AI: Research problem</p>
+<p>  AI->>AI: Identify broken signals</p>
+<p>  AI-->>AI: âœ“ Problem detail complete</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Researcher as ðŸ§‘â€ðŸ’» Researcher</p>
+<p>  participant AI as ðŸ¤– AI</p>
+<p>  participant Knowledge as ðŸ“š Knowledge Base</p>
+
+<p>  Note over Researcher,Knowledge: Beat 3: Generate Problem Detail</p>
+
+<p>  Researcher->>AI: Generate problem description for escalation pattern</p>
+<p>  AI->>Knowledge: Research escalation queue anti-patterns</p>
+<p>  Knowledge-->>AI: âœ“ Context: Tickets stuck in limbo, unclear ownership</p>
+<p>  AI->>AI: Identify broken signals (Ownership, Visibility, SLA)</p>
+<p>  AI->>AI: Structure 2-3 paragraphs (Context â†’ Impact â†’ Root cause)</p>
+<p>  AI-->>Researcher: âœ“ Problem detail (423 words, identifies 3 broken signals)</p>
+<p>```</p>
+
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+  <li><strong>Given</strong>: Pattern topic and hook</li>
+  <li><strong>When</strong>: Problem detail is generated</li>
+  <li><strong>Then</strong>: Returns 2-3 paragraph description</li>
+</ul>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>Broken signals: Ownership, Time/SLA, Capacity, Visibility, Customer Loop, Escalation, Handoffs, Documentation</li>
+  <li>Focus on pattern, not specific company failures</li>
+</ul>
+
+<h4>Beat 4: Generate Mermaid Diagrams</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>AI Mermaid Diagram Generation with Budget Validation</code></li>
+  <li><strong>External System</strong>: Anthropic - Claude 3.5 Sonnet (api)</li>
+  <li><strong>Integration</strong>: Generate Mermaid sequence diagrams within budget constraints</li>
+  <li><strong>Event</strong>: diagrams.generated</li>
+  <li><strong>Test</strong>: <a href="../../N/A - AI generated content with schema validation">N/A - AI generated content with schema validation</a> - <code>Generated diagrams pass budget validation â‰¥95% of time</code></li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: Visual learner</li>
+  <li><strong>Goal</strong>: See before/after transformation in diagram form</li>
+  <li><strong>Benefit</strong>: Quickly grasp orchestration improvement without reading prose</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant AI</p>
+<p>  participant Validator</p>
+<p>  AI->>AI: Generate As-Is diagram</p>
+<p>  AI->>Validator: Check budget</p>
+<p>  Validator-->>AI: âœ“ Within budget</p>
+<p>  AI->>AI: Generate Orchestrated diagram</p>
+<p>  AI->>Validator: Check budget</p>
+<p>  Validator-->>AI: âœ“ Within budget</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Researcher as ðŸ§‘â€ðŸ’» Researcher</p>
+<p>  participant AI as ðŸ¤– AI</p>
+<p>  participant Validator as âœ… Diagram Validator</p>
+
+<p>  Note over Researcher,Validator: Beat 4: Generate Mermaid Diagrams</p>
+
+<p>  Researcher->>AI: Generate As-Is diagram for escalation pattern</p>
+<p>  AI->>AI: Identify actors (Customer, L1, L2, L3)</p>
+<p>  AI->>AI: Map broken workflow (â‰¤18 steps)</p>
+<p>  AI->>Validator: Validate diagram (actors, steps, alt blocks)</p>
+<p>  Validator->>Validator: Check: 6 actors âœ“, 12 steps âœ“, 1 alt block âœ“</p>
+<p>  Validator-->>AI: âœ“ As-Is diagram valid</p>
+
+<p>  Researcher->>AI: Generate Orchestrated diagram</p>
+<p>  AI->>AI: Add orchestration elements (Router, Monitor)</p>
+<p>  AI->>AI: Map improved workflow (â‰¤18 steps)</p>
+<p>  AI->>Validator: Validate diagram</p>
+<p>  Validator->>Validator: Check: 7 actors âœ“, 16 steps âœ“, 2 alt blocks âœ“</p>
+<p>  Validator-->>AI: âœ“ Orchestrated diagram valid</p>
+
+<p>  AI-->>Researcher: âœ… Both diagrams ready (As-Is: 12 steps, Orchestrated: 16 steps)</p>
+<p>```</p>
+
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+  <li><strong>Given</strong>: Problem description complete</li>
+  <li><strong>When</strong>: Diagrams are generated</li>
+  <li><strong>Then</strong>: Returns 2 Mermaid sequence diagrams (As-Is + Orchestrated)</li>
+</ul>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>Diagram budget: â‰¤7 actors, â‰¤18 steps, â‰¤2 alt blocks, â‰¤8 steps per alt</li>
+  <li>If diagram exceeds budget, AI should decompose pattern into smaller scope</li>
+</ul>
+
+<h4>Beat 5: Complete Remaining Sections</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>AI Multi-Section Content Generation</code></li>
+  <li><strong>External System</strong>: Anthropic - Claude 3.5 Sonnet (api)</li>
+  <li><strong>Integration</strong>: Generate Decision Point, Metrics, Checklist (6-8 items), Scorecard (8 dimensions), Closing Insight</li>
+  <li><strong>Event</strong>: markdown.draft.generated</li>
+  <li><strong>Test</strong>: <a href="../../N/A - AI generated content with HQO validation">N/A - AI generated content with HQO validation</a> - <code>Generated patterns score â‰¥30/40 on HQO rubric â‰¥90% of time</code></li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: Implementation leader</li>
+  <li><strong>Goal</strong>: Receive actionable guidance for pattern implementation</li>
+  <li><strong>Benefit</strong>: Clear roadmap from understanding to execution</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant AI</p>
+<p>  AI->>AI: Generate Decision Point</p>
+<p>  AI->>AI: Define Metrics/SLAs</p>
+<p>  AI->>AI: Build Checklist</p>
+<p>  AI->>AI: Calculate Scorecard</p>
+<p>  AI->>AI: Write Closing</p>
+<p>  AI-->>AI: âœ“ All sections complete</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Researcher as ðŸ§‘â€ðŸ’» Researcher</p>
+<p>  participant AI as ðŸ¤– AI</p>
+<p>  participant Scorecard as ðŸ“Š HQO Calculator</p>
+
+<p>  Note over Researcher,Scorecard: Beat 5: Complete Remaining Sections</p>
+
+<p>  Researcher->>AI: Generate remaining sections</p>
+
+<p>  AI->>AI: Generate Decision Point (critical orchestration choice)</p>
+<p>  AI-->>AI: âœ“ "Who owns this escalation?"</p>
+
+<p>  AI->>AI: Define Metrics & SLAs</p>
+<p>  AI-->>AI: âœ“ 4 key metrics (MTTR, queue depth, SLA %, re-escalation rate)</p>
+
+<p>  AI->>AI: Build Implementation Checklist</p>
+<p>  AI->>AI: List 6-8 concrete action items</p>
+<p>  AI-->>AI: âœ“ Checklist (6 items)</p>
+
+<p>  AI->>Scorecard: Calculate Orchestration Scorecard</p>
+<p>  Scorecard->>Scorecard: Score 8 dimensions (Ownership=5, TimeSLA=4, Capacity=4, Visibility=4, CustomerLoop=3, Escalation=5, Handoffs=4, Documentation=3)</p>
+<p>  Scorecard-->>AI: âœ“ Total: 35/40 (HQO threshold met)</p>
+
+<p>  AI->>AI: Write Closing Insight (1-2 sentence takeaway)</p>
+<p>  AI-->>AI: âœ“ "The backlog isn't a people problemâ€”it's an orchestration gap."</p>
+
+<p>  AI-->>Researcher: âœ… Complete ARTICLE.md draft (all sections ready)</p>
+<p>```</p>
+
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+  <li><strong>Given</strong>: Diagrams and problem sections complete</li>
+  <li><strong>When</strong>: Remaining sections are generated</li>
+  <li><strong>Then</strong>: Returns complete ARTICLE.md with all sections</li>
+</ul>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>HQO dimensions: Ownership, Time/SLA, Capacity, Visibility, Customer Loop, Escalation, Handoffs, Documentation</li>
+  <li>Scorecard should reflect improvements shown in Orchestrated diagram</li>
+</ul>
+
+<hr>
+
+<h3>Movement 2: Desktop Preview & Validation</h3>
+
+<p>Use MarkdownViewer desktop application to preview rendered pattern, validate Mermaid diagrams, calculate HQO scorecard, and refine content</p>
+
+<p><strong>Tempo</strong>: 100 | <strong>Status</strong>: active</p>
+
+
+<h4>User Story</h4>
+
+<p><strong>As a</strong> Content Quality Reviewer,</p>
+<p><strong>I want to</strong> Verify pattern quality before publication,</p>
+<p><strong>So that</strong> Catch formatting issues, validate diagrams, ensure HQO standards met.</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Reviewer as ðŸ§‘â€ðŸ’» Reviewer</p>
+<p>  participant Viewer as ðŸ–¥ï¸ MarkdownViewer</p>
+<p>  participant Validator as âœ… Validator</p>
+
+<p>  Note over Reviewer,Validator: Movement 2: Desktop Preview & Validation</p>
+
+<p>  Reviewer->>Viewer: Open ARTICLE.md</p>
+<p>  Viewer->>Viewer: Render markdown with Markdig</p>
+<p>  Viewer->>Viewer: Render Mermaid diagrams</p>
+<p>  Viewer-->>Reviewer: âœ“ Live preview (Dark theme)</p>
+
+<p>  Reviewer->>Viewer: Edit: Refine decision point wording</p>
+<p>  Viewer->>Viewer: Update preview in real-time</p>
+<p>  Viewer-->>Reviewer: âœ“ Changes reflected immediately</p>
+
+<p>  Reviewer->>Validator: Validate diagrams</p>
+<p>  Validator->>Validator: Check As-Is (6 actors, 12 steps)</p>
+<p>  Validator->>Validator: Check Orchestrated (7 actors, 16 steps)</p>
+<p>  Validator-->>Reviewer: âœ… Both diagrams within budget</p>
+
+<p>  Reviewer->>Validator: Calculate HQO scorecard</p>
+<p>  Validator->>Validator: Score 8 dimensions</p>
+<p>  Validator-->>Reviewer: âœ… Score: 35/40 (Ready for publication)</p>
+<p>```</p>
+
+<p><strong>Beats</strong>: 5</p>
+
+<h4>Beat 1: Render Markdown Preview</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>MarkdownViewer.MainWindow + MarkdownService</code></li>
+  <li><strong>Source</strong>: <a href="../../Tools/MarkdownViewer/MainWindow.xaml.cs + Services/MarkdownService.cs">Tools/MarkdownViewer/MainWindow.xaml.cs + Services/MarkdownService.cs</a></li>
+  <li><strong>Event</strong>: preview.rendered</li>
+  <li><strong>Test</strong>: <a href="../../Tools/MarkdownViewer/Tests/MarkdownService.Tests.cs">Tools/MarkdownViewer/Tests/MarkdownService.Tests.cs</a> - <code>TestConvertToHtml_MermaidDiagram_RendersCorrectly</code></li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: Content Reviewer</li>
+  <li><strong>Goal</strong>: See how pattern will look when published</li>
+  <li><strong>Benefit</strong>: Catch formatting issues before publication</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant R as Reviewer</p>
+<p>  participant Viewer</p>
+<p>  R->>Viewer: Open ARTICLE.md</p>
+<p>  Viewer->>Viewer: Render with Markdig</p>
+<p>  Viewer-->>R: âœ“ Preview with diagrams</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Reviewer as ðŸ§‘â€ðŸ’» Reviewer</p>
+<p>  participant Viewer as ðŸ–¥ï¸ MarkdownViewer</p>
+<p>  participant Markdig as ðŸ“ Markdig</p>
+<p>  participant Mermaid as ðŸŽ¨ Mermaid.js</p>
+
+<p>  Note over Reviewer,Mermaid: Beat 1: Render Markdown Preview</p>
+
+<p>  Reviewer->>Viewer: Open File â†’ support-escalation.md</p>
+<p>  Viewer->>Viewer: Read markdown file content</p>
+<p>  Viewer->>Markdig: ConvertToHtml(markdown)</p>
+<p>  Markdig->>Markdig: Parse markdown to AST</p>
+<p>  Markdig->>Markdig: Apply advanced extensions</p>
+<p>  Markdig->>Markdig: Custom MermaidCodeBlockRenderer (```mermaid â†’ <pre class="mermaid">)</p>
+<p>  Markdig-->>Viewer: âœ“ HTML with Mermaid blocks</p>
+<p>  Viewer->>Mermaid: Initialize Mermaid.js</p>
+<p>  Mermaid->>Mermaid: Render all <pre class="mermaid"> elements</p>
+<p>  Mermaid-->>Viewer: âœ“ Interactive diagrams rendered</p>
+<p>  Viewer-->>Reviewer: âœ… Live preview (Dark theme, scroll sync)</p>
+<p>```</p>
+
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+  <li><strong>Given</strong>: ARTICLE.md file available</li>
+  <li><strong>When</strong>: File opened in MarkdownViewer</li>
+  <li><strong>Then</strong>: Renders markdown with proper formatting</li>
+</ul>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>MarkdownViewer uses same Markdig pipeline as Blazor web app</li>
+  <li>WYSIWYG: What you see in desktop app = what users see on web</li>
+</ul>
+
+<h4>Beat 2: Edit and Refine Content</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>MarkdownViewer.FileWatcher + ReloadContent</code></li>
+  <li><strong>Source</strong>: <a href="../../Tools/MarkdownViewer/MainWindow.xaml.cs">Tools/MarkdownViewer/MainWindow.xaml.cs</a></li>
+  <li><strong>Event</strong>: content.refined</li>
+  <li><strong>Test</strong>: <a href="../../N/A - Desktop app feature">N/A - Desktop app feature</a> - <code>File watcher detects changes and refreshes view</code></li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: Content Editor</li>
+  <li><strong>Goal</strong>: Iterate quickly on content with instant feedback</li>
+  <li><strong>Benefit</strong>: See changes immediately without manual refresh</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant E as Editor</p>
+<p>  participant Viewer</p>
+<p>  E->>E: Edit markdown</p>
+<p>  E->>Viewer: Save file</p>
+<p>  Viewer-->>E: âœ“ Preview updates</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Reviewer as ðŸ§‘â€ðŸ’» Reviewer</p>
+<p>  participant Editor as ðŸ“ VS Code</p>
+<p>  participant FileWatcher as ðŸ‘ï¸ File Watcher</p>
+<p>  participant Viewer as ðŸ–¥ï¸ MarkdownViewer</p>
+
+<p>  Note over Reviewer,Viewer: Beat 2: Edit and Refine Content</p>
+
+<p>  Reviewer->>Editor: Open support-escalation.md in VS Code</p>
+<p>  Reviewer->>Editor: Edit: Strengthen hook sentence</p>
+<p>  Reviewer->>Editor: Edit: Clarify decision point language</p>
+<p>  Reviewer->>Editor: Save (Ctrl+S)</p>
+
+<p>  FileWatcher->>FileWatcher: Detect file change event</p>
+<p>  FileWatcher->>Viewer: Notify: File modified</p>
+<p>  Viewer->>Viewer: Reload markdown content</p>
+<p>  Viewer->>Viewer: Re-render with Markdig + Mermaid</p>
+<p>  Viewer-->>Reviewer: âœ… Preview updated with edits (auto-refresh)</p>
+<p>```</p>
+
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+  <li><strong>Given</strong>: ARTICLE.md open in MarkdownViewer and editor</li>
+  <li><strong>When</strong>: File is saved after edits</li>
+  <li><strong>Then</strong>: Preview automatically refreshes</li>
+</ul>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>Use F5 manual refresh if file watcher disabled</li>
+  <li>Edit/preview workflow mirrors live web development</li>
+</ul>
+
+<h4>Beat 3: Validate Diagram Budgets</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>MermaidDiagramValidator (future enhancement)</code></li>
+  <li><strong>Source</strong>: <a href="../../Tools/MarkdownViewer/Services/MermaidDiagramValidator.cs (planned">Tools/MarkdownViewer/Services/MermaidDiagramValidator.cs (planned)</a>)</li>
+  <li><strong>Event</strong>: diagram.validated</li>
+  <li><strong>Test</strong>: <a href="../../Tools/MarkdownViewer/Tests/MermaidDiagramValidator.Tests.cs (planned">Tools/MarkdownViewer/Tests/MermaidDiagramValidator.Tests.cs (planned)</a>) - <code>TestValidateDiagram_WithinBudget_ReturnsPass</code></li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: Pattern Quality Enforcer</li>
+  <li><strong>Goal</strong>: Ensure diagrams meet simplicity constraints</li>
+  <li><strong>Benefit</strong>: Maintain no-scroll diagram principle across all patterns</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant V as Validator</p>
+<p>  V->>V: Parse diagram</p>
+<p>  V->>V: Count actors</p>
+<p>  V->>V: Count steps</p>
+<p>  V->>V: Check alt blocks</p>
+<p>  V-->>V: âœ“ Within budget</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Reviewer as ðŸ§‘â€ðŸ’» Reviewer</p>
+<p>  participant Viewer as ðŸ–¥ï¸ MarkdownViewer</p>
+<p>  participant Parser as ðŸ” Mermaid Parser</p>
+<p>  participant Validator as âœ… Budget Validator</p>
+
+<p>  Note over Reviewer,Validator: Beat 3: Validate Diagram Budgets</p>
+
+<p>  Reviewer->>Viewer: Validate Diagrams</p>
+
+<p>  Viewer->>Parser: Extract As-Is diagram code</p>
+<p>  Parser->>Parser: Parse sequenceDiagram syntax</p>
+<p>  Parser->>Validator: Analyze structure</p>
+<p>  Validator->>Validator: Count participants (6 actors)</p>
+<p>  Validator->>Validator: Count steps (12 steps)</p>
+<p>  Validator->>Validator: Count alt blocks (1 alt block)</p>
+<p>  Validator->>Validator: Check nested alt (none)</p>
+<p>  Validator-->>Viewer: âœ… As-Is: 6 actors âœ“, 12 steps âœ“, 1 alt âœ“</p>
+
+<p>  Viewer->>Parser: Extract Orchestrated diagram code</p>
+<p>  Parser->>Parser: Parse sequenceDiagram syntax</p>
+<p>  Parser->>Validator: Analyze structure</p>
+<p>  Validator->>Validator: Count participants (7 actors)</p>
+<p>  Validator->>Validator: Count steps (16 steps)</p>
+<p>  Validator->>Validator: Count alt blocks (2 alt blocks)</p>
+<p>  Validator->>Validator: Check alt branch lengths (6 steps, 7 steps)</p>
+<p>  Validator-->>Viewer: âœ… Orchestrated: 7 actors âœ“, 16 steps âœ“, 2 alt âœ“</p>
+
+<p>  Viewer-->>Reviewer: âœ… Both diagrams within budget (ready for publication)</p>
+<p>```</p>
+
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+  <li><strong>Given</strong>: Mermaid diagram code in ARTICLE.md</li>
+  <li><strong>When</strong>: Validation is triggered</li>
+  <li><strong>Then</strong>: Returns pass/fail for each constraint</li>
+</ul>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>Future enhancement: Add diagram validator to MarkdownViewer</li>
+  <li>Regex parse or use Mermaid AST if available</li>
+</ul>
+
+<h4>Beat 4: Calculate HQO Scorecard</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>HQOScorecardCalculator (future enhancement)</code></li>
+  <li><strong>Source</strong>: <a href="../../Tools/MarkdownViewer/Services/HQOScorecardCalculator.cs (planned">Tools/MarkdownViewer/Services/HQOScorecardCalculator.cs (planned)</a>)</li>
+  <li><strong>Event</strong>: hqo.scorecard.calculated</li>
+  <li><strong>Test</strong>: <a href="../../Tools/MarkdownViewer/Tests/HQOScorecardCalculator.Tests.cs (planned">Tools/MarkdownViewer/Tests/HQOScorecardCalculator.Tests.cs (planned)</a>) - <code>TestCalculateHQO_ValidPattern_ReturnsScorecard</code></li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: Quality Assurance Reviewer</li>
+  <li><strong>Goal</strong>: Verify pattern meets High Quality Orchestration standards</li>
+  <li><strong>Benefit</strong>: Ensure published patterns maintain platform quality bar</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant C as Calculator</p>
+<p>  C->>C: Score Ownership</p>
+<p>  C->>C: Score Time/SLA</p>
+<p>  C->>C: Score Capacity</p>
+<p>  C->>C: Score Visibility</p>
+<p>  C->>C: Score Customer Loop</p>
+<p>  C->>C: Score Escalation</p>
+<p>  C->>C: Score Handoffs</p>
+<p>  C->>C: Score Documentation</p>
+<p>  C->>C: Total = 35/40</p>
+<p>  C-->>C: âœ“ HQO pass</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Reviewer as ðŸ§‘â€ðŸ’» Reviewer</p>
+<p>  participant Viewer as ðŸ–¥ï¸ MarkdownViewer</p>
+<p>  participant Calculator as ðŸ“Š HQO Calculator</p>
+<p>  participant Diagram as ðŸŽ¨ Diagram Analyzer</p>
+
+<p>  Note over Reviewer,Diagram: Beat 4: Calculate HQO Scorecard</p>
+
+<p>  Reviewer->>Viewer: Calculate HQO Score</p>
+<p>  Viewer->>Calculator: Analyze pattern for HQO dimensions</p>
+
+<p>  Calculator->>Diagram: Check Orchestrated diagram for ownership clarity</p>
+<p>  Diagram-->>Calculator: âœ“ Explicit L2 owner assignment â†’ Ownership = 5</p>
+
+<p>  Calculator->>Diagram: Check for SLA monitoring mechanism</p>
+<p>  Diagram-->>Calculator: âœ“ SLA Monitor present â†’ Time/SLA = 4</p>
+
+<p>  Calculator->>Diagram: Check for capacity-aware routing</p>
+<p>  Diagram-->>Calculator: âœ“ Smart Router with capacity â†’ Capacity = 4</p>
+
+<p>  Calculator->>Diagram: Check for visibility/tracking</p>
+<p>  Diagram-->>Calculator: âœ“ Queue monitoring visible â†’ Visibility = 4</p>
+
+<p>  Calculator->>Diagram: Check for customer communication loop</p>
+<p>  Diagram-->>Calculator: âš ï¸ Auto-response only â†’ Customer Loop = 3</p>
+
+<p>  Calculator->>Diagram: Check for escalation handling</p>
+<p>  Diagram-->>Calculator: âœ“ Clear escalation routing â†’ Escalation = 5</p>
+
+<p>  Calculator->>Diagram: Check for handoff quality</p>
+<p>  Diagram-->>Calculator: âœ“ Context transfer present â†’ Handoffs = 4</p>
+
+<p>  Calculator->>Diagram: Check for documentation/runbook</p>
+<p>  Diagram-->>Calculator: âš ï¸ Mentioned but not detailed â†’ Documentation = 3</p>
+
+<p>  Calculator->>Calculator: Calculate total: 5+4+4+4+3+5+4+3 = 35/40</p>
+<p>  Calculator->>Calculator: Validate: Total â‰¥30 âœ“, No dimension <3 âœ“</p>
+
+<p>  Calculator-->>Viewer: âœ… HQO Scorecard: 35/40 (Pass - Ready for publication)</p>
+<p>  Viewer-->>Reviewer: Display scorecard with dimension breakdown</p>
+<p>```</p>
+
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+  <li><strong>Given</strong>: Complete pattern with Orchestrated diagram</li>
+  <li><strong>When</strong>: HQO calculation is triggered</li>
+  <li><strong>Then</strong>: Returns score for each of 8 dimensions</li>
+</ul>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>Future enhancement: Automated HQO scoring in MarkdownViewer</li>
+  <li>HQO scoring could use AI-assisted analysis of diagram elements</li>
+  <li>8 dimensions: Ownership, Time/SLA, Capacity, Visibility, Customer Loop, Escalation, Handoffs, Documentation</li>
+</ul>
+
+<h4>Beat 5: Export HTML Preview</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>MarkdownViewer.ExportToHtml</code></li>
+  <li><strong>Source</strong>: <a href="../../Tools/MarkdownViewer/MainWindow.xaml.cs">Tools/MarkdownViewer/MainWindow.xaml.cs</a></li>
+  <li><strong>Event</strong>: html.exported</li>
+  <li><strong>Test</strong>: <a href="../../N/A - Desktop app feature">N/A - Desktop app feature</a> - <code>Exported HTML opens correctly in Chrome, Firefox, Edge</code></li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: Pattern Reviewer</li>
+  <li><strong>Goal</strong>: Share pattern draft with team for feedback</li>
+  <li><strong>Benefit</strong>: Enable offline review without requiring MarkdownViewer installation</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant R as Reviewer</p>
+<p>  participant Viewer</p>
+<p>  R->>Viewer: Export HTML</p>
+<p>  Viewer->>Viewer: Generate HTML</p>
+<p>  Viewer-->>R: âœ“ HTML saved</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Reviewer as ðŸ§‘â€ðŸ’» Reviewer</p>
+<p>  participant Viewer as ðŸ–¥ï¸ MarkdownViewer</p>
+<p>  participant Exporter as ðŸ“¤ HTML Exporter</p>
+<p>  participant FileSystem as ðŸ’¾ File System</p>
+
+<p>  Note over Reviewer,FileSystem: Beat 5: Export HTML Preview</p>
+
+<p>  Reviewer->>Viewer: File â†’ Export to HTML</p>
+<p>  Viewer->>Exporter: Generate standalone HTML</p>
+<p>  Exporter->>Exporter: Convert markdown to HTML (Markdig)</p>
+<p>  Exporter->>Exporter: Embed CSS styles (light-theme.css)</p>
+<p>  Exporter->>Exporter: Include Mermaid.js CDN link</p>
+<p>  Exporter->>Exporter: Wrap in complete HTML document</p>
+<p>  Exporter->>FileSystem: Write support-escalation.html (284KB)</p>
+<p>  FileSystem-->>Exporter: âœ“ File saved</p>
+<p>  Exporter-->>Viewer: âœ“ Export complete</p>
+<p>  Viewer-->>Reviewer: âœ… HTML exported: C:\Exports\support-escalation.html</p>
+<p>```</p>
+
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+  <li><strong>Given</strong>: Rendered pattern in MarkdownViewer</li>
+  <li><strong>When</strong>: Export to HTML is triggered</li>
+  <li><strong>Then</strong>: Generates standalone HTML file</li>
+</ul>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>Exported HTML can be sent via email for review</li>
+  <li>Useful for stakeholder approval before publication</li>
+</ul>
+
+<hr>
+
+<h3>Movement 3: JSON Conversion & Publication</h3>
+
+<p>Convert validated ARTICLE.md to OWS JSON schema, validate structure, and publish to Orchestration Wisdom platform</p>
+
+<p><strong>Tempo</strong>: 120 | <strong>Status</strong>: active</p>
+
+
+<h4>User Story</h4>
+
+<p><strong>As a</strong> Content Publisher,</p>
+<p><strong>I want to</strong> Publish validated pattern to production platform,</p>
+<p><strong>So that</strong> Make pattern discoverable and usable by platform users.</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Publisher as ðŸ§‘â€ðŸ’» Publisher</p>
+<p>  participant Converter as ðŸ”„ JSON Converter</p>
+<p>  participant Platform as ðŸŒ OW Platform</p>
+<p>  participant Analytics as ðŸ“Š Analytics</p>
+
+<p>  Note over Publisher,Analytics: Movement 3: JSON Conversion & Publication</p>
+
+<p>  Publisher->>Converter: Convert ARTICLE.md to JSON</p>
+<p>  Converter->>Converter: Parse markdown sections</p>
+<p>  Converter->>Converter: Extract Mermaid diagrams</p>
+<p>  Converter->>Converter: Build Pattern JSON</p>
+<p>  Converter-->>Publisher: âœ“ pattern.json created</p>
+
+<p>  Publisher->>Platform: Upload pattern.json</p>
+<p>  Platform->>Platform: Validate against OWS schema</p>
+<p>  Platform->>Platform: Load into PatternService</p>
+<p>  Platform-->>Publisher: âœ… Published: /patterns/support-escalation</p>
+
+<p>  Platform->>Analytics: Track publication event</p>
+<p>  Analytics-->>Platform: âœ“ Analytics recorded</p>
+<p>```</p>
+
+<p><strong>Beats</strong>: 5</p>
+
+<h4>Beat 1: Convert Markdown to JSON</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>MarkdownViewer.ExportToOWSJson OR Convert-PatternToJSON.ps1</code></li>
+  <li><strong>Source</strong>: <a href="../../Tools/MarkdownViewer/Services/PatternJsonExporter.cs (planned">Tools/MarkdownViewer/Services/PatternJsonExporter.cs (planned) OR Tools/Convert-PatternToJSON.ps1</a> OR Tools/Convert-PatternToJSON.ps1)</li>
+  <li><strong>Event</strong>: json.pattern.created</li>
+  <li><strong>Test</strong>: <a href="../../Tools/Tests/PatternJsonExporter.Tests.cs OR Tools/Tests/Convert-PatternToJSON.Tests.ps1">Tools/Tests/PatternJsonExporter.Tests.cs OR Tools/Tests/Convert-PatternToJSON.Tests.ps1</a> - <code>TestConvertMarkdownToJson_ValidArticle_ReturnsValidJson</code></li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: Content Publisher</li>
+  <li><strong>Goal</strong>: Convert validated markdown to structured JSON for platform ingestion</li>
+  <li><strong>Benefit</strong>: Enable dynamic rendering and filtering on web platform</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant P as Publisher</p>
+<p>  participant Converter</p>
+<p>  P->>Converter: Convert to JSON</p>
+<p>  Converter->>Converter: Parse markdown</p>
+<p>  Converter->>Converter: Extract diagrams</p>
+<p>  Converter->>Converter: Build JSON</p>
+<p>  Converter-->>P: âœ“ pattern.json</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Publisher as ðŸ§‘â€ðŸ’» Publisher</p>
+<p>  participant Parser as ðŸ” Markdown Parser</p>
+<p>  participant Builder as ðŸ—ï¸ JSON Builder</p>
+<p>  participant FileSystem as ðŸ’¾ File System</p>
+
+<p>  Note over Publisher,FileSystem: Beat 1: Convert Markdown to JSON</p>
+
+<p>  Publisher->>Parser: Parse ARTICLE.md</p>
+<p>  Parser->>Parser: Extract front matter / metadata</p>
+<p>  Parser->>Parser: Split by section headings (## Hook, ## Problem, etc.)</p>
+<p>  Parser->>Parser: Extract ```mermaid blocks</p>
+<p>  Parser-->>Builder: âœ“ Structured sections</p>
+
+<p>  Builder->>Builder: Build Pattern object</p>
+<p>  Builder->>Builder: Set id: "support-ticket-escalation"</p>
+<p>  Builder->>Builder: Set slug: "support-ticket-escalation-backlog"</p>
+<p>  Builder->>Builder: Set title: "Support Ticket Escalation Backlog"</p>
+<p>  Builder->>Builder: Set hookMarkdown: "..."</p>
+<p>  Builder->>Builder: Set asIsDiagramMermaid: "sequenceDiagram\n..."</p>
+<p>  Builder->>Builder: Set orchestratedDiagramMermaid: "sequenceDiagram\n..."</p>
+<p>  Builder->>Builder: Set scorecard: { Ownership: 5, TimeSLA: 4, ... }</p>
+<p>  Builder->>Builder: Set components: [{id, name, description}, ...]</p>
+
+<p>  Builder->>FileSystem: Write pattern.json (formatted, UTF-8)</p>
+<p>  FileSystem-->>Builder: âœ“ File saved (8.4KB)</p>
+<p>  Builder-->>Publisher: âœ… support-escalation.pattern.json created</p>
+<p>```</p>
+
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+  <li><strong>Given</strong>: Valid ARTICLE.md with all sections</li>
+  <li><strong>When</strong>: Conversion is triggered</li>
+  <li><strong>Then</strong>: Generates OWS-compliant Pattern JSON</li>
+</ul>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>Two options: Desktop app export OR PowerShell script</li>
+  <li>PowerShell option useful for batch conversion of multiple patterns</li>
+</ul>
+
+<h4>Beat 2: Validate JSON Schema</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>JsonSchemaValidator OR dotnet test with schema validation</code></li>
+  <li><strong>Source</strong>: <a href="../../schemas/pattern.schema.json + validation script">schemas/pattern.schema.json + validation script</a></li>
+  <li><strong>Event</strong>: schema.validated</li>
+  <li><strong>Test</strong>: <a href="../../schemas/tests/pattern-schema-validation.tests.js">schemas/tests/pattern-schema-validation.tests.js</a> - <code>TestValidatePattern_CompliantJson_ReturnsSuccess</code></li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: Platform Integrator</li>
+  <li><strong>Goal</strong>: Ensure only valid patterns are published to platform</li>
+  <li><strong>Benefit</strong>: Prevent runtime errors from malformed pattern data</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant V as Validator</p>
+<p>  V->>V: Load schema</p>
+<p>  V->>V: Load pattern JSON</p>
+<p>  V->>V: Validate structure</p>
+<p>  V-->>V: âœ“ Valid</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Publisher as ðŸ§‘â€ðŸ’» Publisher</p>
+<p>  participant Validator as âœ… JSON Validator</p>
+<p>  participant Schema as ðŸ“‹ Pattern Schema</p>
+
+<p>  Note over Publisher,Schema: Beat 2: Validate JSON Schema</p>
+
+<p>  Publisher->>Validator: Validate pattern.json</p>
+<p>  Validator->>Schema: Load Pattern schema definition</p>
+<p>  Schema-->>Validator: âœ“ Schema loaded</p>
+
+<p>  Validator->>Validator: Check required fields (id, slug, title, hookMarkdown, diagrams, scorecard)</p>
+<p>  Validator->>Validator: Validate data types (string, number, object, array)</p>
+<p>  Validator->>Validator: Check scorecard structure (8 dimensions, each 0-5)</p>
+<p>  Validator->>Validator: Validate components array (id, name, description)</p>
+<p>  Validator->>Validator: Check HQO constraints (total â‰¥30, no dim <3)</p>
+
+<p>  alt Schema Valid</p>
+<p>    Validator-->>Publisher: âœ… Schema validation passed</p>
+<p>  else Schema Invalid</p>
+<p>    Validator-->>Publisher: âŒ Validation failed: Missing 'components' array</p>
+<p>    Publisher->>Publisher: Fix JSON and retry</p>
+<p>  end</p>
+<p>```</p>
+
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+  <li><strong>Given</strong>: Generated pattern.json file</li>
+  <li><strong>When</strong>: Schema validation is run</li>
+  <li><strong>Then</strong>: Returns pass/fail with specific error messages</li>
+</ul>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>Use JSON Schema Draft-07 or later</li>
+  <li>Consider JSON Schema $ref for reusable definitions</li>
+</ul>
+
+<h4>Beat 3: Commit to Repository</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>git add + commit + push</code></li>
+  <li><strong>Source</strong>: <a href="../../N/A - Git command line">N/A - Git command line</a></li>
+  <li><strong>Event</strong>: pattern.committed</li>
+  <li><strong>Test</strong>: <a href="../../N/A - Git operation">N/A - Git operation</a> - <code>Pattern appears in git log and GitHub/GitLab</code></li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: Content Manager</li>
+  <li><strong>Goal</strong>: Version control pattern content</li>
+  <li><strong>Benefit</strong>: Track pattern evolution and enable rollback if needed</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant P as Publisher</p>
+<p>  participant Git</p>
+<p>  P->>Git: git add pattern.json</p>
+<p>  P->>Git: git commit -m "..."</p>
+<p>  P->>Git: git push</p>
+<p>  Git-->>P: âœ“ Pushed</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Publisher as ðŸ§‘â€ðŸ’» Publisher</p>
+<p>  participant Git as ðŸ“¦ Git</p>
+<p>  participant Remote as â˜ï¸ GitHub/GitLab</p>
+
+<p>  Note over Publisher,Remote: Beat 3: Commit to Repository</p>
+
+<p>  Publisher->>Git: git status</p>
+<p>  Git-->>Publisher: âœ“ Untracked: patterns/support-escalation.pattern.json</p>
+
+<p>  Publisher->>Git: git add patterns/support-escalation.pattern.json</p>
+<p>  Git-->>Publisher: âœ“ Staged</p>
+
+<p>  Publisher->>Git: git commit -m "Add support escalation pattern (HQO: 35/40)"</p>
+<p>  Git->>Git: Create commit with timestamp and author</p>
+<p>  Git-->>Publisher: âœ“ Committed [abc123f]</p>
+
+<p>  Publisher->>Git: git push origin main</p>
+<p>  Git->>Remote: Push commits</p>
+<p>  Remote-->>Git: âœ“ Accepted</p>
+<p>  Git-->>Publisher: âœ… Pushed to remote (main branch)</p>
+<p>```</p>
+
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+  <li><strong>Given</strong>: Valid pattern.json file</li>
+  <li><strong>When</strong>: Git commit and push are executed</li>
+  <li><strong>Then</strong>: Pattern file committed to repository</li>
+</ul>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>Consider PR workflow for team review before merge to main</li>
+  <li>Tag releases for production deployments</li>
+</ul>
+
+<h4>Beat 4: Deploy to Platform</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>OrchestrationWisdom.PatternService.LoadPatterns()</code></li>
+  <li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/PatternService.cs">src/OrchestrationWisdom/Services/PatternService.cs</a></li>
+  <li><strong>Event</strong>: pattern.published</li>
+  <li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/PatternService.Tests.cs">src/OrchestrationWisdom/Tests/PatternService.Tests.cs</a> - <code>TestGetPatternBySlug_PublishedPattern_ReturnsPattern</code></li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: Platform User</li>
+  <li><strong>Goal</strong>: Discover and read newly published pattern</li>
+  <li><strong>Benefit</strong>: Access latest operational knowledge immediately</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Platform</p>
+<p>  participant Git</p>
+<p>  Platform->>Git: Pull latest</p>
+<p>  Platform->>Platform: Load patterns</p>
+<p>  Platform->>Platform: Render page</p>
+<p>  Platform-->>Platform: âœ“ Live</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant CICD as âš™ï¸ CI/CD Pipeline</p>
+<p>  participant Git as ðŸ“¦ Git Repo</p>
+<p>  participant Platform as ðŸŒ Orchestration Wisdom</p>
+<p>  participant PatternService as ðŸ“‚ Pattern Service</p>
+<p>  participant MarkdownService as ðŸ“ Markdown Service</p>
+<p>  participant Browser as ðŸŒ User Browser</p>
+
+<p>  Note over CICD,Browser: Beat 4: Deploy to Platform</p>
+
+<p>  CICD->>Git: Detect new commit (webhook trigger)</p>
+<p>  CICD->>CICD: Run tests (dotnet test)</p>
+<p>  CICD->>CICD: Build app (dotnet build)</p>
+<p>  CICD->>Platform: Deploy to production</p>
+<p>  Platform-->>CICD: âœ“ Deployment successful</p>
+
+<p>  Platform->>PatternService: Reload patterns from /patterns folder</p>
+<p>  PatternService->>PatternService: Read support-escalation.pattern.json</p>
+<p>  PatternService->>PatternService: Deserialize to Pattern model</p>
+<p>  PatternService-->>Platform: âœ“ Pattern loaded</p>
+
+<p>  Browser->>Platform: GET /patterns/support-ticket-escalation</p>
+<p>  Platform->>PatternService: GetPatternBySlug("support-ticket-escalation")</p>
+<p>  PatternService-->>Platform: âœ“ Pattern data</p>
+<p>  Platform->>MarkdownService: ConvertToHtml(pattern.HookMarkdown)</p>
+<p>  MarkdownService-->>Platform: âœ“ HTML content</p>
+<p>  Platform->>Platform: Render PatternDetail.razor with Mermaid.js</p>
+<p>  Platform-->>Browser: âœ… Pattern page rendered (live at /patterns/support-ticket-escalation)</p>
+<p>```</p>
+
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+  <li><strong>Given</strong>: Pattern committed to repository</li>
+  <li><strong>When</strong>: CI/CD pipeline runs</li>
+  <li><strong>Then</strong>: Pattern is live on production platform</li>
+</ul>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>Consider pattern caching for performance</li>
+  <li>Add pattern sitemap.xml for SEO</li>
+</ul>
+
+<h4>Beat 5: Track Publication Event</h4>
+<ul>
+  <li><strong>Handler</strong>: <code>AnalyticsService.TrackEvent("pattern_published")</code></li>
+  <li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/AnalyticsService.cs (planned">src/OrchestrationWisdom/Services/AnalyticsService.cs (planned)</a>)</li>
+  <li><strong>Event</strong>: analytics.tracked</li>
+  <li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/AnalyticsService.Tests.cs (planned">src/OrchestrationWisdom/Tests/AnalyticsService.Tests.cs (planned)</a>) - <code>TestTrackPatternPublication_ValidEvent_LogsSuccessfully</code></li>
+</ul>
+
+<p><strong>User Story</strong>:</p>
+
+<ul>
+  <li><strong>Persona</strong>: Platform Analytics Manager</li>
+  <li><strong>Goal</strong>: Track pattern publication metrics for platform growth insights</li>
+  <li><strong>Benefit</strong>: Measure content velocity and quality trends</li>
+</ul>
+
+<p><strong>User Story Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Platform</p>
+<p>  participant Analytics</p>
+<p>  Platform->>Analytics: Track event</p>
+<p>  Analytics->>Analytics: Log metadata</p>
+<p>  Analytics-->>Platform: âœ“ Tracked</p>
+<p>```</p>
+
+<p><strong>Visual Diagram</strong>:</p>
+
+<p>```mermaid</p>
+<p>sequenceDiagram</p>
+<p>  participant Platform as ðŸŒ Platform</p>
+<p>  participant Analytics as ðŸ“Š Analytics Engine</p>
+<p>  participant DataWarehouse as ðŸ—„ï¸ Data Warehouse</p>
+
+<p>  Note over Platform,DataWarehouse: Beat 5: Track Publication Event</p>
+
+<p>  Platform->>Analytics: TrackEvent("pattern_published")</p>
+<p>  Analytics->>Analytics: Build event payload</p>
+<p>  Analytics->>Analytics: Add metadata (PatternId: "support-escalation", HQOScore: 35, Author: "AI_Researcher")</p>
+<p>  Analytics->>Analytics: Add timestamp (2026-01-11T14:23:45Z)</p>
+<p>  Analytics->>DataWarehouse: Write event record</p>
+<p>  DataWarehouse-->>Analytics: âœ“ Event stored</p>
+<p>  Analytics-->>Platform: âœ… Analytics event tracked (EventId: evt_001)</p>
+<p>```</p>
+
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+  <li><strong>Given</strong>: Pattern published successfully</li>
+  <li><strong>When</strong>: Analytics tracking is triggered</li>
+  <li><strong>Then</strong>: Event logged with complete metadata</li>
+</ul>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li>Use for platform metrics: patterns/month, average HQO score, top authors</li>
+  <li>Consider privacy: anonymize author if needed</li>
+</ul>
+
+<hr>
+
+<h2>Metadata</h2>
+
+<ul>
+  <li><strong>Version</strong>: 1.0.0</li>
+  <li><strong>Author</strong>: Orchestration Wisdom Team</li>
+  <li><strong>Created</strong>: 2026-01-11</li>
+  <li><strong>Tags</strong>: content-authoring, ai-assisted, pattern-generation, markdown-workflow</li>
+</ul>
+
+<hr>
+
+<p><em>This documentation was auto-generated from the canonical sequence definition.</em></p>
+<p><em><strong>Canonical Reference</strong>: <a href="../../sequences/mvp-v0-user-experience.json">mvp-v0-user-experience.json</a></em></p>
+
+    </div>
+</body>
+</html>

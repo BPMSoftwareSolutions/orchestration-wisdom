@@ -1,0 +1,929 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    color: #24292e;
+    background-color: #fafafa;
+    padding: 20px;
+}
+
+.markdown-body {
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 24px;
+    margin-bottom: 16px;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+h1 { font-size: 2em; border-bottom: 3px solid #673ab7; padding-bottom: 10px; }
+h2 { font-size: 1.5em; border-bottom: 2px solid #9575cd; padding-bottom: 8px; }
+h3 { font-size: 1.25em; color: #673ab7; }
+h4 { font-size: 1em; color: #9575cd; }
+
+p { margin-bottom: 16px; }
+
+a { color: #673ab7; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+code {
+    background-color: #f6f8fa;
+    border-radius: 3px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 85%;
+    margin: 0;
+    padding: 0.2em 0.4em;
+    color: #e01e5a;
+}
+
+pre {
+    background-color: #2d2d2d;
+    border-radius: 6px;
+    color: #f8f8f2;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 85%;
+    line-height: 1.45;
+    overflow: auto;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+pre code {
+    background-color: transparent;
+    border: 0;
+    color: #f8f8f2;
+    display: inline;
+    line-height: inherit;
+    margin: 0;
+    overflow: visible;
+    padding: 0;
+    word-wrap: normal;
+}
+
+blockquote {
+    border-left: 4px solid #673ab7;
+    color: #6a737d;
+    padding: 0 15px;
+    margin: 16px 0;
+    background-color: #f6f8fa;
+    border-radius: 4px;
+    padding: 12px 15px;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+    margin-bottom: 16px;
+    overflow: auto;
+}
+
+table th {
+    background-color: #673ab7;
+    color: white;
+    font-weight: 600;
+    padding: 12px;
+    text-align: left;
+}
+
+table td {
+    border: 1px solid #dfe2e5;
+    padding: 8px 12px;
+}
+
+table tr:nth-child(even) {
+    background-color: #f6f8fa;
+}
+
+ul, ol {
+    margin-bottom: 16px;
+    padding-left: 2em;
+}
+
+li { margin-bottom: 4px; }
+
+hr {
+    background-color: #e1e4e8;
+    border: 0;
+    height: 2px;
+    margin: 24px 0;
+}
+
+img {
+    max-width: 100%;
+    box-sizing: content-box;
+}
+
+strong { font-weight: 600; }
+
+em { font-style: italic; }
+
+/* Mermaid diagram styling */
+.mermaid {
+    background-color: #ffffff;
+    border-radius: 6px;
+    padding: 16px;
+    margin: 16px 0;
+    text-align: center;
+    border: 1px solid #e1e4e8;
+}
+    </style>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'default',
+            securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            },
+            sequence: {
+                useMaxWidth: true,
+                wrap: true
+            }
+        });
+
+        // Wait for DOM to be ready
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Find all mermaid diagrams
+            const diagrams = document.querySelectorAll('.mermaid');
+
+            for (let i = 0; i < diagrams.length; i++) {
+                const diagram = diagrams[i];
+                const src = diagram.textContent;
+
+                // Render the diagram
+                const { svg, bindFunctions } = await mermaid.render(`m${i}`, src);
+                diagram.innerHTML = svg;
+                bindFunctions?.(diagram);
+
+                // Apply enhanced styling if it's a sequence diagram
+                if (src.includes('sequenceDiagram')) {
+                    enhanceSequenceDiagram(diagram);
+                }
+            }
+        });
+
+        function enhanceSequenceDiagram(host) {
+            const svgEl = host.querySelector('svg');
+            if (!svgEl) return;
+
+            const svgns = 'http://www.w3.org/2000/svg';
+
+            // Helper functions
+            function findGroupForTextNode(textNode) {
+                let el = textNode;
+                while (el && el.tagName?.toLowerCase() !== 'g') el = el.parentNode;
+                return el;
+            }
+
+            function pickLargestRect(group) {
+                const rects = Array.from(group.querySelectorAll('rect'));
+                if (!rects.length) return null;
+
+                let best = rects[0];
+                let bestArea = 0;
+                for (const r of rects) {
+                    const w = parseFloat(r.getAttribute('width') || '0');
+                    const h = parseFloat(r.getAttribute('height') || '0');
+                    const area = w * h;
+                    if (area > bestArea) {
+                        bestArea = area;
+                        best = r;
+                    }
+                }
+                return best;
+            }
+
+            function ensureDefs() {
+                let defs = svgEl.querySelector('defs');
+                if (!defs) {
+                    defs = document.createElementNS(svgns, 'defs');
+                    svgEl.insertBefore(defs, svgEl.firstChild);
+                }
+                return defs;
+            }
+
+            function hashString(str) {
+                let hash = 0;
+                for (let i = 0; i < str.length; i++) {
+                    const char = str.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash;
+                }
+                return Math.abs(hash);
+            }
+
+            function generateColorTheme(label) {
+                const hash = hashString(label);
+                const hue = hash % 360;
+                const saturation = 60 + (hash % 20);
+                const lightness1 = 95;
+                const lightness2 = 75;
+
+                const top = `hsl(${hue}, ${saturation}%, ${lightness1}%)`;
+                const bottom = `hsl(${hue}, ${saturation}%, ${lightness2}%)`;
+                const stroke = `hsl(${hue}, ${saturation}%, 35%)`;
+
+                return { top, bottom, stroke };
+            }
+
+            function rgbToGradient(rgbString) {
+                const match = rgbString.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+                if (!match) return null;
+
+                const r = parseInt(match[1]);
+                const g = parseInt(match[2]);
+                const b = parseInt(match[3]);
+
+                const darkerR = Math.max(0, r - 20);
+                const darkerG = Math.max(0, g - 20);
+                const darkerB = Math.max(0, b - 20);
+
+                return {
+                    top: `rgb(${r}, ${g}, ${b})`,
+                    bottom: `rgb(${darkerR}, ${darkerG}, ${darkerB})`
+                };
+            }
+
+            // 1) Add base filters to defs
+            const defs = ensureDefs();
+
+            defs.innerHTML += `
+                <!-- Bezel-ish shadow for participants -->
+                <filter id="bezelShadow" x="-35%" y="-35%" width="170%" height="170%">
+                    <feDropShadow dx="0" dy="3.2" stdDeviation="2.2" flood-opacity="0.35"/>
+                    <feDropShadow dx="0" dy="0" stdDeviation="1.2" flood-opacity="0.22"/>
+                </filter>
+
+                <!-- Note callout styling -->
+                <linearGradient id="noteGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#fff7cc"/>
+                    <stop offset="100%" stop-color="#fde68a"/>
+                </linearGradient>
+
+                <filter id="noteShadow" x="-35%" y="-35%" width="170%" height="170%">
+                    <feDropShadow dx="0" dy="2.5" stdDeviation="2" flood-opacity="0.35"/>
+                </filter>
+            `;
+
+            // 2) Style ALL participant boxes automatically
+            const allText = Array.from(svgEl.querySelectorAll('text'));
+            const participantGradients = {};
+            const processedGroups = new Set();
+
+            for (const t of allText) {
+                const label = (t.textContent || '').trim();
+                if (!label) continue;
+
+                const g = findGroupForTextNode(t);
+                if (!g || processedGroups.has(g)) continue;
+
+                const rect = pickLargestRect(g);
+                if (!rect) continue;
+
+                // Check if this looks like a participant box (reasonable size)
+                const w = parseFloat(rect.getAttribute('width') || '0');
+                const h = parseFloat(rect.getAttribute('height') || '0');
+                if (w < 50 || h < 30 || w > 300) continue;
+
+                processedGroups.add(g);
+
+                // Generate or reuse color theme for this participant label
+                const gradId = `pgrad_${hashString(label)}`;
+                if (!participantGradients[gradId]) {
+                    const theme = generateColorTheme(label);
+                    participantGradients[gradId] = theme;
+
+                    // Add gradient to defs (only once per unique label)
+                    const gradientDef = `
+                        <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="${theme.top}"/>
+                            <stop offset="100%" stop-color="${theme.bottom}"/>
+                        </linearGradient>
+                    `;
+                    defs.innerHTML += gradientDef;
+                }
+
+                const theme = participantGradients[gradId];
+
+                // Apply gradient and bezel effect
+                rect.setAttribute('fill', `url(#${gradId})`);
+                rect.setAttribute('rx', '12');
+                rect.setAttribute('ry', '12');
+                rect.setAttribute('stroke', theme.stroke);
+                rect.setAttribute('stroke-width', '4');
+                rect.setAttribute('filter', 'url(#bezelShadow)');
+
+                // Add inner inset panel
+                const x = parseFloat(rect.getAttribute('x') || '0');
+                const y = parseFloat(rect.getAttribute('y') || '0');
+
+                const already = g.querySelector('rect[data-inner-bezel="1"]');
+                if (!already && w > 0 && h > 0) {
+                    const inner = document.createElementNS(svgns, 'rect');
+                    inner.setAttribute('data-inner-bezel', '1');
+                    inner.setAttribute('x', x + 4.5);
+                    inner.setAttribute('y', y + 4.5);
+                    inner.setAttribute('width', Math.max(0, w - 9));
+                    inner.setAttribute('height', Math.max(0, h - 9));
+                    inner.setAttribute('rx', '9');
+                    inner.setAttribute('ry', '9');
+                    inner.setAttribute('fill', 'rgba(255,255,255,0.55)');
+                    inner.setAttribute('stroke', 'rgba(255,255,255,0.65)');
+                    inner.setAttribute('stroke-width', '1');
+                    g.insertBefore(inner, rect.nextSibling);
+                }
+            }
+
+            // 3) Style ALL rect backgrounds (from rect rgb() blocks)
+            const processedRects = new Set();
+            svgEl.querySelectorAll('rect').forEach(r => {
+                const fill = r.getAttribute('fill');
+                if (!fill || !fill.startsWith('rgb(')) return;
+                if (r.hasAttribute('data-inner-bezel')) return;
+                if (processedRects.has(fill)) return;
+
+                const gradient = rgbToGradient(fill);
+                if (!gradient) return;
+
+                processedRects.add(fill);
+
+                // Create gradient for this color
+                const gradId = `rectGrad_${hashString(fill)}`;
+                const gradientDef = `
+                    <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="${gradient.top}"/>
+                        <stop offset="100%" stop-color="${gradient.bottom}"/>
+                    </linearGradient>
+                `;
+                defs.innerHTML += gradientDef;
+
+                // Apply to all rects with this fill
+                svgEl.querySelectorAll('rect').forEach(rect => {
+                    if (rect.getAttribute('fill') === fill && !rect.hasAttribute('data-inner-bezel')) {
+                        rect.setAttribute('fill', `url(#${gradId})`);
+                    }
+                });
+            });
+
+            // 4) Style ALL NOTE boxes
+            const processedNotes = new Set();
+            for (const t of allText) {
+                const text = (t.textContent || '').trim();
+                if (!text || processedNotes.has(text)) continue;
+
+                // Look for text that seems like a note (contains common patterns)
+                const looksLikeNote = text.includes('—') || text.includes('Note') ||
+                                     text.includes('Beat') || text.includes('Movement') ||
+                                     text.length > 30;
+
+                if (!looksLikeNote) continue;
+
+                const g = findGroupForTextNode(t);
+                if (!g) continue;
+
+                const rect = pickLargestRect(g);
+                if (!rect) continue;
+
+                // Check if this looks like a note box (wide and not too tall)
+                const w = parseFloat(rect.getAttribute('width') || '0');
+                const h = parseFloat(rect.getAttribute('height') || '0');
+                if (w < 100 || h < 20 || h > 80) continue;
+
+                processedNotes.add(text);
+
+                // Apply note styling
+                rect.setAttribute('fill', 'url(#noteGrad)');
+                rect.setAttribute('rx', '8');
+                rect.setAttribute('ry', '8');
+                rect.setAttribute('stroke', '#b45309');
+                rect.setAttribute('stroke-width', '2.5');
+                rect.setAttribute('filter', 'url(#noteShadow)');
+
+                // Make text bold
+                t.setAttribute('font-weight', '700');
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="markdown-body">
+        <h1 id="content-creator-entry-workflow">Content Creator Entry Workflow</h1>
+<blockquote>
+<p><strong>Domain</strong>: orchestration-wisdom | <strong>Status</strong>: active | <strong>Auto-generated from</strong>: <a href="../.././sequences/content-creator-entry.json">content-creator-entry.json</a></p>
+</blockquote>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#user-story">User Story</a></li>
+<li><a href="#business-value">Business Value</a></li>
+<li><a href="#governance">Governance</a></li>
+<li><a href="#workflow-movements">Workflow Movements</a>
+<ul>
+<li><a href="#movement-1-home-page-landing">Movement 1: Home Page Landing</a>
+<ul>
+<li><a href="#beat-1-render-home-page">Beat 1: Render Home Page</a></li>
+<li><a href="#beat-2-track-home-page-visit">Beat 2: Track Home Page Visit</a></li>
+</ul>
+</li>
+<li><a href="#movement-2-creator-entry-trigger">Movement 2: Creator Entry Trigger</a>
+<ul>
+<li><a href="#beat-3-handle-creator-entry-click">Beat 3: Handle Creator Entry Click</a></li>
+<li><a href="#beat-4-check-authentication-status">Beat 4: Check Authentication Status</a></li>
+</ul>
+</li>
+<li><a href="#movement-3-authentication-flow">Movement 3: Authentication Flow</a>
+<ul>
+<li><a href="#beat-5-display-sign-in-prompt">Beat 5: Display Sign-In Prompt</a></li>
+<li><a href="#beat-6-process-authentication">Beat 6: Process Authentication</a></li>
+<li><a href="#beat-7-create-user-session">Beat 7: Create User Session</a></li>
+</ul>
+</li>
+<li><a href="#movement-4-workspace-navigation">Movement 4: Workspace Navigation</a>
+<ul>
+<li><a href="#beat-8-navigate-to-creator-workspace">Beat 8: Navigate to Creator Workspace</a></li>
+<li><a href="#beat-9-load-creator-workspace-view">Beat 9: Load Creator Workspace View</a></li>
+<li><a href="#beat-10-initialize-workspace-state">Beat 10: Initialize Workspace State</a></li>
+<li><a href="#beat-11-display-import-articlemd-entry-point">Beat 11: Display Import ARTICLE.md Entry Point</a></li>
+</ul>
+</li>
+<li><a href="#movement-5-entry-completion--analytics">Movement 5: Entry Completion &amp; Analytics</a>
+<ul>
+<li><a href="#beat-12-track-creator-entry-completion">Beat 12: Track Creator Entry Completion</a></li>
+<li><a href="#beat-13-log-entry-event-for-audit">Beat 13: Log Entry Event for Audit</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#metadata">Metadata</a></li>
+</ul>
+<h2 id="overview">Overview</h2>
+<p>Entry point workflow for content creators accessing the pattern creation workspace, including authentication and workspace navigation</p>
+<p><strong>Purpose</strong>: Provide a seamless entry experience for content creators to access the pattern creation tools, ensuring proper authentication and smooth transition to the workspace</p>
+<p><strong>Trigger</strong>: User visits home page and clicks 'Create Pattern' or 'Creator Portal' button</p>
+<h3 id="overview-diagram">Overview Diagram</h3>
+<pre class="mermaid">sequenceDiagram
+  autonumber
+
+  actor User as 👤 User / Content Creator
+  participant Home as 🏠 Home Page (View)
+  participant Auth as 🔐 Auth Service
+  participant Workspace as 🧩 Creator Workspace (View)
+
+  Note over User,Workspace: Entry into Content Creator Workflow (MVP)
+
+  User->>Home: Visit home page
+  Home-->>User: Experience: Marketing + Navigation
+
+  User->>Home: Click "Create Pattern" / "Creator Portal"
+  Home->>Auth: Check authentication
+
+  alt Not Authenticated
+    Auth-->>Home: Auth required
+    Home-->>User: Experience: Sign-in / Access Prompt
+    User->>Auth: Authenticate
+    Auth-->>Home: Auth success
+  else Authenticated
+    Auth-->>Home: Auth OK
+  end
+
+  Home->>Workspace: Navigate to Creator Workspace
+  Workspace-->>User: Experience: Import ARTICLE.md (workflow start)
+</pre>
+<h2 id="user-story">User Story</h2>
+<p><strong>As a</strong> Content Creator / Pattern Author,<br />
+<strong>I want to</strong> Access the pattern creation workspace to start building orchestration patterns,<br />
+<strong>So that</strong> Seamless entry into content creation tools with proper authentication and immediate access to pattern import capabilities.</p>
+<h3 id="user-story-diagram">User Story Diagram</h3>
+<pre class="mermaid">sequenceDiagram
+  actor Creator as 👤 Content Creator
+  participant Portal as 🌐 Platform Portal
+  participant System as 🔐 System
+
+  Creator->>Portal: Navigate to platform
+  Portal-->>Creator: Show home page with CTA
+  Creator->>Portal: Click "Create Pattern"
+  Portal->>System: Verify access
+  
+  alt First-time user
+    System-->>Portal: Need authentication
+    Portal-->>Creator: Sign-in prompt
+    Creator->>System: Authenticate
+    System-->>Creator: Welcome to Creator Workspace
+  else Returning creator
+    System-->>Portal: Access granted
+    Portal-->>Creator: Welcome back to Workspace
+  end
+</pre>
+<h2 id="business-value">Business Value</h2>
+<p>Reduces friction for content creators entering the workflow, ensures secure access to creator tools, and provides clear navigation to pattern creation capabilities</p>
+<h2 id="governance">Governance</h2>
+<h3 id="policies">Policies</h3>
+<ul>
+<li>All creator workspace access requires authentication</li>
+<li>Authentication must complete before workspace access is granted</li>
+<li>Failed authentication attempts must redirect to sign-in flow</li>
+<li>Creator workspace must be accessible within 3 seconds of authentication</li>
+<li>Session management must maintain creator context across navigation</li>
+<li>First-time creators receive onboarding guidance in workspace</li>
+</ul>
+<h3 id="metrics">Metrics</h3>
+<ul>
+<li>Creator entry conversion rate (% of visitors who enter workspace)</li>
+<li>Authentication success rate (% of auth attempts that succeed)</li>
+<li>Time to workspace (seconds from homepage to workspace ready)</li>
+<li>Bounce rate at sign-in prompt (% who abandon at auth step)</li>
+<li>Returning creator rate (% who skip auth via existing session)</li>
+<li>Workspace activation rate (% who import pattern after entry)</li>
+</ul>
+<h2 id="workflow-movements">Workflow Movements</h2>
+<h3 id="movement-1-home-page-landing">Movement 1: Home Page Landing</h3>
+<p>User arrives at platform home page and views marketing content and navigation options</p>
+<p><strong>Tempo</strong>: Quick | <strong>Status</strong>: active</p>
+<h4 id="user-story-1">User Story</h4>
+<p><strong>As a</strong> Content Creator,<br />
+<strong>I want to</strong> Understand the platform value proposition and find entry to creator tools,<br />
+<strong>So that</strong> Clear understanding of platform capabilities and obvious path to pattern creation.</p>
+<p><strong>Beats</strong>: 2</p>
+<h4 id="beat-1-render-home-page">Beat 1: Render Home Page</h4>
+<ul>
+<li><strong>Handler</strong>: <code>HomePageController.Index</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Controllers/HomePageController.cs">src/OrchestrationWisdom/Controllers/HomePageController.cs</a></li>
+<li><strong>Event</strong>: homepage.rendered</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Controllers/HomePageControllerTests.cs">src/OrchestrationWisdom/Tests/Controllers/HomePageControllerTests.cs</a> - <code>Index_RendersHomePage_WithMarketingContent</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: User navigates to platform root URL</li>
+<li><strong>When</strong>: Home page controller renders</li>
+<li><strong>Then</strong>: Page displays marketing content, navigation menu, and 'Create Pattern' CTA button</li>
+<li><strong>Given</strong>: User is already authenticated with valid session</li>
+<li><strong>When</strong>: Home page loads</li>
+<li><strong>Then</strong>: Navigation includes 'My Workspace' link and user profile indicator</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Home page should load within 1 second</li>
+<li>Marketing content highlights pattern creation value proposition</li>
+<li>CTA button is prominently displayed above the fold</li>
+<li>Mobile-responsive design ensures CTA is accessible on all devices</li>
+</ul>
+<h4 id="beat-2-track-home-page-visit">Beat 2: Track Home Page Visit</h4>
+<ul>
+<li><strong>Handler</strong>: <code>AnalyticsService.TrackPageView</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/Analytics/AnalyticsService.cs">src/OrchestrationWisdom/Services/Analytics/AnalyticsService.cs</a></li>
+<li><strong>Event</strong>: homepage.visited</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/AnalyticsServiceTests.cs">src/OrchestrationWisdom/Tests/Services/AnalyticsServiceTests.cs</a> - <code>TrackPageView_RecordsVisit_WithSessionContext</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: User loads home page</li>
+<li><strong>When</strong>: Page render completes</li>
+<li><strong>Then</strong>: Analytics event is logged with user session ID, timestamp, and referrer</li>
+<li><strong>Given</strong>: User has visited before</li>
+<li><strong>When</strong>: Analytics tracks page view</li>
+<li><strong>Then</strong>: Event includes returning visitor flag and previous visit timestamp</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Track referrer source for attribution (direct, search, social, etc.)</li>
+<li>Capture device type and browser for experience optimization</li>
+<li>Record time on page for engagement analysis</li>
+<li>Privacy-compliant tracking with user consent</li>
+</ul>
+<hr />
+<h3 id="movement-2-creator-entry-trigger">Movement 2: Creator Entry Trigger</h3>
+<p>User clicks 'Create Pattern' or 'Creator Portal' button to initiate entry into creator workspace</p>
+<p><strong>Tempo</strong>: Quick | <strong>Status</strong>: active</p>
+<h4 id="user-story-2">User Story</h4>
+<p><strong>As a</strong> Content Creator,<br />
+<strong>I want to</strong> Access the pattern creation workspace,<br />
+<strong>So that</strong> Direct navigation to creator tools without unnecessary steps.</p>
+<p><strong>Beats</strong>: 2</p>
+<h4 id="beat-3-handle-creator-entry-click">Beat 3: Handle Creator Entry Click</h4>
+<ul>
+<li><strong>Handler</strong>: <code>CreatorEntryHandler.HandleEntry</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/CreatorEntryHandler.cs">src/OrchestrationWisdom/Services/CreatorEntryHandler.cs</a></li>
+<li><strong>Event</strong>: creator.entry.initiated</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/CreatorEntryHandlerTests.cs">src/OrchestrationWisdom/Tests/Services/CreatorEntryHandlerTests.cs</a> - <code>HandleEntry_InitiatesWorkflow_WhenCTAClicked</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: User clicks 'Create Pattern' button on home page</li>
+<li><strong>When</strong>: Entry handler processes click</li>
+<li><strong>Then</strong>: System initiates authentication check and logs entry attempt</li>
+<li><strong>Given</strong>: User clicks 'Creator Portal' navigation link</li>
+<li><strong>When</strong>: Entry handler processes click</li>
+<li><strong>Then</strong>: System redirects to workspace with authentication verification</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Support multiple entry points (CTA button, nav link, footer link)</li>
+<li>Log entry source for analytics (which button/link was clicked)</li>
+<li>Preserve entry context for post-authentication redirect</li>
+<li>Handle concurrent clicks gracefully (debounce)</li>
+</ul>
+<h4 id="beat-4-check-authentication-status">Beat 4: Check Authentication Status</h4>
+<ul>
+<li><strong>Handler</strong>: <code>AuthenticationService.CheckAuthStatus</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/AuthenticationService.cs">src/OrchestrationWisdom/Services/AuthenticationService.cs</a></li>
+<li><strong>Event</strong>: auth.status.checked</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/AuthenticationServiceTests.cs">src/OrchestrationWisdom/Tests/Services/AuthenticationServiceTests.cs</a> - <code>CheckAuthStatus_ReturnsValid_WhenSessionExists</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: User has valid authentication session cookie</li>
+<li><strong>When</strong>: Auth status check executes</li>
+<li><strong>Then</strong>: Service returns authenticated status with user identity</li>
+<li><strong>Given</strong>: User has no session or expired session</li>
+<li><strong>When</strong>: Auth status check executes</li>
+<li><strong>Then</strong>: Service returns unauthenticated status and clears invalid session</li>
+<li><strong>Given</strong>: Session exists but token is expired</li>
+<li><strong>When</strong>: Auth status check executes</li>
+<li><strong>Then</strong>: Service attempts token refresh or returns unauthenticated</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Session validation includes token expiry check</li>
+<li>JWT token validation against signing key</li>
+<li>Support for refresh token flow if access token expired</li>
+<li>Cache auth status for 30 seconds to reduce validation overhead</li>
+</ul>
+<hr />
+<h3 id="movement-3-authentication-flow">Movement 3: Authentication Flow</h3>
+<p>Handle authentication requirement, prompting user to sign in if not authenticated</p>
+<p><strong>Tempo</strong>: Measured | <strong>Status</strong>: active</p>
+<h4 id="user-story-3">User Story</h4>
+<p><strong>As a</strong> Unauthenticated Content Creator,<br />
+<strong>I want to</strong> Complete sign-in to access creator workspace,<br />
+<strong>So that</strong> Secure access to creator tools with minimal friction.</p>
+<p><strong>Beats</strong>: 3</p>
+<h4 id="beat-5-display-sign-in-prompt">Beat 5: Display Sign-In Prompt</h4>
+<ul>
+<li><strong>Handler</strong>: <code>AuthenticationController.ShowSignIn</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Controllers/AuthenticationController.cs">src/OrchestrationWisdom/Controllers/AuthenticationController.cs</a></li>
+<li><strong>Event</strong>: auth.signin.prompted</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Controllers/AuthenticationControllerTests.cs">src/OrchestrationWisdom/Tests/Controllers/AuthenticationControllerTests.cs</a> - <code>ShowSignIn_DisplaysPrompt_WithReturnUrl</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: User is not authenticated</li>
+<li><strong>When</strong>: Sign-in prompt is displayed</li>
+<li><strong>Then</strong>: User sees authentication options (email/password, OAuth providers) with clear CTA</li>
+<li><strong>Given</strong>: User was attempting to access creator workspace</li>
+<li><strong>When</strong>: Sign-in prompt displays</li>
+<li><strong>Then</strong>: Return URL is preserved to redirect user to workspace after authentication</li>
+<li><strong>Given</strong>: Sign-in prompt is shown</li>
+<li><strong>When</strong>: User views the page</li>
+<li><strong>Then</strong>: Prompt explains why authentication is required (access to creator tools)</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Support multiple auth providers (Google, GitHub, Microsoft)</li>
+<li>Include email/password option for direct authentication</li>
+<li>Display 'Why do I need to sign in?' contextual help</li>
+<li>Provide 'Create Account' option for first-time users</li>
+<li>Mobile-optimized authentication UI</li>
+</ul>
+<h4 id="beat-6-process-authentication">Beat 6: Process Authentication</h4>
+<ul>
+<li><strong>Handler</strong>: <code>AuthenticationService.Authenticate</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/AuthenticationService.cs">src/OrchestrationWisdom/Services/AuthenticationService.cs</a></li>
+<li><strong>Event</strong>: auth.completed</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/AuthenticationServiceTests.cs">src/OrchestrationWisdom/Tests/Services/AuthenticationServiceTests.cs</a> - <code>Authenticate_CreatesSession_WhenCredentialsValid</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: User submits valid credentials (email/password or OAuth)</li>
+<li><strong>When</strong>: Authentication service processes credentials</li>
+<li><strong>Then</strong>: Service creates authenticated session with JWT token and user profile</li>
+<li><strong>Given</strong>: User submits invalid credentials</li>
+<li><strong>When</strong>: Authentication attempt is processed</li>
+<li><strong>Then</strong>: Service returns authentication failure with clear error message</li>
+<li><strong>Given</strong>: First-time user authenticates via OAuth</li>
+<li><strong>When</strong>: OAuth callback is processed</li>
+<li><strong>Then</strong>: Service creates new user account and initiates onboarding flow</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Generate secure JWT tokens with appropriate expiration (1 hour access, 7 day refresh)</li>
+<li>Store session in secure, HTTP-only cookie</li>
+<li>Log authentication events for security monitoring</li>
+<li>Handle OAuth provider failures gracefully</li>
+<li>Rate limit authentication attempts to prevent brute force</li>
+</ul>
+<h4 id="beat-7-create-user-session">Beat 7: Create User Session</h4>
+<ul>
+<li><strong>Handler</strong>: <code>SessionManager.CreateSession</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/SessionManager.cs">src/OrchestrationWisdom/Services/SessionManager.cs</a></li>
+<li><strong>Event</strong>: session.created</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/SessionManagerTests.cs">src/OrchestrationWisdom/Tests/Services/SessionManagerTests.cs</a> - <code>CreateSession_StoresUserContext_WithExpiryMetadata</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: User authentication succeeds</li>
+<li><strong>When</strong>: Session creation is initiated</li>
+<li><strong>Then</strong>: Session is created with user ID, email, role, and expiration timestamp</li>
+<li><strong>Given</strong>: Session is created</li>
+<li><strong>When</strong>: Session data is persisted</li>
+<li><strong>Then</strong>: Session is stored in distributed cache (Redis) with automatic expiration</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Store minimal session data (ID, email, role) for performance</li>
+<li>Use distributed cache for session storage (Redis/Azure Cache)</li>
+<li>Set session TTL to match token expiration</li>
+<li>Include creator-specific flags (onboarding_complete, workspace_enabled)</li>
+</ul>
+<hr />
+<h3 id="movement-4-workspace-navigation">Movement 4: Workspace Navigation</h3>
+<p>Navigate authenticated user to creator workspace and initialize workspace view</p>
+<p><strong>Tempo</strong>: Quick | <strong>Status</strong>: active</p>
+<h4 id="user-story-4">User Story</h4>
+<p><strong>As a</strong> Authenticated Content Creator,<br />
+<strong>I want to</strong> Access creator workspace and start pattern creation,<br />
+<strong>So that</strong> Immediate access to pattern import and creation tools.</p>
+<p><strong>Beats</strong>: 4</p>
+<h4 id="beat-8-navigate-to-creator-workspace">Beat 8: Navigate to Creator Workspace</h4>
+<ul>
+<li><strong>Handler</strong>: <code>WorkspaceController.Index</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Controllers/WorkspaceController.cs">src/OrchestrationWisdom/Controllers/WorkspaceController.cs</a></li>
+<li><strong>Event</strong>: workspace.navigated</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Controllers/WorkspaceControllerTests.cs">src/OrchestrationWisdom/Tests/Controllers/WorkspaceControllerTests.cs</a> - <code>Index_RedirectsToWorkspace_AfterAuthentication</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: User authentication is successful</li>
+<li><strong>When</strong>: Navigation to workspace is initiated</li>
+<li><strong>Then</strong>: User is redirected to /workspace or /creator-portal URL</li>
+<li><strong>Given</strong>: User had a return URL preserved from initial entry</li>
+<li><strong>When</strong>: Post-authentication redirect occurs</li>
+<li><strong>Then</strong>: User is sent to original intended destination (workspace)</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Preserve query parameters across authentication redirect</li>
+<li>Use 302 redirect for post-authentication navigation</li>
+<li>Log workspace entry event for analytics</li>
+<li>Include user context in redirect (session cookie)</li>
+</ul>
+<h4 id="beat-9-load-creator-workspace-view">Beat 9: Load Creator Workspace View</h4>
+<ul>
+<li><strong>Handler</strong>: <code>WorkspaceService.LoadWorkspace</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/WorkspaceService.cs">src/OrchestrationWisdom/Services/WorkspaceService.cs</a></li>
+<li><strong>Event</strong>: workspace.loaded</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/WorkspaceServiceTests.cs">src/OrchestrationWisdom/Tests/Services/WorkspaceServiceTests.cs</a> - <code>LoadWorkspace_RendersUI_WithImportOptions</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Authenticated user accesses workspace</li>
+<li><strong>When</strong>: Workspace view loads</li>
+<li><strong>Then</strong>: UI displays 'Import ARTICLE.md' option, recent drafts, and workspace navigation</li>
+<li><strong>Given</strong>: First-time creator accesses workspace</li>
+<li><strong>When</strong>: Workspace loads</li>
+<li><strong>Then</strong>: Onboarding tooltip highlights 'Import ARTICLE.md' as starting point</li>
+<li><strong>Given</strong>: Returning creator accesses workspace</li>
+<li><strong>When</strong>: Workspace loads</li>
+<li><strong>Then</strong>: Recent drafts and patterns are displayed for quick access</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Workspace should load within 2 seconds</li>
+<li>Display user profile and workspace settings in header</li>
+<li>Include contextual help for import workflow</li>
+<li>Show onboarding checklist for new creators</li>
+<li>Lazy-load recent drafts to optimize initial page load</li>
+</ul>
+<h4 id="beat-10-initialize-workspace-state">Beat 10: Initialize Workspace State</h4>
+<ul>
+<li><strong>Handler</strong>: <code>WorkspaceStateManager.Initialize</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/WorkspaceStateManager.cs">src/OrchestrationWisdom/Services/WorkspaceStateManager.cs</a></li>
+<li><strong>Event</strong>: workspace.initialized</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/WorkspaceStateManagerTests.cs">src/OrchestrationWisdom/Tests/Services/WorkspaceStateManagerTests.cs</a> - <code>Initialize_LoadsUserDrafts_AndPreferences</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Workspace view is loaded</li>
+<li><strong>When</strong>: State initialization executes</li>
+<li><strong>Then</strong>: User's draft patterns and workspace preferences are loaded from database</li>
+<li><strong>Given</strong>: User has no previous drafts</li>
+<li><strong>When</strong>: Workspace initializes</li>
+<li><strong>Then</strong>: Empty state is displayed with 'Start by importing ARTICLE.md' guidance</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Load up to 10 most recent drafts for performance</li>
+<li>Fetch workspace preferences (theme, layout, notifications)</li>
+<li>Initialize file upload handler for ARTICLE.md import</li>
+<li>Set up WebSocket connection for real-time collaboration (future)</li>
+<li>Cache workspace state in browser localStorage for offline support</li>
+</ul>
+<h4 id="beat-11-display-import-article.md-entry-point">Beat 11: Display Import ARTICLE.md Entry Point</h4>
+<ul>
+<li><strong>Handler</strong>: <code>WorkspaceUIRenderer.RenderImportEntry</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/WorkspaceUIRenderer.cs">src/OrchestrationWisdom/Services/WorkspaceUIRenderer.cs</a></li>
+<li><strong>Event</strong>: workspace.import.ready</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/WorkspaceUIRendererTests.cs">src/OrchestrationWisdom/Tests/Services/WorkspaceUIRendererTests.cs</a> - <code>RenderImportEntry_DisplaysCTA_ForMarkdownImport</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Workspace is fully initialized</li>
+<li><strong>When</strong>: UI render completes</li>
+<li><strong>Then</strong>: Prominent 'Import ARTICLE.md' button/dropzone is displayed as primary action</li>
+<li><strong>Given</strong>: User hovers over import entry point</li>
+<li><strong>When</strong>: Tooltip displays</li>
+<li><strong>Then</strong>: Tooltip explains: 'Upload your markdown file to start creating a pattern'</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Support drag-and-drop for ARTICLE.md file</li>
+<li>Include file picker button for traditional upload</li>
+<li>Display accepted file format (.md, .markdown)</li>
+<li>Show example ARTICLE.md link for reference</li>
+<li>Transition smoothly to import workflow on file selection</li>
+</ul>
+<hr />
+<h3 id="movement-5-entry-completion-analytics">Movement 5: Entry Completion &amp; Analytics</h3>
+<p>Log successful entry into creator workspace and track conversion metrics</p>
+<p><strong>Tempo</strong>: Quick | <strong>Status</strong>: active</p>
+<h4 id="user-story-5">User Story</h4>
+<p><strong>As a</strong> Platform Analytics Team,<br />
+<strong>I want to</strong> Measure creator entry funnel effectiveness,<br />
+<strong>So that</strong> Data-driven insights to optimize creator onboarding and reduce friction.</p>
+<p><strong>Beats</strong>: 2</p>
+<h4 id="beat-12-track-creator-entry-completion">Beat 12: Track Creator Entry Completion</h4>
+<ul>
+<li><strong>Handler</strong>: <code>AnalyticsService.TrackConversion</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/Analytics/AnalyticsService.cs">src/OrchestrationWisdom/Services/Analytics/AnalyticsService.cs</a></li>
+<li><strong>Event</strong>: creator.entry.completed</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/AnalyticsServiceTests.cs">src/OrchestrationWisdom/Tests/Services/AnalyticsServiceTests.cs</a> - <code>TrackConversion_LogsEntrySuccess_WithTimings</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: User successfully enters creator workspace</li>
+<li><strong>When</strong>: Workspace initialization completes</li>
+<li><strong>Then</strong>: Analytics event is logged with entry source, authentication method, and time metrics</li>
+<li><strong>Given</strong>: Analytics event is logged</li>
+<li><strong>When</strong>: Event data is captured</li>
+<li><strong>Then</strong>: Event includes: user_id, entry_source, auth_method, time_to_workspace, first_visit_flag</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Calculate time from homepage visit to workspace ready</li>
+<li>Track authentication drop-off rate (users who abandon at sign-in)</li>
+<li>Measure conversion by entry source (CTA button vs nav link)</li>
+<li>Flag first-time vs returning creators for cohort analysis</li>
+<li>Send data to analytics platform (Google Analytics, Mixpanel, etc.)</li>
+</ul>
+<h4 id="beat-13-log-entry-event-for-audit">Beat 13: Log Entry Event for Audit</h4>
+<ul>
+<li><strong>Handler</strong>: <code>AuditLogger.LogCreatorEntry</code></li>
+<li><strong>Source</strong>: <a href="../../src/OrchestrationWisdom/Services/AuditLogger.cs">src/OrchestrationWisdom/Services/AuditLogger.cs</a></li>
+<li><strong>Event</strong>: audit.creator.entry</li>
+<li><strong>Test</strong>: <a href="../../src/OrchestrationWisdom/Tests/Services/AuditLoggerTests.cs">src/OrchestrationWisdom/Tests/Services/AuditLoggerTests.cs</a> - <code>LogCreatorEntry_RecordsEvent_ForSecurityAudit</code></li>
+</ul>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li><strong>Given</strong>: Creator workspace entry completes</li>
+<li><strong>When</strong>: Audit log is written</li>
+<li><strong>Then</strong>: Event is logged with timestamp, user ID, IP address, and entry context</li>
+<li><strong>Given</strong>: Entry event is logged</li>
+<li><strong>When</strong>: Log is persisted</li>
+<li><strong>Then</strong>: Log entry is written to secure audit trail with retention policy</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>Log for security and compliance purposes</li>
+<li>Include IP address and user agent for fraud detection</li>
+<li>Store in append-only audit log (immutable)</li>
+<li>Retain audit logs per compliance requirements (GDPR, SOC2)</li>
+<li>Enable audit trail queries for security investigations</li>
+</ul>
+<hr />
+<h2 id="metadata">Metadata</h2>
+<ul>
+<li><strong>Version</strong>: 1.0</li>
+<li><strong>Author</strong>: Orchestration Wisdom Platform</li>
+<li><strong>Created</strong>: 2026-01-11</li>
+<li><strong>Tags</strong>: content-creator, authentication, workspace-entry, onboarding, mvp</li>
+</ul>
+<hr />
+<p><em>This documentation was auto-generated from the canonical sequence definition.</em><br />
+<em><strong>Canonical Reference</strong>: <a href="../.././sequences/content-creator-entry.json">content-creator-entry.json</a></em></p>
+
+    </div>
+</body>
+</html>

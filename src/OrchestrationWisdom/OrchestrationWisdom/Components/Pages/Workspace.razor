@@ -61,6 +61,31 @@
             else
             {
                 <div class="workspace-sections">
+                    <!-- DEBUG INFO -->
+                    <div style="background: yellow; padding: 10px; margin-bottom: 10px;">
+                        <strong>DEBUG:</strong>
+                        showImportDialog = @showImportDialog |
+                        showCreateDialog = @showCreateDialog
+                    </div>
+
+                    @if (showImportDialog)
+                    {
+                        <div class="alert alert-info">
+                            <strong>Import Dialog</strong>
+                            <p>Import ARTICLE.md functionality is under development. This will trigger the markdown-to-pattern conversion workflow.</p>
+                            <button @onclick="ShowImportDialog" class="btn btn-secondary">Close</button>
+                        </div>
+                    }
+
+                    @if (showCreateDialog)
+                    {
+                        <div class="alert alert-info">
+                            <strong>Create from Scratch</strong>
+                            <p>Manual pattern creation is under development. This will open the pattern editor interface.</p>
+                            <button @onclick="ShowCreateDialog" class="btn btn-secondary">Close</button>
+                        </div>
+                    }
+
                     <section class="quick-actions">
                         <h2>Quick Actions</h2>
                         <div class="action-cards">
@@ -69,7 +94,7 @@
                                 <h3>Import ARTICLE.md</h3>
                                 <p>Start a new pattern from markdown</p>
                             </div>
-                            <div class="action-card">
+                            <div class="action-card" @onclick="ShowCreateDialog">
                                 <div class="card-icon">➕</div>
                                 <h3>Create from Scratch</h3>
                                 <p>Build a pattern manually</p>
@@ -118,16 +143,22 @@
     private bool isAuthenticated = false;
     private WorkspaceState? workspaceState;
     private string? sessionToken;
+    private bool showImportDialog = false;
+    private bool showCreateDialog = false;
 
     protected override async Task OnInitializedAsync()
     {
         // Movement 4, Beat 9: Load Creator Workspace View
         Console.WriteLine("[WORKSPACE] Loading creator workspace");
 
+        // DEVELOPMENT MODE: Skip authentication for testing
+        // TODO: Enable authentication check in production
+        isAuthenticated = true; // Bypass auth check for development
+
         // Check authentication (in production, get from cookie/session)
         // For demo, use hardcoded user
-        sessionToken = "demo-session-token";
-        isAuthenticated = await AuthenticationService.CheckAuthStatusAsync(sessionToken);
+        // sessionToken = "demo-session-token";
+        // isAuthenticated = await AuthenticationService.CheckAuthStatusAsync(sessionToken);
 
         if (isAuthenticated)
         {
@@ -178,7 +209,16 @@
 
     private void ShowImportDialog()
     {
-        Console.WriteLine("[WORKSPACE] Show import dialog");
+        Console.WriteLine($"[WORKSPACE] Show import dialog - Current state: {showImportDialog}");
+        showImportDialog = !showImportDialog;
+        Console.WriteLine($"[WORKSPACE] New state: {showImportDialog}");
+    }
+
+    private void ShowCreateDialog()
+    {
+        Console.WriteLine($"[WORKSPACE] Show create dialog - Current state: {showCreateDialog}");
+        showCreateDialog = !showCreateDialog;
+        Console.WriteLine($"[WORKSPACE] New state: {showCreateDialog}");
     }
 
     private string FormatRelativeTime(DateTime dateTime)

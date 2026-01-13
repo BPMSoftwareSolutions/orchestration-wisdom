@@ -6,7 +6,7 @@ namespace OrchestrationWisdom.Tools.MarkdownViewer.Tests
 {
     public class PatternJsonExporterTests
     {
-        private readonly PatternJsonExporter _exporter = new();
+        private readonly PatternJsonExporter _exporter = new PatternJsonExporter();
 
         [Fact]
         public async Task ExportAsync_WithValidMarkdown_ReturnsPatternJson()

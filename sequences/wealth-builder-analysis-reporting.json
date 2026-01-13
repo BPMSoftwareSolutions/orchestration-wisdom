@@ -1,0 +1,759 @@
+﻿{
+  "$schema": "../schemas/musical-sequence.schema.json",
+  "domainId": "wealth-builder-fpa",
+  "id": "wealth-builder-analysis-reporting",
+  "name": "Analysis and Reporting Orchestration",
+  "title": "WealthBuilder AI Analysis & Report Generation",
+  "description": "Generates human-readable investment analysis, peer comparison insights, and AI-enhanced professional recommendations",
+  "purpose": "Transform quantitative FPA scores into actionable investment narratives and client-facing reports",
+  "trigger": "User requests detailed analysis via web interface or CLI command: dotnet run -- analyze AAPL",
+  "packageName": "WealthBuilder.FPAScoreWeb",
+  "kind": "orchestration",
+  "status": "active",
+  "key": "A Major",
+  "tempo": 100,
+  "timeSignature": "2/4",
+  "category": "reporting-synthesis",
+  "beats": 16,
+  "governance": {
+    "policies": [
+      "AI-generated analysis uses few-shot learning examples",
+      "Professional tone maintained in all output formats",
+      "Peer comparison uses sector/industry cohorts from database",
+      "PDF/CSV export includes full data provenance"
+    ],
+    "metrics": [
+      "Report generation time",
+      "AI API token usage and cost",
+      "Export format success rate",
+      "User satisfaction with AI analysis quality"
+    ]
+  },
+  "events": [
+    "analysis.requested",
+    "peer.data.aggregated",
+    "score.context.enriched",
+    "narrative.analysis.generated",
+    "valuation.assessment.generated",
+    "risk.analysis.generated",
+    "recommendation.generated",
+    "report.formatted",
+    "report.exported"
+  ],
+  "userStory": {
+    "persona": "Financial Advisor",
+    "goal": "Provide clients with comprehensive, professional investment analysis",
+    "benefit": "Enhance client engagement with quantitative + narrative insights",
+    "diagram": "sequenceDiagram\n  participant Advisor as 🧑‍💼 Financial Advisor\n  participant Engine as Analysis Engine\n  participant AI as 🤖 OpenAI API\n  participant Store as 🗄️ Storage\n  Advisor->>Engine: Analyze AAPL (Apple Inc)\n  rect rgb(230, 240, 255)\n  Note over Advisor,Store: Movement 1: Peer Context and Data Enrichment\n  Note over Advisor,Engine: Beat 1: Sector Peers\n  Engine->>Engine: ✓ FPA Score Loaded (Grade A, 76.4)\n  Note over Advisor,Engine: Beat 2: Industry Peers\n  Engine->>Engine: ✓ Sector Avg Calculated (Tech: 72.3)\n  end\n  rect rgb(255, 245, 230)\n  Note over Advisor,Store: Movement 2: AI-Powered Narrative Analysis\n  Note over Engine,AI: Beat 1: Financial Breakdown\n  Engine->>AI: Generate Financial Breakdown for AAPL\n  AI-->>Engine: ✓ Revenue $119.6B, Margin 27.8%, ROE 142%, EPS Growth 12%\n  Note over Engine,AI: Beat 2: Valuation Assessment\n  Engine->>AI: Generate Valuation Assessment\n  AI-->>Engine: ✓ Fair Value $245, Trading Fair (Slight Premium 2.3%)\n  Note over Engine,AI: Beat 3: Risk Analysis\n  Engine->>AI: Generate Risk Analysis\n  AI-->>Engine: ✓ Low Systematic Risk, High Quality Moat\n  Note over Engine,AI: Beat 4: Investment Recommendation\n  Engine->>AI: Generate Investment Recommendation\n  AI-->>Engine: ✓ RECOMMENDATION: BUY (Grade A, Outperforms Sector)\n  end\n  rect rgb(240, 255, 240)\n  Note over Advisor,Store: Movement 3: Report Formatting and Export\n  Note over Engine,Engine: Beat 1: Markdown Report\n  Engine->>Engine: ✓ Format Markdown Report\n  Note over Engine,Store: Beat 5: Archive\n  Engine->>Store: ✓ Archive Markdown, Web, CSV, PDF\n  Store-->>Engine: ✓ All Artifacts Saved\n  end\n  Engine-->>Advisor: ✅ Analysis Complete (Reports: 4 Formats, AI Quality: Excellent)"
+  },
+  "diagram": "sequenceDiagram\n  participant Advisor as 🧑‍💼 Financial Advisor\n  participant Engine as 📊 Analysis Engine\n  participant AI as 🤖 OpenAI API\n  participant Store as 🗄️ Storage\n  participant Audit as 📋 Audit\n  Advisor->>Engine: Analyze AAPL for Investment Committee\n  Note over Advisor,Audit: ═══ Movement 1: Context Enrichment ═══\n  Engine->>Engine: ✓ Load FPA Score (Grade A, Score 76.4, Components: 6/6)\n  Engine->>Engine: ✓ Sector Peers: Tech Sector Avg FPA 72.3 (AAPL +4.1 Outperformer)\n  Engine->>Engine: ✓ Industry Cohort: Hardware/Peripherals Avg FPA 71.8 (AAPL +4.6 Leading)\n  Engine->>Engine: ✓ Historical: AAPL 5-Yr Avg FPA 75.2 (Current +1.2 Stronger)\n  Note over Engine,Audit: ═══ Movement 2: AI-Powered Narrative Analysis ═══\n  Engine->>AI: Generate Financial Analysis (AAPL Q3 2024 Results)\n  AI-->>Engine: ✓ Narrative: \"Apple delivered strong revenue of $119.6B (+12.2% YoY) with exceptional 27.8% net margin, well above sector 20% average. ROE of 142% annually demonstrates outstanding capital efficiency...\"\n  Engine->>AI: Generate Valuation Assessment (DCF + Market Multiples)\n  AI-->>Engine: ✓ Analysis: \"DCF intrinsic value calculated at $245/share. Current trading at $239.45 represents 2.3% margin of safety. P/E of 32.1x reflects 14% premium to sector 28x, justified by quality moat and growth trajectory...\"\n  Engine->>AI: Generate Risk Analysis (Systematic + Idiosyncratic)\n  AI-->>Engine: ✓ Assessment: \"AAPL exhibits low systematic risk (Beta 1.18). Idiosyncratic risks include China exposure, supply chain concentration, regulatory scrutiny in EU/US...\"\n  Engine->>AI: Generate Investment Recommendation\n  AI-->>Engine: ✓ Recommendation: \"BUY with $270 12-month price target. Outperforms sector peers 89th percentile. Grade A financial quality positions AAPL as core holding...\"\n  Note over Engine,Audit: ═══ Movement 3: Report Generation & Export ═══\n  Engine->>Engine: ✓ Format Markdown Report (Full Analysis + Data Tables)\n  Engine->>Engine: ✓ Render Web Dashboard (Interactive Charts, Peer Comparison)\n  Engine->>Engine: ✓ Generate CSV Export (Historical Scores, Component Breakdown)\n  Engine->>Engine: ✓ Generate PDF Report (Professional Layout, Watermarked)\n  Engine->>Store: Persist All Artifacts (Symbol: AAPL, ReportId: R-2025-01-23-001)\n  Store-->>Engine: ✓ 4 Files Archived (Markdown 42KB, Web HTML 156KB, CSV 18KB, PDF 1.2MB)\n  Engine->>Audit: LOG - Analysis Complete (Symbol: AAPL, ReportId: R-2025-01-23-001, AITokens: 4,247, Quality: Excellent)\n  Audit-->>Engine: ✓ Audit Entry: ANALYSIS_GENERATION_SUCCESS\n  Engine-->>Advisor: ✅ Investment Analysis Ready for Committee\n  Engine-->>Advisor: Grade A | Recommendation BUY | Target $270 | Reports: 4 Formats",
+  "metadata": {
+    "version": "1.5.0",
+    "author": "WealthBuilder Team",
+    "created": "2025-12-18",
+    "tags": [
+      "reporting",
+      "analysis",
+      "ai-synthesis",
+      "client-facing"
+    ]
+  },
+  "movements": [
+    {
+      "id": "context-enrichment-movement",
+      "name": "Peer Context and Data Enrichment",
+      "number": 1,
+      "description": "Aggregate peer group data and establish comparative context for analysis",
+      "tempo": 100,
+      "errorHandling": "continue",
+      "userStory": {
+        "persona": "Research Analyst",
+        "goal": "Contextualize individual stock within peer group performance",
+        "benefit": "Identify relative value and outperformers/underperformers",
+        "diagram": "sequenceDiagram\n  participant Analyst as 📊 Research Analyst\n  participant Repository as Repository\n  participant DB as 🗄️ Database\n  Note over Analyst,DB: Movement 1: Peer Context and Data Enrichment\n  Analyst->>Repository: Enrich Analysis Context for AAPL\n  rect rgb(230, 245, 255)\n  Note over Repository,DB: Beat 1: Retrieve Sector Peer Scores\n  Repository->>DB: SELECT AVG(Score) FROM FPAScores WHERE Sector='Technology'\n  DB-->>Repository: ✓ Sector Avg: 72.3 (54 companies)\n  end\n  rect rgb(255, 240, 245)\n  Note over Repository,DB: Beat 2: Retrieve Industry Peer Scores\n  Repository->>DB: SELECT AVG(Score) FROM FPAScores WHERE Industry='Hardware'\n  DB-->>Repository: ✓ Industry Avg: 71.8 (12 companies)\n  end\n  rect rgb(245, 255, 245)\n  Note over Analyst,DB: Beat 3: Enrich with Historical Score Data\n  Repository->>DB: SELECT Score FROM FPAScores WHERE Symbol='AAPL' ORDER BY Date DESC LIMIT 20\n  DB-->>Repository: ✓ 5-Year Avg: 75.2 (Trend: Improving)\n  end\n  Repository-->>Analyst: ✅ Context Ready (AAPL: 76.4 vs Tech: 72.3 vs Sector: 71.8 - Outperformer)"
+      },
+      "diagram": "sequenceDiagram\n  participant Analyst as 📊 Analyst\n  participant Repository as 🔗 Repository\n  participant DB as 🗄️ Database\n  participant Audit as 📋 Audit\n  Analyst->>Repository: Retrieve Peer Context (AAPL)\n  Note over Analyst,Audit: Movement 1: Peer Context and Data Enrichment\n  Note over Analyst,Audit: Beat 1: Retrieve Sector Peer Scores\n  Repository->>DB: SELECT AVG(Score) FROM FPAScores WHERE Sector='Technology'\n  DB-->>Repository: ✓ Sector Average: 72.3/100 (54 Companies Analyzed)\n  Repository->>DB: SELECT Grade, COUNT(*) FROM FPAScores WHERE Sector='Technology' GROUP BY Grade\n  DB-->>Repository: ✓ Distribution: A=8(15%), B=18(33%), C=20(37%), D=8(15%), F=0(0%)\n  Note over Analyst,Audit: Beat 2: Retrieve Industry Peer Scores\n  Repository->>DB: SELECT AVG(Score) FROM FPAScores WHERE Industry='Hardware/Peripherals'\n  DB-->>Repository: ✓ Industry Average: 71.8/100 (12 Companies Analyzed)\n  Repository->>DB: Top Competitors: Microsoft (80.1), NVIDIA (78.9), Intel (65.3)\n  Note over Analyst,Audit: Beat 3: Enrich with Historical Score Data\n  Repository->>DB: SELECT Score, Date FROM FPAScores WHERE Symbol='AAPL' ORDER BY Date DESC LIMIT 20\n  DB-->>Repository: ✓ Historical: Trend Upward | 5-Yr Avg: 75.2 | Current: 76.4 (+0.3% vs Avg)\n  Repository->>Audit: LOG - Context Enrichment (Symbol: AAPL, SectorAvg: 72.3, OutperformPercentile: 89th)\n  Audit-->>Repository: ✓ Audit Entry: CONTEXT_ENRICHMENT_SUCCESS\n  Repository-->>Analyst: ✅ AAPL Peer Context Complete (Outperforms Sector: +4.1, Top Quartile: Yes)",
+      "status": "optional-enrichment",
+      "beats": [
+        {
+          "name": "Retrieve Sector Peer Scores",
+          "beat": 1,
+          "event": "sector.data.loaded",
+          "title": "Load all FPA scores for company sector",
+          "description": "Query database for all FPA scores in same sector; calculate average score and grade distribution",
+          "dynamics": "p",
+          "timing": "database aggregation query",
+          "handler": {
+            "name": "FPAScoreRepository#GetAverageScoreBySectorAsync + GetGradeDistributionBySectorAsync",
+            "scope": "system",
+            "kind": "reporting",
+            "sourcePath": "WealthBuilderDAL/Repositories/FPAScoreRepository.Custom.cs",
+            "handlerCapabilities": [
+              "measure",
+              "report"
+            ]
+          },
+          "errorHandling": "continue",
+          "dependencies": [
+            "analysis.requested"
+          ],
+          "userStory": {
+            "persona": "Research Analyst",
+            "goal": "Establish sector baseline for relative performance",
+            "benefit": "Identify if stock outperforms or underperforms sector average",
+            "diagram": "sequenceDiagram\n  autonumber\n  participant Analyst as 📊 Analyst\n  participant Repository as Repository\n  participant DB as 🗄️ Database\n  Note over Analyst,DB: Beat 1: Retrieve Sector Peer Scores\n  Analyst->>Repository: Get Sector Peer Context for AAPL (Technology Sector)\n  Repository->>DB: SELECT AVG(Score), COUNT(*) FROM FPAScores WHERE Sector='Technology'\n  DB-->>Repository: ✓ Average: 72.3, Count: 54 Companies\n  Repository->>DB: SELECT Grade, COUNT(*) FROM FPAScores WHERE Sector='Technology' GROUP BY Grade\n  DB-->>Repository: ✓ Distribution: A=8(15%), B=18(33%), C=20(37%), D=8(15%), F=0(0%)\n  Repository->>Repository: Calculate Percentile (AAPL 76.4 > Sector 72.3 = 89th Percentile)\n  Repository-->>Analyst: ✅ Sector Stats: Avg 72.3, AAPL Rank: Top 12%, Outperforms +4.1"
+          },
+          "diagram": "sequenceDiagram\n  autonumber\n  participant Analyst as 📊 Analyst\n  participant Repository as 🔗 Repository\n  participant DB as 🗄️ Database\n  participant Audit as 📋 Audit\n  Note over Analyst,Audit: Beat 1: Retrieve Sector Peer Scores\n  Analyst->>Repository: Retrieve Sector Peer Statistics (AAPL / Technology)\n  Repository->>DB: SELECT AVG(Score) FROM FPAScores WHERE Sector='Technology'\n  DB-->>Repository: ✓ Sector Average FPA Score: 72.3/100 (54 Technology Companies Analyzed)\n  Repository->>DB: SELECT Grade, COUNT(*) FROM FPAScores WHERE Sector='Technology' GROUP BY Grade\n  DB-->>Repository: ✓ Grade Distribution: A=8 (15%), B=18 (33%), C=20 (37%), D=8 (15%), F=0 (0%)\n  Repository->>Repository: Calculate AAPL Percentile Rank\n  Repository->>Repository: AAPL Score: 76.4 vs Sector Avg: 72.3 → Percentile: 89th (Top 11%)\n  Repository->>Audit: LOG - Sector Analysis (Sector: Technology, Count: 54, Avg: 72.3, AAPL Percentile: 89th)\n  Audit-->>Repository: ✓ Audit Entry: SECTOR_AGGREGATION_SUCCESS\n  Repository-->>Analyst: ✅ Sector Context: Average 72.3 | AAPL 76.4 | Outperforms +4.1 pts | Top Quartile",
+          "acceptanceCriteria": [
+            {
+              "given": [
+                "Company sector from database"
+              ],
+              "when": [
+                "Aggregation queries are executed"
+              ],
+              "then": [
+                "Returns average sector FPA score"
+              ],
+              "and": [
+                "Grade distribution provided (A%, B%, C%, D%, F%)",
+                "Percentile rank calculated"
+              ]
+            }
+          ],
+          "testFile": "WealthBuilderDAL/Tests/FPAScoreRepository.Tests.cs",
+          "testCase": "TestGetAverageScoreBySector_ValidSector_ReturnsAggregates",
+          "notes": [
+            "Empty sectors (no peers) return null gracefully",
+            "Consider weighting by market cap for market-cap-weighted sector average"
+          ]
+        },
+        {
+          "name": "Retrieve Industry Peer Scores",
+          "beat": 2,
+          "event": "industry.data.loaded",
+          "title": "Load all FPA scores for company industry",
+          "description": "Query database for all FPA scores in same industry; calculate average score and quartile positioning",
+          "dynamics": "p",
+          "timing": "database aggregation query",
+          "handler": {
+            "name": "FPAScoreRepository#GetAverageScoreByIndustryAsync",
+            "scope": "system",
+            "kind": "reporting",
+            "sourcePath": "WealthBuilderDAL/Repositories/FPAScoreRepository.Custom.cs",
+            "handlerCapabilities": [
+              "measure",
+              "report"
+            ]
+          },
+          "errorHandling": "continue",
+          "dependencies": [
+            "analysis.requested"
+          ],
+          "userStory": {
+            "persona": "Research Analyst",
+            "goal": "Provide more granular peer comparison at industry level",
+            "benefit": "Industries within sector may have very different risk profiles",
+            "diagram": "sequenceDiagram\n  autonumber\n  participant Repository\n  participant DB as FPA Score Table\n  Note over Repository,DB: Beat 2: Retrieve Industry Peer Scores\n  Repository->>DB: Query All Scores<br/>in Industry\n  DB-->>Repository: Score Array\n  Repository->>Repository: Calculate Average\n  Repository->>Repository: Calculate Quartiles\n  Repository->>Repository: Peer Count"
+          },
+          "diagram": "sequenceDiagram\n  autonumber\n  participant Analyst as 📊 Analyst\n  participant Repository as 🔗 Repository\n  participant DB as 🗄️ Database\n  participant Audit as 📋 Audit\n  Note over Analyst,Audit: Beat 2: Retrieve Industry Peer Scores\n  Analyst->>Repository: Retrieve Industry Peer Statistics (AAPL / Hardware)\n  Repository->>DB: SELECT AVG(Score) FROM FPAScores WHERE Industry='Hardware/Peripherals'\n  DB-->>Repository: ✓ Industry Average: 71.8/100 (12 Companies Analyzed)\n  Repository->>DB: Query Quartile Positions\n  DB-->>Repository: ✓ Q1: 68.5, Q2: 71.8, Q3: 75.2, Q4: 78.9\n  Repository->>Repository: Calculate AAPL Position (76.4 = Q3)\n  Repository->>Audit: LOG - Industry Analysis (Industry: Hardware, Count: 12, Avg: 71.8, AAPL Quartile: Q3)\n  Audit-->>Repository: ✓ Audit Entry: INDUSTRY_AGGREGATION_SUCCESS\n  Repository-->>Analyst: ✅ Industry Context: Average 71.8 | AAPL 76.4 | Outperforms +4.6 pts | Q3",
+          "acceptanceCriteria": [
+            {
+              "given": [
+                "Company industry from database"
+              ],
+              "when": [
+                "Aggregation queries are executed"
+              ],
+              "then": [
+                "Returns average industry FPA score"
+              ],
+              "and": [
+                "Quartile rank provided (top 25%, 50%, 75%, bottom 25%)",
+                "Peer count included"
+              ]
+            }
+          ],
+          "testFile": "WealthBuilderDAL/Tests/FPAScoreRepository.Tests.cs",
+          "testCase": "TestGetAverageScoreByIndustry_ValidIndustry_ReturnsAggregates",
+          "notes": [
+            "Industries within same sector often have very different characteristics",
+            "Example: Tech sector contains both high-growth startups and mature legacy systems"
+          ]
+        },
+        {
+          "name": "Enrich with Historical Score Data",
+          "beat": 3,
+          "event": "historical.scores.loaded",
+          "title": "Load prior FPA scores for trend analysis",
+          "description": "Retrieve latest 5 FPA scores for requested symbol; calculate trend (improving/declining)",
+          "dynamics": "p",
+          "timing": "database query with sorting",
+          "handler": {
+            "name": "FPAScoreRepository#GetLatestBySymbolAsync + trend calculation",
+            "scope": "system",
+            "kind": "reporting",
+            "sourcePath": "WealthBuilderDAL/Repositories/FPAScoreRepository.Custom.cs",
+            "handlerCapabilities": [
+              "measure",
+              "report"
+            ]
+          },
+          "errorHandling": "continue",
+          "dependencies": [
+            "analysis.requested"
+          ],
+          "userStory": {
+            "persona": "Fund Manager",
+            "goal": "Identify improving vs deteriorating financial positions",
+            "benefit": "Distinguish turnaround stories from declining companies",
+            "diagram": "sequenceDiagram\n  autonumber\n  participant Repository\n  participant DB as FPA Score Table\n  Note over Repository,DB: Beat 3: Enrich with Historical Score Data\n  Repository->>DB: Query Last 5 Scores<br/>for Symbol\n  DB-->>Repository: Score Array\n  Repository->>Repository: Sort by Date\n  Repository->>Repository: Calculate Trend\n  Repository->>Repository: Direction: ↑ ↓ →"
+          },
+          "diagram": "sequenceDiagram\n  autonumber\n  participant Analyst as 📊 Analyst\n  participant Repository as 🔗 Repository\n  participant DB as 🗄️ Database\n  participant Audit as 📋 Audit\n  Note over Analyst,Audit: Beat 3: Enrich with Historical Score Data\n  Analyst->>Repository: Retrieve Historical Scores (AAPL)\n  Repository->>DB: SELECT Score, Date FROM FPAScores WHERE Symbol='AAPL' ORDER BY Date DESC LIMIT 5\n  DB-->>Repository: ✓ Historical Scores Array (5 records)\n  Repository->>Repository: Sort by Date DESC\n  Repository->>Repository: Calculate Trend (Linear Regression)\n  alt Trend Rising\n    Repository->>Repository: ✓ Direction: ↑ Improving\n  else Trend Falling\n    Repository->>Repository: ✓ Direction: ↓ Declining\n  else Trend Flat\n    Repository->>Repository: ✓ Direction: → Stable\n  end\n  Repository->>Audit: LOG - Historical Analysis (Symbol: AAPL, 5-Yr Avg: 75.2, Trend: Improving)\n  Audit-->>Repository: ✓ Audit Entry: HISTORICAL_TREND_SUCCESS\n  Repository-->>Analyst: ✅ Historical Context: 5-Yr Avg 75.2 | Current 76.4 | Trend: ↑ Improving",
+          "acceptanceCriteria": [
+            {
+              "given": [
+                "Symbol"
+              ],
+              "when": [
+                "Historical queries are executed"
+              ],
+              "then": [
+                "Returns array of last 5 FPA scores ordered by CreatedDate DESC"
+              ],
+              "and": [
+                "Trend direction determined (↑ improving, ↓ declining, → stable)",
+                "Momentum indicated (accelerating/decelerating)"
+              ]
+            }
+          ],
+          "testFile": "WealthBuilderDAL/Tests/FPAScoreRepository.Tests.cs",
+          "testCase": "TestGetHistoricalScores_ValidSymbol_ReturnsTrendData",
+          "notes": [
+            "Insufficient historical data (< 3 scores) indicated with 'Insufficient history' flag",
+            "Trend analysis enables identification of momentum shifts"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ai-synthesis-movement",
+      "name": "AI-Powered Narrative Analysis",
+      "number": 2,
+      "description": "Generate professional investment analysis using OpenAI with few-shot learning from prior analyses",
+      "tempo": 100,
+      "errorHandling": "continue",
+      "userStory": {
+        "persona": "Investment Advisor",
+        "goal": "Synthesize quantitative FPA metrics into professional investment recommendation",
+        "benefit": "Provide clients with research-quality analysis without hiring research team",
+        "diagram": "sequenceDiagram\r\n  participant Advisor\r\n  participant Engine as AI Engine\r\n  participant OpenAI\r\n\r\n  Note over Advisor,OpenAI: Movement 2: AI-Powered Narrative Analysis\r\n\r\n  Advisor->>Engine: Start Synthesis\r\n\r\n  rect rgb(230, 245, 255)\r\n  Note over Engine,OpenAI: Beat 1: Generate Financial Breakdown\r\n  Engine->>OpenAI: Financial Breakdown\r\n  OpenAI-->>Engine: Analysis Text\r\n  end\r\n\r\n  rect rgb(255, 240, 245)\r\n  Note over Engine,OpenAI: Beat 2: Generate Valuation Assessment\r\n  Engine->>OpenAI: Valuation Assessment\r\n  OpenAI-->>Engine: Fair Value + Target\r\n  end\r\n\r\n  rect rgb(245, 255, 245)\r\n  Note over Engine,OpenAI: Beat 3: Generate Risk Analysis\r\n  Engine->>OpenAI: Risk Analysis\r\n  OpenAI-->>Engine: Risk Assessment\r\n  end\r\n\r\n  rect rgb(255, 250, 230)\r\n  Note over Advisor,OpenAI: Beat 4: Generate Investment Recommendation\r\n  Engine->>OpenAI: Recommendation\r\n  OpenAI-->>Engine: Buy/Hold/Sell\r\n  end\r\n\r\n  Engine-->>Advisor: Complete"
+      },
+      "diagram": "sequenceDiagram\r\n  participant Advisor as 👤 Advisor\r\n  participant Engine as ⚡ Analysis Engine\r\n  participant AI as 🤖 OpenAI API\r\n\r\n  Advisor->>Engine: Synthesize AAPL Analysis\r\n\r\n  Note over Advisor,AI: Movement 2: AI-Powered Narrative Analysis\r\n\r\n  Note over Engine,AI: Beat 1: Generate Financial Breakdown\r\n  Engine->>AI: Analyze Revenue & Margins\r\n  AI-->>Engine: ✓ Financial Summary\r\n\r\n  Note over Engine,AI: Beat 2: Generate Valuation Assessment\r\n  Engine->>AI: Assess Fair Value\r\n  AI-->>Engine: ✓ Valuation Analysis\r\n\r\n  Note over Engine,AI: Beat 3: Generate Risk Analysis\r\n  Engine->>AI: Identify Risks\r\n  AI-->>Engine: ✓ Risk Factors\r\n\r\n  Note over Advisor,AI: Beat 4: Generate Investment Recommendation\r\n  Engine->>AI: Synthesize Recommendation\r\n  AI-->>Engine: ✓ Buy/Hold/Sell Recommendation\r\n\r\n  Engine-->>Advisor: ✅ Analysis Complete",
+      "status": "active",
+      "beats": [
+        {
+          "name": "Generate Financial Breakdown",
+          "beat": 1,
+          "event": "narrative.analysis.generated",
+          "title": "AI synthesis of financial strength assessment",
+          "description": "Call OpenAI API with FPA score data and few-shot examples; generate 2-3 paragraph professional analysis of financial health",
+          "dynamics": "f",
+          "timing": "API call (2-5 second latency typical)",
+          "handler": {
+            "name": "AIAnalysisService#GenerateFinancialBreakdownAsync (lines 72-102)",
+            "scope": "orchestration",
+            "kind": "reporting",
+            "sourcePath": "StockScout/FPAScoreWeb/Services/AIAnalysisService.cs",
+            "handlerCapabilities": [
+              "report",
+              "measure"
+            ]
+          },
+          "errorHandling": "continue",
+          "dependencies": [
+            "sector.data.loaded",
+            "industry.data.loaded"
+          ],
+          "userStory": {
+            "persona": "End Investor",
+            "goal": "Understand investment thesis in professional language",
+            "benefit": "Gain confidence in data-driven decision-making",
+            "diagram": "sequenceDiagram\n  autonumber\n  participant Engine\n  participant OpenAI\n  Note over Engine,OpenAI: Beat 1: Generate Financial Breakdown\n  Engine->>Engine: Build Prompt<br/>(FPA Components)\n  Engine->>OpenAI: SendPrompt\n  OpenAI-->>Engine: 2-3 Paragraphs\n  Engine->>Engine: Validate Tone\n  Engine->>Engine: Return Analysis"
+          },
+          "diagram": "sequenceDiagram\n  autonumber\n  participant Advisor as 👤 Advisor\n  participant Engine as ⚡ Analysis Engine\n  participant AI as 🤖 OpenAI API\n  participant Audit as 📋 Audit\n  Note over Advisor,Audit: Beat 1: Generate Financial Breakdown\n  Advisor->>Engine: Request Financial Analysis for AAPL\n  Engine->>Engine: Build Prompt with FPA Components\n  Engine->>AI: Send Prompt (FPA Score: 76.4, Components: L/Le/P/G/V/E)\n  AI-->>Engine: ✓ Financial Analysis (2-3 Paragraphs)\n  Engine->>Engine: Validate Tone and Quality\n  Engine->>Audit: LOG - Financial Breakdown Generated (Tokens: 842, Quality: Excellent)\n  Audit-->>Engine: ✓ Audit Entry: FINANCIAL_BREAKDOWN_SUCCESS\n  Engine-->>Advisor: ✅ Financial Breakdown: Revenue $119.6B, Margin 27.8%, ROE 142%",
+          "acceptanceCriteria": [
+            {
+              "given": [
+                "FPA score with all component breakdown"
+              ],
+              "when": [
+                "AI API is called"
+              ],
+              "then": [
+                "Returns 2-3 paragraph professional analysis"
+              ],
+              "and": [
+                "Tone is balanced and objective",
+                "Specific metrics cited",
+                "Comparable to investment-grade research"
+              ]
+            }
+          ],
+          "testFile": "StockScout/Tests/AIAnalysisService.Tests.cs",
+          "testCase": "TestGenerateFinancialBreakdown_ValidScore_ReturnsAnalysis",
+          "notes": [
+            "Fallback: Return template analysis if API unavailable",
+            "Token usage tracking for cost optimization",
+            "Model: GPT-4 (or gpt-4-turbo for cost optimization)"
+          ]
+        },
+        {
+          "name": "Generate Valuation Assessment",
+          "beat": 2,
+          "event": "valuation.assessment.generated",
+          "title": "DCF + valuation ratio analysis synthesis",
+          "description": "Call OpenAI with DCF intrinsic value, P/E, P/B, PEG ratios; generate fair value assessment with price targets",
+          "dynamics": "f",
+          "timing": "API call (2-5 second latency)",
+          "handler": {
+            "name": "IntegratedValuationService#GenerateIntegratedAnalysisAsync (lines 248+)",
+            "scope": "orchestration",
+            "kind": "reporting",
+            "sourcePath": "StockScout/StockAnalysisService/Services/IntegratedValuationService.cs",
+            "handlerCapabilities": [
+              "report",
+              "measure"
+            ]
+          },
+          "errorHandling": "continue",
+          "dependencies": [
+            "narrative.analysis.generated"
+          ],
+          "userStory": {
+            "persona": "Value Investor",
+            "goal": "Determine if stock is cheap relative to intrinsic value",
+            "benefit": "Identify margin-of-safety buying opportunities",
+            "diagram": "sequenceDiagram\n  autonumber\n  participant Engine\n  participant OpenAI\n  Note over Engine,OpenAI: Beat 2: Generate Valuation Assessment\n  Engine->>Engine: Get Metrics<br/>(P/E, DCF, P/B)\n  Engine->>Engine: Build Prompt\n  Engine->>OpenAI: SendPrompt\n  OpenAI-->>Engine: Fair Value Range\n  Engine->>Engine: Calculate Upside\n  Engine->>Engine: Return Assessment"
+          },
+          "diagram": "sequenceDiagram\n  autonumber\n  participant Advisor as 👤 Advisor\n  participant Engine as ⚡ Analysis Engine\n  participant AI as 🤖 OpenAI API\n  participant Audit as 📋 Audit\n  Note over Advisor,Audit: Beat 2: Generate Valuation Assessment\n  Advisor->>Engine: Request Valuation Assessment for AAPL\n  Engine->>Engine: Get Valuation Metrics (P/E: 32.1x, DCF: $245, P/B: 42.5x)\n  Engine->>Engine: Build Comprehensive Context\n  Engine->>AI: Send Prompt (Valuation Data + Market Multiples)\n  AI-->>Engine: ✓ Fair Value Analysis ($240-$250 Range)\n  Engine->>Engine: Calculate Upside (Current: $239.45, Target: $245 = 2.3% Upside)\n  Engine->>Audit: LOG - Valuation Assessment (Fair Value: $245, Upside: 2.3%)\n  Audit-->>Engine: ✓ Audit Entry: VALUATION_ASSESSMENT_SUCCESS\n  Engine-->>Advisor: ✅ Valuation: Fair Value $245, Trading Fair (2.3% Premium)",
+          "acceptanceCriteria": [
+            {
+              "given": [
+                "ValuationScore, current price, DCF intrinsic value"
+              ],
+              "when": [
+                "AI generates assessment"
+              ],
+              "then": [
+                "Returns fair value range and conviction level"
+              ],
+              "and": [
+                "Format: '$X-$Y is fair value' with upside/downside % if bought at current price"
+              ]
+            }
+          ],
+          "testFile": "StockScout/Tests/IntegratedValuationService.Tests.cs",
+          "testCase": "TestGenerateValuationAnalysis_ValidMetrics_ReturnsValuationAssessment",
+          "notes": [
+            "Fair value = DCF intrinsic value ± 10% confidence interval",
+            "Current price vs fair value determines 'cheap' vs 'expensive' characterization"
+          ]
+        },
+        {
+          "name": "Generate Risk Analysis",
+          "beat": 3,
+          "event": "risk.analysis.generated",
+          "title": "Synthesize financial and market risks",
+          "description": "Combine leverage metrics, liquidity ratios, beta, sector volatility; generate risk assessment with specific red flags",
+          "dynamics": "f",
+          "timing": "immediate synthesis (no API call needed)",
+          "handler": {
+            "name": "AIAnalysisService#BuildAnalysisPrompt (lines 224-280) with risk sections",
+            "scope": "orchestration",
+            "kind": "reporting",
+            "sourcePath": "StockScout/FPAScoreWeb/Services/AIAnalysisService.cs",
+            "handlerCapabilities": [
+              "report",
+              "measure"
+            ]
+          },
+          "errorHandling": "continue",
+          "dependencies": [
+            "narrative.analysis.generated"
+          ],
+          "userStory": {
+            "persona": "Risk Manager",
+            "goal": "Identify specific financial and market risks",
+            "benefit": "Implement appropriate position sizing and hedging strategies",
+            "diagram": "sequenceDiagram\n  autonumber\n  participant Engine\n  participant Analyzer\n  Note over Engine,Analyzer: Beat 3: Generate Risk Analysis\n  Engine->>Analyzer: Get Risk Metrics<br/>(Leverage, Liquidity, Beta)\n  Analyzer->>Analyzer: Categorize Risks\n  Analyzer->>Analyzer: Identify Red Flags\n  Analyzer->>Analyzer: Severity: Low/Med/High\n  Analyzer-->>Engine: Risk Assessment"
+          },
+          "diagram": "sequenceDiagram\n  autonumber\n  actor Advisor as 👤 Advisor\n  participant Analyzer as 📊 Risk Analyzer\n  participant Calculator as 📈 Risk Calculator\n  participant AI as 🤖 AI Engine\n  Note over Advisor,AI: Beat 3: Generate Risk Analysis\n  Advisor->>Analyzer: Analyze AAPL Risks\n  Analyzer->>Calculator: Check Debt/Equity\n  Calculator-->>Analyzer: ✓ D/E: 0.44x (Low)\n  alt Debt/Equity > 3\n    Calculator-->>Analyzer: ⚠️ High Leverage Risk\n  else Debt/Equity Healthy\n    Calculator-->>Analyzer: ✓ Conservative Leverage\n  end\n  Analyzer->>Calculator: Check Current Ratio\n  Calculator-->>Analyzer: ✓ CR: 1.16x (Adequate)\n  Analyzer->>Calculator: Check Beta\n  Calculator-->>Analyzer: ✓ Beta: 1.18 (Market-Level)\n  Analyzer->>AI: Synthesize Risk Profile\n  AI-->>Analyzer: ✓ Comprehensive Risk Assessment\n  Analyzer-->>Advisor: ✅ Risks: Low Systematic, Managed Idiosyncratic",
+          "acceptanceCriteria": [
+            {
+              "given": [
+                "LeverageScore, LiquidityScore, Beta, sector volatility"
+              ],
+              "when": [
+                "Risk synthesis is executed"
+              ],
+              "then": [
+                "Returns categorized risk assessment"
+              ],
+              "and": [
+                "Format includes: Financial Risk, Liquidity Risk, Market Risk, Sector Risk",
+                "Severity indicated: Low/Medium/High"
+              ]
+            }
+          ],
+          "testFile": "StockScout/Tests/AIAnalysisService.Tests.cs",
+          "testCase": "TestGenerateRiskAnalysis_VariousMetrics_IdentifiesRisks",
+          "notes": [
+            "Red flags: Debt-to-Equity > 3.0, Current Ratio < 1.0, Beta > 2.0",
+            "Sector-specific risks researched from recent news integration"
+          ]
+        },
+        {
+          "name": "Generate Investment Recommendation",
+          "beat": 4,
+          "event": "recommendation.generated",
+          "title": "Synthesize into Buy/Hold/Sell recommendation",
+          "description": "Combine all analyses (financial, valuation, risk); generate clear investment recommendation with conviction level and price targets",
+          "dynamics": "ff",
+          "timing": "API call with comprehensive context",
+          "handler": {
+            "name": "AIAnalysisService#GenerateFinancialBreakdownAsync (full synthesis) + recommendation extraction",
+            "scope": "orchestration",
+            "kind": "reporting",
+            "sourcePath": "StockScout/FPAScoreWeb/Services/AIAnalysisService.cs",
+            "handlerCapabilities": [
+              "report",
+              "measure"
+            ]
+          },
+          "errorHandling": "continue",
+          "dependencies": [
+            "valuation.assessment.generated",
+            "risk.analysis.generated"
+          ],
+          "userStory": {
+            "persona": "Portfolio Manager",
+            "goal": "Receive clear actionable recommendation on position sizing",
+            "benefit": "Speed up investment decision-making cycle",
+            "diagram": "sequenceDiagram\n  autonumber\n  participant Engine\n  participant OpenAI\n  Note over Engine,OpenAI: Beat 4: Generate Investment Recommendation\n  Engine->>Engine: Build Final Prompt<br/>(All Context)\n  Engine->>OpenAI: SendPrompt\n  OpenAI-->>Engine: Buy/Hold/Sell\n  Engine->>Engine: Extract Conviction\n  Engine->>Engine: Extract Targets\n  Engine->>Engine: Return Recommendation"
+          },
+          "diagram": "sequenceDiagram\n  autonumber\n  actor Advisor as 👤 Advisor\n  participant Engine as ⚡ Analysis Engine\n  participant AI as 🤖 OpenAI API\n  participant Recommender as 📋 Recommendation Service\n  Note over Advisor,Recommender: Beat 4: Generate Investment Recommendation\n  Advisor->>Engine: Generate Recommendation for AAPL\n  Engine->>Engine: Gather FPA Score, Peers, Valuation\n  Engine->>AI: Build Comprehensive Prompt\n  AI-->>Engine: ✓ Context Loaded\n  Engine->>AI: Generate Recommendation\n  alt High Scores + Undervalued\n    AI-->>Engine: ✅ Strong BUY Recommendation\n    Engine->>Recommender: Log BUY Signal\n  else Mixed Signals\n    AI-->>Engine: ⏸️ HOLD Recommendation\n    Engine->>Recommender: Log HOLD Signal\n  else Low Scores + Overvalued\n    AI-->>Engine: ❌ SELL Recommendation\n    Engine->>Recommender: Log SELL Signal\n  end\n  Recommender-->>Advisor: ✅ Recommendation: BUY | Target: $270 | Confidence: 87%",
+          "acceptanceCriteria": [
+            {
+              "given": [
+                "All prior analysis components"
+              ],
+              "when": [
+                "Recommendation synthesis is executed"
+              ],
+              "then": [
+                "Returns Buy/Hold/Sell with conviction (Strong/Moderate/Weak)"
+              ],
+              "and": [
+                "Includes 12-month price target",
+                "Recommends position sizing (% of portfolio)",
+                "Lists key catalysts and milestones"
+              ]
+            }
+          ],
+          "testFile": "StockScout/Tests/AIAnalysisService.Tests.cs",
+          "testCase": "TestGenerateRecommendation_AllData_ReturnsActionableRecommendation",
+          "notes": [
+            "Recommendation matrix: Grade A+ValuationScore>7 → Strong Buy; Grade D+ValuationScore<3 → Strong Sell",
+            "Conviction affected by data completeness (high if 6/6 components available, lower if estimated)"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "report-generation-movement",
+      "name": "Report Formatting and Export",
+      "number": 3,
+      "description": "Format analysis into client-facing reports in multiple output formats",
+      "tempo": 100,
+      "errorHandling": "continue",
+      "userStory": {
+        "persona": "Financial Advisor",
+        "goal": "Deliver professional reports to clients in preferred formats",
+        "benefit": "Flexible delivery options (PDF, Web, CSV) accommodate client preferences",
+        "diagram": "sequenceDiagram\r\n  participant Advisor\r\n  participant Generator\r\n  participant Storage\r\n\r\n  Note over Advisor,Generator: Movement 3: Report Formatting and Export\r\n\r\n  Advisor->>Generator: Generate Reports\r\n\r\n  rect rgb(230, 245, 255)\r\n  Note over Generator: Beat 1: Render Markdown Report\r\n  Generator->>Generator: Render Markdown\r\n  end\r\n\r\n  rect rgb(255, 240, 245)\r\n  Note over Generator: Beat 2: Render Web Dashboard\r\n  Generator->>Generator: Render Web Dashboard\r\n  end\r\n\r\n  rect rgb(245, 255, 245)\r\n  Note over Generator: Beat 3: Export to CSV\r\n  Generator->>Generator: Export CSV\r\n  end\r\n\r\n  rect rgb(255, 250, 230)\r\n  Note over Generator: Beat 4: Export to PDF\r\n  Generator->>Generator: Export PDF\r\n  end\r\n\r\n  rect rgb(245, 245, 255)\r\n  Note over Generator,Storage: Beat 5: Store Report Artifacts\r\n  Generator->>Storage: Archive All\r\n  Storage-->>Generator: Complete\r\n  end\r\n\r\n  Generator-->>Advisor: Reports Ready"
+      },
+      "diagram": "sequenceDiagram\r\n  actor Advisor as 👤 Advisor\r\n  participant Engine as ⚡ Report Engine\r\n  participant Formatter as 📝 Markdown Formatter\r\n  participant WebRenderer as 🌐 Web Renderer\r\n  participant CSVExporter as 📊 CSV Exporter\r\n  participant PDFGenerator as 📄 PDF Generator\r\n  participant Archive as 🗄️ Archive Storage\r\n\r\n  Advisor->>Engine: Generate AAPL Reports\r\n\r\n  Note over Advisor,Archive: Movement 3: Report Formatting and Export\r\n\r\n  Note over Engine,Formatter: Beat 1: Render Markdown Report\r\n  Engine->>Formatter: Format Markdown\r\n  Formatter-->>Engine: ✓ markdown.md Created\r\n\r\n  Note over Engine,WebRenderer: Beat 2: Render Web Dashboard\r\n  Engine->>WebRenderer: Render HTML\r\n  WebRenderer-->>Engine: ✓ dashboard.html Created\r\n\r\n  Note over Engine,CSVExporter: Beat 3: Export to CSV\r\n  Engine->>CSVExporter: Export Data\r\n  CSVExporter-->>Engine: ✓ data.csv Created\r\n\r\n  Note over Engine,PDFGenerator: Beat 4: Export to PDF\r\n  Engine->>PDFGenerator: Generate PDF\r\n  PDFGenerator-->>Engine: ✓ report.pdf Created\r\n\r\n  Note over Engine,Archive: Beat 5: Store Report Artifacts\r\n  Engine->>Archive: Store All Artifacts\r\n  Archive-->>Engine: ✓ Archived with Timestamp\r\n\r\n  Engine-->>Advisor: ✅ All Reports Generated (4 Formats Ready)",
+      "status": "active",
+      "beats": [
+        {
+          "name": "Render Markdown Report",
+          "beat": 1,
+          "event": "markdown.report.formatted",
+          "title": "Format analysis into structured markdown document",
+          "description": "Create markdown report with executive summary, financial breakdown, valuation assessment, risk analysis, and recommendation",
+          "dynamics": "mf",
+          "timing": "immediate template rendering",
+          "handler": {
+            "name": "FPAReportGenerator#GenerateReportAsync (lines 40-60) + markdown templating",
+            "scope": "orchestration",
+            "kind": "reporting",
+            "sourcePath": "StockScout/FinancialDataServices/Reporting/FPAReportGenerator.cs",
+            "handlerCapabilities": [
+              "report"
+            ]
+          },
+          "errorHandling": "continue",
+          "dependencies": [
+            "recommendation.generated"
+          ],
+          "userStory": {
+            "persona": "Tech-savvy Investor",
+            "goal": "Access report in version-control friendly format",
+            "benefit": "Enable integration with research wikis and documentation systems",
+            "diagram": "sequenceDiagram\n  autonumber\n  participant Generator\n  participant Template as Markdown Template\n  Note over Generator,Template: Beat 1: Render Markdown Report\n  Generator->>Template: Add Executive Summary\n  Generator->>Template: Add Components\n  Generator->>Template: Add Analysis\n  Generator->>Template: Add Recommendation\n  Template-->>Generator: Complete MD Document"
+          },
+          "diagram": "sequenceDiagram\n  autonumber\n  participant Advisor as 👤 Advisor\n  participant Engine as ⚡ Report Engine\n  participant Formatter as 📝 Markdown Formatter\n  participant Audit as 📋 Audit\n  Note over Advisor,Audit: Beat 1: Render Markdown Report\n  Advisor->>Engine: Request Markdown Report for AAPL\n  Engine->>Formatter: Render Template with Analysis Data\n  Formatter->>Formatter: Add Executive Summary Section\n  Formatter->>Formatter: Add FPA Components Section\n  Formatter->>Formatter: Add Financial Analysis Section\n  Formatter->>Formatter: Add Recommendation Section\n  Formatter->>Formatter: Format Tables and Metrics\n  Formatter-->>Engine: ✓ Complete Markdown Document (42KB)\n  Engine->>Audit: LOG - Markdown Report Generated (Size: 42KB)\n  Audit-->>Engine: ✓ Audit Entry: MARKDOWN_REPORT_SUCCESS\n  Engine-->>Advisor: ✅ Markdown Report Ready (markdown.md)",
+          "acceptanceCriteria": [
+            {
+              "given": [
+                "All analysis components"
+              ],
+              "when": [
+                "Markdown template is rendered"
+              ],
+              "then": [
+                "Returns complete markdown document"
+              ],
+              "and": [
+                "Sections: Executive Summary, Financial Strength, Components, Valuation, Risk, Recommendation",
+                "Includes tables and formatted metrics"
+              ]
+            }
+          ],
+          "testFile": "StockScout/Tests/FPAReportGenerator.Tests.cs",
+          "testCase": "TestGenerateMarkdownReport_ValidData_ReturnsFormattedReport",
+          "notes": [
+            "Markdown enables embedding in GitHub issues, wikis, documentation",
+            "Tables provide easy copy-paste into Excel"
+          ]
+        },
+        {
+          "name": "Render Web Dashboard",
+          "beat": 2,
+          "event": "web.dashboard.rendered",
+          "title": "Display interactive analysis in web interface",
+          "description": "Render ASP.NET Core Razor pages with real-time FPA score, component breakdown, peer comparison charts",
+          "dynamics": "mf",
+          "timing": "server-side rendering + client-side JavaScript",
+          "handler": {
+            "name": "ASP.NET Core Pages: FPAScore.cshtml, FPAAnalysis.cshtml",
+            "scope": "system",
+            "kind": "reporting",
+            "sourcePath": "StockScout/FPAScoreWeb/Pages/",
+            "handlerCapabilities": [
+              "report"
+            ]
+          },
+          "errorHandling": "continue",
+          "dependencies": [
+            "sector.data.loaded",
+            "industry.data.loaded"
+          ],
+          "userStory": {
+            "persona": "End Investor",
+            "goal": "Explore analysis interactively with drill-down capabilities",
+            "benefit": "Understand component breakdown with interactive visualizations",
+            "diagram": "sequenceDiagram\n  autonumber\n  participant Browser\n  participant ASP.NET\n  participant DB\n  Note over Browser,DB: Beat 2: Render Web Dashboard\n  Browser->>ASP.NET: Request FPAScore<br/>page\n  ASP.NET->>DB: Get Score Data\n  DB-->>ASP.NET: FPA + Peer Data\n  ASP.NET->>ASP.NET: Render Razor View\n  ASP.NET->>Browser: HTML + Charts"
+          },
+          "diagram": "sequenceDiagram\n  autonumber\n  participant Advisor as 👤 Advisor\n  participant Engine as ⚡ Report Engine\n  participant WebRenderer as 🌐 Web Renderer\n  participant DB as 🗄️ Database\n  participant Audit as 📋 Audit\n  Note over Advisor,Audit: Beat 2: Render Web Dashboard\n  Advisor->>Engine: Request Web Dashboard for AAPL\n  Engine->>WebRenderer: Load Symbol Data (AAPL)\n  WebRenderer->>DB: Get FPA Score and Peer Data\n  DB-->>WebRenderer: ✓ Score Data (FPA: 76.4, Peers, Historical)\n  WebRenderer->>WebRenderer: Render HTML with Razor View\n  WebRenderer->>WebRenderer: Add Interactive Charts (Chart.js)\n  WebRenderer->>WebRenderer: Add Component Breakdown Tables\n  WebRenderer-->>Engine: ✓ Complete Web Dashboard (156KB)\n  Engine->>Audit: LOG - Web Dashboard Generated (Size: 156KB)\n  Audit-->>Engine: ✓ Audit Entry: WEB_DASHBOARD_SUCCESS\n  Engine-->>Advisor: ✅ Web Dashboard Ready (dashboard.html)",
+          "acceptanceCriteria": [
+            {
+              "given": [
+                "FPA score and peer data"
+              ],
+              "when": [
+                "Web pages are rendered"
+              ],
+              "then": [
+                "Displays interactive dashboard with charts and tables"
+              ],
+              "and": [
+                "Charts show score vs sector/industry average",
+                "Component breakdown visible",
+                "Grade prominently displayed"
+              ]
+            }
+          ],
+          "testFile": "StockScout/Tests/FPAScoreWeb.Tests.cs",
+          "testCase": "TestFPAScorePage_ValidSymbol_RendersSuccessfully",
+          "notes": [
+            "Real-time data refresh every 5 minutes",
+            "Mobile-responsive design for phone/tablet access"
+          ]
+        },
+        {
+          "name": "Export to CSV",
+          "beat": 3,
+          "event": "csv.export.generated",
+          "title": "Generate spreadsheet-compatible export",
+          "description": "Create CSV file with all FPA scores (current and historical), component breakdown, peer comparison metrics for import into Excel/BI tools",
+          "dynamics": "mf",
+          "timing": "immediate CSV generation",
+          "handler": {
+            "name": "FPAScoreReportGenerator#GenerateCSVContent + ComprehensiveAnalysisService",
+            "scope": "orchestration",
+            "kind": "reporting",
+            "sourcePath": "StockScout/FPAScoreWeb/Services/",
+            "handlerCapabilities": [
+              "report"
+            ]
+          },
+          "errorHandling": "continue",
+          "dependencies": [
+            "historical.scores.loaded"
+          ],
+          "userStory": {
+            "persona": "Quantitative Analyst",
+            "goal": "Export FPA component scores for model development",
+            "benefit": "Enable machine learning model training on historical scores",
+            "diagram": "sequenceDiagram\n  autonumber\n  participant Generator\n  participant DB\n  Note over Generator,DB: Beat 3: Export to CSV\n  Generator->>DB: Get Historical Scores\n  DB-->>Generator: Score Array\n  Generator->>Generator: Format Rows\n  Generator->>Generator: Add Headers\n  Generator->>Generator: Encode UTF-8\n  Generator-->>Generator: CSV String"
+          },
+          "diagram": "sequenceDiagram\n  autonumber\n  participant Advisor as 👤 Advisor\n  participant Engine as ⚡ Report Engine\n  participant CSVExporter as 📊 CSV Exporter\n  participant DB as 🗄️ Database\n  participant Audit as 📋 Audit\n  Note over Advisor,Audit: Beat 3: Export to CSV\n  Advisor->>Engine: Request CSV Export for AAPL\n  Engine->>CSVExporter: Generate CSV for Symbol (AAPL)\n  CSVExporter->>DB: Query Historical Scores (Last 20 records)\n  DB-->>CSVExporter: ✓ Historical Score Array (20 records)\n  CSVExporter->>CSVExporter: Convert Rows to CSV Format\n  CSVExporter->>CSVExporter: Add Headers (Date,FPAScore,Grade,L,Le,P,G,V,E)\n  CSVExporter->>CSVExporter: Encode UTF-8\n  CSVExporter-->>Engine: ✓ Complete CSV File (18KB)\n  Engine->>Audit: LOG - CSV Export Generated (Rows: 20, Size: 18KB)\n  Audit-->>Engine: ✓ Audit Entry: CSV_EXPORT_SUCCESS\n  Engine-->>Advisor: ✅ CSV Export Ready (data.csv)",
+          "acceptanceCriteria": [
+            {
+              "given": [
+                "Symbol and historical score data"
+              ],
+              "when": [
+                "CSV export is generated"
+              ],
+              "then": [
+                "Returns CSV with columns: Date, FPAScore, Grade, L_Score, Le_Score, P_Score, G_Score, V_Score, E_Score"
+              ],
+              "and": [
+                "UTF-8 encoding",
+                "Sortable by date",
+                "No Excel compatibility issues"
+              ]
+            }
+          ],
+          "testFile": "StockScout/Tests/FPAScoreReportGenerator.Tests.cs",
+          "testCase": "TestGenerateCSVContent_ValidScores_ReturnsFormattedCSV",
+          "notes": [
+            "Include metadata rows (GeneratedDate, Source, Version) in header",
+            "Enable bulk export of 100+ symbols for portfolio analysis"
+          ]
+        },
+        {
+          "name": "Export to PDF",
+          "beat": 4,
+          "event": "pdf.report.generated",
+          "title": "Generate professional PDF report",
+          "description": "Create formatted PDF suitable for printing/emailing to clients with company logos, professional branding, charts, and tables",
+          "dynamics": "mf",
+          "timing": "PDF generation (1-3 second latency)",
+          "handler": {
+            "name": "PDFExportService (future implementation) or iTextSharp#GeneratePDFReport",
+            "scope": "system",
+            "kind": "reporting",
+            "sourcePath": "StockScout/FPAScoreWeb/Services/ (planned)",
+            "handlerCapabilities": [
+              "report"
+            ]
+          },
+          "errorHandling": "continue",
+          "dependencies": [
+            "recommendation.generated"
+          ],
+          "userStory": {
+            "persona": "Financial Advisor",
+            "goal": "Send polished, professional report to clients via email",
+            "benefit": "Enhance firm brand with professional documentation",
+            "diagram": "sequenceDiagram\n  autonumber\n  participant Generator\n  participant Renderer as PDF Renderer\n  Note over Generator,Renderer: Beat 4: Export to PDF\n  Generator->>Renderer: Markdown Input\n  Renderer->>Renderer: Convert to HTML\n  Renderer->>Renderer: Apply Styling\n  Renderer->>Renderer: Embed Charts\n  Renderer->>Renderer: Generate PDF\n  Renderer-->>Generator: PDF File"
+          },
+          "diagram": "sequenceDiagram\n  autonumber\n  participant Advisor as 👤 Advisor\n  participant Engine as ⚡ Report Engine\n  participant PDFGenerator as 📄 PDF Generator\n  participant Renderer as PDF Renderer\n  participant Audit as 📋 Audit\n  Note over Advisor,Audit: Beat 4: Export to PDF\n  Advisor->>Engine: Request PDF Report for AAPL\n  Engine->>PDFGenerator: Generate PDF with Analysis Data\n  PDFGenerator->>PDFGenerator: Build PDF Template\n  alt PDF Service Available\n    PDFGenerator->>Renderer: Convert Markdown to HTML\n    Renderer-->>PDFGenerator: ✓ HTML Content\n    PDFGenerator->>Renderer: Apply Professional Styling\n    PDFGenerator->>Renderer: Embed Charts as Images\n    Renderer->>Renderer: Generate PDF Document\n    Renderer-->>PDFGenerator: ✓ PDF File (1.2MB)\n  else PDF Service Unavailable\n    PDFGenerator->>PDFGenerator: Use Fallback (Plain Text)\n    PDFGenerator-->>PDFGenerator: ✓ Fallback PDF\n  end\n  PDFGenerator-->>Engine: ✓ Complete PDF Report (1.2MB)\n  Engine->>Audit: LOG - PDF Report Generated (Size: 1.2MB)\n  Audit-->>Engine: ✓ Audit Entry: PDF_REPORT_SUCCESS\n  Engine-->>Advisor: ✅ PDF Report Ready (report.pdf)",
+          "acceptanceCriteria": [
+            {
+              "given": [
+                "All analysis components"
+              ],
+              "when": [
+                "PDF generation is called"
+              ],
+              "then": [
+                "Returns PDF file with professional formatting"
+              ],
+              "and": [
+                "Includes company header/footer",
+                "Charts embedded as images",
+                "Page breaks handled automatically",
+                "Print-friendly layout"
+              ]
+            }
+          ],
+          "testFile": "StockScout/Tests/PDFExportService.Tests.cs (future)",
+          "testCase": "TestGeneratePDF_ValidAnalysis_ReturnsFormattedPDF",
+          "notes": [
+            "Future enhancement: implement PDF export (currently not implemented)",
+            "Consider third-party service (e.g., AWS Lambda + wkhtmltopdf) for scalability"
+          ]
+        },
+        {
+          "name": "Store Report Artifacts",
+          "beat": 5,
+          "event": "report.exported",
+          "title": "Archive generated reports for audit trail",
+          "description": "Store markdown, CSV, and PDF exports in file system or cloud blob storage with timestamp for historical retrieval",
+          "dynamics": "p",
+          "timing": "file write operation",
+          "handler": {
+            "name": "FileSystemService or AzureBlobStorageService#UploadReportAsync",
+            "scope": "system",
+            "kind": "automation",
+            "sourcePath": "StockScout/FPAScoreWeb/Services/ (storage abstraction layer)",
+            "handlerCapabilities": [
+              "deploy",
+              "audit"
+            ]
+          },
+          "errorHandling": "continue",
+          "dependencies": [
+            "markdown.report.formatted",
+            "csv.export.generated"
+          ],
+          "userStory": {
+            "persona": "Compliance Officer",
+            "goal": "Maintain audit trail of all generated reports for regulatory review",
+            "benefit": "Enable reconstruction of analysis for any historical date",
+            "diagram": "sequenceDiagram\n  autonumber\n  participant Service\n  participant Storage\n  Note over Service,Storage: Beat 5: Store Report Artifacts\n  Service->>Service: Format Filename\n  Service->>Service: Prepare Metadata\n  Service->>Storage: Upload Markdown\n  Service->>Storage: Upload CSV\n  Service->>Storage: Upload PDF\n  Storage-->>Service: Complete"
+          },
+          "diagram": "sequenceDiagram\n  autonumber\n  actor Admin as 👤 Admin\n  participant Archive as 🗄️ Archive Service\n  participant FileStore as 💾 File Storage\n  participant Metadata as 📋 Metadata Store\n  participant Retention as ⏰ Retention Manager\n  Note over Admin,Retention: Beat 5: Store Report Artifacts\n  Admin->>Archive: Archive AAPL Report (ReportId: R-2025-01-23-001)\n  Archive->>FileStore: Store markdown.md\n  FileStore-->>Archive: ✓ Stored (Path: /reports/AAPL/markdown.md)\n  Archive->>FileStore: Store report.pdf\n  FileStore-->>Archive: ✓ Stored (Path: /reports/AAPL/report.pdf)\n  Archive->>FileStore: Store data.csv\n  FileStore-->>Archive: ✓ Stored (Path: /reports/AAPL/data.csv)\n  Archive->>FileStore: Store dashboard.html\n  FileStore-->>Archive: ✓ Stored (Path: /reports/AAPL/dashboard.html)\n  Archive->>Metadata: Record Metadata\n  Metadata-->>Archive: ✓ Indexed (ReportId, Symbol, Timestamp, TTL)\n  Archive->>Retention: Set 7-Year Retention Policy\n  Retention-->>Archive: ✓ Retention: Until 2032-01-23\n  Archive-->>Admin: ✅ All Artifacts Archived (4 Files, 7-Year Retention)",
+          "acceptanceCriteria": [
+            {
+              "given": [
+                "Generated report artifacts"
+              ],
+              "when": [
+                "Storage service is called"
+              ],
+              "then": [
+                "Reports archived with timestamp"
+              ],
+              "and": [
+                "Filename format: {Symbol}_{ReportDate}_{Format}.{ext}",
+                "Retrievable by symbol and date range"
+              ]
+            }
+          ],
+          "testFile": "StockScout/Tests/ReportStorageService.Tests.cs",
+          "testCase": "TestStoreReport_ValidArtifacts_ArchivedSuccessfully",
+          "notes": [
+            "Consider retention policy: keep reports for 7 years minimum (SEC requirement)",
+            "Use cloud storage (S3, Azure Blob) for scalability vs local filesystem"
+          ]
+        }
+      ]
+    }
+  ]
+}

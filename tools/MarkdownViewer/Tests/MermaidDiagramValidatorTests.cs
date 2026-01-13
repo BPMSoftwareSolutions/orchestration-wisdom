@@ -6,7 +6,7 @@ namespace OrchestrationWisdom.Tools.MarkdownViewer.Tests
 {
     public class MermaidDiagramValidatorTests
     {
-        private readonly MermaidDiagramValidator _validator = new();
+        private readonly MermaidDiagramValidator _validator = new MermaidDiagramValidator();
 
         [Fact]
         public void ValidateDiagram_WithinBudget_ReturnsValid()

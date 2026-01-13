@@ -1,0 +1,833 @@
+{
+  "$schema": "../schemas/musical-sequence.schema.json",
+  "domainId": "orchestration-wisdom",
+  "id": "mvp-v0-user-experience",
+  "name": "MVP v0: User Experience Journey",
+  "title": "AI Research → Pattern Publication Flow",
+  "description": "Documents how AI researchers and content creators use the Orchestration Wisdom platform to author, preview, and publish operational patterns from initial research through final publication",
+  "purpose": "Enable rapid, high-quality pattern creation using AI-assisted authoring with desktop preview and structured validation",
+  "trigger": "AI researcher identifies new operational pattern or receives request to document known anti-pattern",
+  "packageName": "OrchestrationWisdom.ContentPipeline",
+  "kind": "orchestration",
+  "status": "active",
+  "key": "C Major",
+  "tempo": 120,
+  "timeSignature": "3/4",
+  "category": "content-authoring",
+  "beats": 12,
+  "governance": {
+    "policies": [
+      "All patterns must score ≥30/40 on HQO rubric before publication",
+      "No dimension may score below 3 on HQO rubric",
+      "Mermaid diagrams must adhere to budget constraints (≤7 actors, ≤18 steps)",
+      "Patterns must include all required sections per OWS template",
+      "AI-generated content must be reviewed and refined by human expert"
+    ],
+    "metrics": [
+      "Pattern generation time (research → publication)",
+      "HQO score distribution across published patterns",
+      "AI token usage per pattern",
+      "Pattern revision cycles before publication",
+      "User engagement metrics (views, downloads, implementations)"
+    ]
+  },
+  "events": [
+    "research.initiated",
+    "markdown.draft.generated",
+    "preview.rendered",
+    "diagram.validated",
+    "hqo.scorecard.calculated",
+    "json.pattern.created",
+    "pattern.published",
+    "analytics.tracked"
+  ],
+  "userStory": {
+    "persona": "AI Content Researcher",
+    "goal": "Transform operational research into structured, publishable orchestration patterns",
+    "benefit": "Accelerate knowledge capture and sharing with consistent quality and structure",
+    "diagram": "sequenceDiagram\n  participant Researcher as 🧑‍💻 AI Researcher\n  participant AI as 🤖 Claude/GPT-4\n  participant Viewer as 🖥️ MarkdownViewer\n  participant Platform as 🌐 OW Platform\n  \n  Researcher->>AI: Research escalation anti-pattern\n  rect rgb(230, 245, 255)\n  Note over Researcher,Viewer: Movement 1: Pattern Generation\n  AI-->>Researcher: ✓ ARTICLE.md with Mermaid diagrams\n  Researcher->>Viewer: Open in MarkdownViewer\n  Viewer-->>Researcher: ✓ Live preview with diagrams\n  end\n  \n  rect rgb(255, 245, 230)\n  Note over Researcher,Viewer: Movement 2: Refinement & Validation  \n  Researcher->>Viewer: Edit markdown, refine diagrams\n  Viewer->>Viewer: ✓ Validate diagram budgets\n  Viewer->>Viewer: ✓ Calculate HQO scorecard\n  Viewer-->>Researcher: ✓ Score: 35/40 (Ready to publish)\n  end\n  \n  rect rgb(240, 255, 240)\n  Note over Researcher,Platform: Movement 3: Publication\n  Researcher->>Viewer: Export to OWS JSON\n  Viewer-->>Researcher: ✓ pattern.json created\n  Researcher->>Platform: Upload pattern\n  Platform-->>Researcher: ✅ Published: /patterns/escalation-backlog\n  end"
+  },
+  "diagram": "sequenceDiagram\n  participant Researcher as 🧑‍💻 AI Content Researcher\n  participant AI as 🤖 AI Assistant (Claude/GPT-4)\n  participant Viewer as 🖥️ MarkdownViewer Desktop\n  participant PowerShell as ⚙️ PowerShell Pipeline\n  participant Platform as 🌐 Orchestration Wisdom Web\n  participant Analytics as 📊 Analytics Engine\n  \n  Researcher->>AI: Identify pattern: Support ticket escalation backlog\n  \n  Note over Researcher,Analytics: ═══ Movement 1: AI-Assisted Pattern Generation ═══\n  \n  AI->>AI: Research operational anti-pattern\n  AI->>AI: Structure per OWS template\n  AI->>AI: Generate As-Is diagram (Mermaid)\n  AI->>AI: Generate Orchestrated diagram (Mermaid)\n  AI-->>Researcher: ✓ ARTICLE.md (Hook, Problem, Diagrams, Checklist, Scorecard)\n  \n  Researcher->>Viewer: Open ARTICLE.md in MarkdownViewer\n  Viewer->>Viewer: ✓ Render Mermaid diagrams with Markdig\n  Viewer-->>Researcher: ✓ Live preview (Dark/Light theme)\n  \n  Note over Researcher,Analytics: ═══ Movement 2: Desktop Preview & Validation ═══\n  \n  Researcher->>Viewer: Edit: Refine hook, clarify decision point\n  Viewer->>Viewer: ✓ Real-time preview updates\n  Viewer->>Viewer: Validate As-Is diagram (6 actors, 12 steps ✓)\n  Viewer->>Viewer: Validate Orchestrated diagram (7 actors, 16 steps ✓)\n  \n  Researcher->>Viewer: Calculate HQO scorecard\n  Viewer->>Viewer: Check Ownership (5), Time/SLA (4), Capacity (4)...\n  Viewer-->>Researcher: ✓ HQO Score: 35/40 (Above threshold, no dim <3)\n  \n  Researcher->>Viewer: Export HTML for offline preview\n  Viewer-->>Researcher: ✓ support-escalation.html saved\n  \n  Note over Researcher,Analytics: ═══ Movement 3: JSON Conversion & Publication ═══\n  \n  Researcher->>Viewer: Export to OWS JSON\n  Viewer->>Viewer: Parse markdown structure\n  Viewer->>Viewer: Extract Mermaid diagrams\n  Viewer->>Viewer: Build Pattern JSON schema\n  Viewer-->>Researcher: ✓ support-escalation.pattern.json\n  \n  alt Using PowerShell Pipeline\n    Researcher->>PowerShell: Convert-PatternToJSON.ps1 -Article ARTICLE.md\n    PowerShell->>PowerShell: Parse markdown sections\n    PowerShell->>PowerShell: Extract metadata and diagrams\n    PowerShell-->>Researcher: ✓ pattern.json generated\n  end\n  \n  Researcher->>Platform: Upload pattern.json to /patterns folder\n  Platform->>Platform: Validate against OWS schema\n  Platform->>Platform: Load into PatternService\n  Platform->>Platform: Render with MarkdownService + Mermaid.js\n  Platform-->>Researcher: ✅ Published: /patterns/support-ticket-escalation\n  \n  Platform->>Analytics: Track pattern publication event\n  Analytics->>Analytics: Log: Symbol=support-escalation, Author=AI_Researcher, HQO=35\n  Analytics-->>Platform: ✓ Analytics recorded\n  \n  Note over Researcher,Analytics: Pattern now live at orchestration-wisdom.com/patterns/support-ticket-escalation",
+  "metadata": {
+    "version": "1.0.0",
+    "author": "Orchestration Wisdom Team",
+    "created": "2026-01-11",
+    "tags": [
+      "content-authoring",
+      "ai-assisted",
+      "pattern-generation",
+      "markdown-workflow"
+    ]
+  },
+  "movements": [
+    {
+      "id": "ai-pattern-generation",
+      "name": "AI-Assisted Pattern Generation",
+      "number": 1,
+      "description": "Use AI (Claude, GPT-4) to research and generate initial pattern draft in markdown format following OWS template structure",
+      "tempo": 120,
+      "errorHandling": "continue",
+      "userStory": {
+        "persona": "AI Content Researcher",
+        "goal": "Generate comprehensive pattern draft from operational anti-pattern research",
+        "benefit": "Accelerate initial content creation from hours to minutes with AI assistance",
+        "diagram": "sequenceDiagram\n  participant Researcher as 🧑‍💻 Researcher\n  participant AI as 🤖 AI Assistant\n  participant Template as 📄 OWS Template\n  \n  Note over Researcher,Template: Movement 1: AI-Assisted Pattern Generation\n  \n  Researcher->>AI: Prompt: Research support ticket escalation backlog pattern\n  AI->>AI: Analyze problem space\n  AI->>Template: Load OWS ARTICLE.md structure\n  AI->>AI: Generate Hook (1-2 sentences)\n  AI->>AI: Generate Problem Detail (context + impact)\n  AI->>AI: Create As-Is Mermaid diagram (current broken state)\n  AI->>AI: Create Orchestrated Mermaid diagram (improved state)\n  AI->>AI: Identify Decision Point (critical choice)\n  AI->>AI: Define Metrics & SLAs\n  AI->>AI: Build Implementation Checklist\n  AI->>AI: Calculate Orchestration Scorecard (8 dimensions)\n  AI->>AI: Write Closing Insight\n  AI-->>Researcher: ✅ Complete ARTICLE.md draft ready for review"
+      },
+      "diagram": "sequenceDiagram\n  participant Researcher as 🧑‍💻 AI Researcher\n  participant AI as 🤖 AI Assistant\n  participant Template as 📄 OWS Template\n  participant Validator as ✅ Content Validator\n  \n  Researcher->>AI: Research operational anti-pattern: Support ticket escalation backlog\n  \n  Note over Researcher,Validator: Movement 1: AI-Assisted Pattern Generation\n  \n  Note over AI,Template: Beat 1: Load Template and Structure\n  AI->>Template: Load OWS ARTICLE.md template\n  Template-->>AI: ✓ Template structure (Hook, Problem, Diagrams, etc.)\n  \n  Note over AI,AI: Beat 2: Generate Hook\n  AI->>AI: Create compelling 1-2 sentence hook\n  AI-->>AI: ✓ \"Every support team knows the pain: escalated tickets that somehow become invisible.\"\n  \n  Note over AI,AI: Beat 3: Generate Problem Detail\n  AI->>AI: Research problem context\n  AI->>AI: Identify broken signals (ownership, SLA, capacity)\n  AI-->>AI: ✓ Problem paragraph with context and impact\n  \n  Note over AI,Validator: Beat 4: Generate Mermaid Diagrams\n  AI->>AI: Create As-Is sequence diagram (broken state)\n  AI->>Validator: Check diagram budget (≤7 actors, ≤18 steps)\n  Validator-->>AI: ✓ As-Is: 6 actors, 12 steps (within budget)\n  AI->>AI: Create Orchestrated sequence diagram (improved state)\n  AI->>Validator: Check diagram budget\n  Validator-->>AI: ✓ Orchestrated: 7 actors, 16 steps (within budget)\n  \n  Note over AI,AI: Beat 5: Complete Remaining Sections\n  AI->>AI: Generate Decision Point (critical orchestration choice)\n  AI->>AI: Define Metrics & SLAs (measurable outcomes)\n  AI->>AI: Build Implementation Checklist (6-8 items)\n  AI->>AI: Calculate Orchestration Scorecard (8 dimensions)\n  AI->>AI: Write Closing Insight (1-2 sentence takeaway)\n  \n  AI-->>Researcher: ✅ ARTICLE.md ready (2,847 words, 2 diagrams, HQO est: 35/40)",
+      "status": "active",
+      "beats": [
+        {
+          "name": "Load Template and Structure",
+          "beat": 1,
+          "event": "template.loaded",
+          "title": "Load OWS ARTICLE.md template structure",
+          "description": "Researcher provides AI with OWS template showing required sections: Hook, Problem, As-Is Diagram, Orchestrated Diagram, Decision Point, Metrics, Checklist, Scorecard, Closing Insight",
+          "dynamics": "p",
+          "timing": "immediate",
+          "handler": {
+            "name": "AI Prompt Engineering with OWS Template",
+            "scope": "external",
+            "kind": "external-integration",
+            "externalSystem": {
+              "vendor": "Anthropic / OpenAI",
+              "system": "Claude 3.5 Sonnet / GPT-4",
+              "type": "api",
+              "description": "AI model receives OWS template as context in system prompt"
+            }
+          },
+          "errorHandling": "abort",
+          "dependencies": [],
+          "userStory": {
+            "persona": "AI Researcher",
+            "goal": "Ensure AI understands expected pattern structure",
+            "benefit": "Generates properly formatted content matching platform requirements",
+            "diagram": "sequenceDiagram\n  participant R as Researcher\n  participant AI\n  R->>AI: Load ARTICLE.md template\n  AI-->>R: ✓ Template structure loaded"
+          },
+          "diagram": "sequenceDiagram\n  participant Researcher as 🧑‍💻 Researcher\n  participant AI as 🤖 AI\n  participant Template as 📄 Template Store\n  \n  Note over Researcher,Template: Beat 1: Load Template and Structure\n  \n  Researcher->>Template: Get OWS ARTICLE.md template\n  Template-->>Researcher: ✓ Template markdown\n  Researcher->>AI: System Prompt: Use this OWS template structure\n  AI->>AI: Parse template sections (Hook, Problem, Diagrams...)\n  AI-->>Researcher: ✅ Template structure understood (9 sections identified)",
+          "acceptanceCriteria": [
+            {
+              "given": [
+                "OWS ARTICLE.md template available"
+              ],
+              "when": [
+                "Researcher provides template to AI"
+              ],
+              "then": [
+                "AI acknowledges template structure"
+              ],
+              "and": [
+                "AI identifies all required sections",
+                "AI understands Mermaid diagram requirements",
+                "AI knows HQO scorecard format"
+              ]
+            }
+          ],
+          "testFile": "docs/examples/article-template.md",
+          "testCase": "AI can parse and identify all 9 required sections",
+          "notes": [
+            "Template should include inline examples for each section",
+            "Diagram budget constraints should be explicit in template comments"
+          ]
+        },
+        {
+          "name": "Generate Hook",
+          "beat": 2,
+          "event": "hook.generated",
+          "title": "Create compelling 1-2 sentence hook",
+          "description": "AI generates attention-grabbing hook that makes the operational pain immediately recognizable to practitioners",
+          "dynamics": "mf",
+          "timing": "AI generation (2-3 seconds)",
+          "handler": {
+            "name": "AI Content Generation",
+            "scope": "external",
+            "kind": "external-integration",
+            "externalSystem": {
+              "vendor": "Anthropic",
+              "system": "Claude 3.5 Sonnet",
+              "type": "api",
+              "description": "Generate compelling hook that resonates with practitioners"
+            }
+          },
+          "errorHandling": "retry",
+          "dependencies": ["template.loaded"],
+          "userStory": {
+            "persona": "Content Creator",
+            "goal": "Create hook that immediately resonates with target audience",
+            "benefit": "Increase pattern engagement and readership",
+            "diagram": "sequenceDiagram\n  participant AI\n  AI->>AI: Generate hook\n  AI-->>AI: ✓ Compelling hook created"
+          },
+          "diagram": "sequenceDiagram\n  participant Researcher as 🧑‍💻 Researcher\n  participant AI as 🤖 AI\n  \n  Note over Researcher,AI: Beat 2: Generate Hook\n  \n  Researcher->>AI: Generate hook for escalation backlog pattern\n  AI->>AI: Identify universal pain point\n  AI->>AI: Craft 1-2 sentence hook (emotional resonance)\n  AI-->>Researcher: ✓ \"Every support team knows the pain: escalated tickets that somehow become invisible.\"",
+          "acceptanceCriteria": [
+            {
+              "given": [
+                "Pattern topic identified"
+              ],
+              "when": [
+                "AI generates hook"
+              ],
+              "then": [
+                "Returns 1-2 sentence hook"
+              ],
+              "and": [
+                "Hook is specific and vivid",
+                "Hook avoids clichés",
+                "Hook uses active voice",
+                "Hook length ≤ 160 characters"
+              ]
+            }
+          ],
+          "testFile": "N/A - AI generated content",
+          "testCase": "Generated hooks score ≥7/10 on readability and engagement",
+          "notes": [
+            "Good hooks use concrete language, not abstractions",
+            "Example: 'Escalated tickets disappear into a queue' vs 'Escalation process lacks visibility'"
+          ]
+        },
+        {
+          "name": "Generate Problem Detail",
+          "beat": 3,
+          "event": "problem.detailed",
+          "title": "Create comprehensive problem description",
+          "description": "AI generates 2-3 paragraph problem description with context, impact, and identification of broken orchestration signals (ownership, time/SLA, capacity, visibility)",
+          "dynamics": "f",
+          "timing": "AI generation (5-8 seconds)",
+          "handler": {
+            "name": "AI Content Generation with Research",
+            "scope": "external",
+            "kind": "external-integration",
+            "externalSystem": {
+              "vendor": "Anthropic",
+              "system": "Claude 3.5 Sonnet",
+              "type": "api",
+              "description": "Generate detailed problem analysis with broken signal identification"
+            }
+          },
+          "errorHandling": "retry",
+          "dependencies": ["hook.generated"],
+          "userStory": {
+            "persona": "Operator seeking solutions",
+            "goal": "Understand root cause and systemic nature of problem",
+            "benefit": "Recognize own operational challenges in pattern description",
+            "diagram": "sequenceDiagram\n  participant AI\n  AI->>AI: Research problem\n  AI->>AI: Identify broken signals\n  AI-->>AI: ✓ Problem detail complete"
+          },
+          "diagram": "sequenceDiagram\n  participant Researcher as 🧑‍💻 Researcher\n  participant AI as 🤖 AI\n  participant Knowledge as 📚 Knowledge Base\n  \n  Note over Researcher,Knowledge: Beat 3: Generate Problem Detail\n  \n  Researcher->>AI: Generate problem description for escalation pattern\n  AI->>Knowledge: Research escalation queue anti-patterns\n  Knowledge-->>AI: ✓ Context: Tickets stuck in limbo, unclear ownership\n  AI->>AI: Identify broken signals (Ownership, Visibility, SLA)\n  AI->>AI: Structure 2-3 paragraphs (Context → Impact → Root cause)\n  AI-->>Researcher: ✓ Problem detail (423 words, identifies 3 broken signals)",
+          "acceptanceCriteria": [
+            {
+              "given": [
+                "Pattern topic and hook"
+              ],
+              "when": [
+                "Problem detail is generated"
+              ],
+              "then": [
+                "Returns 2-3 paragraph description"
+              ],
+              "and": [
+                "Identifies at least 2 broken orchestration signals",
+                "Explains impact on stakeholders",
+                "Uses systems thinking (not blame)",
+                "Length: 300-500 words"
+              ]
+            }
+          ],
+          "testFile": "N/A - AI generated content",
+          "testCase": "Problem descriptions identify orchestration gaps in ≥80% of cases",
+          "notes": [
+            "Broken signals: Ownership, Time/SLA, Capacity, Visibility, Customer Loop, Escalation, Handoffs, Documentation",
+            "Focus on pattern, not specific company failures"
+          ]
+        },
+        {
+          "name": "Generate Mermaid Diagrams",
+          "beat": 4,
+          "event": "diagrams.generated",
+          "title": "Create As-Is and Orchestrated sequence diagrams",
+          "description": "AI generates two Mermaid sequence diagrams: As-Is (showing broken current state) and Orchestrated (showing improved future state). Both must adhere to diagram budget constraints.",
+          "dynamics": "ff",
+          "timing": "AI generation + validation (10-15 seconds)",
+          "handler": {
+            "name": "AI Mermaid Diagram Generation with Budget Validation",
+            "scope": "external",
+            "kind": "external-integration",
+            "externalSystem": {
+              "vendor": "Anthropic",
+              "system": "Claude 3.5 Sonnet",
+              "type": "api",
+              "description": "Generate Mermaid sequence diagrams within budget constraints"
+            }
+          },
+          "errorHandling": "retry",
+          "dependencies": ["problem.detailed"],
+          "userStory": {
+            "persona": "Visual learner",
+            "goal": "See before/after transformation in diagram form",
+            "benefit": "Quickly grasp orchestration improvement without reading prose",
+            "diagram": "sequenceDiagram\n  participant AI\n  participant Validator\n  AI->>AI: Generate As-Is diagram\n  AI->>Validator: Check budget\n  Validator-->>AI: ✓ Within budget\n  AI->>AI: Generate Orchestrated diagram\n  AI->>Validator: Check budget\n  Validator-->>AI: ✓ Within budget"
+          },
+          "diagram": "sequenceDiagram\n  participant Researcher as 🧑‍💻 Researcher\n  participant AI as 🤖 AI\n  participant Validator as ✅ Diagram Validator\n  \n  Note over Researcher,Validator: Beat 4: Generate Mermaid Diagrams\n  \n  Researcher->>AI: Generate As-Is diagram for escalation pattern\n  AI->>AI: Identify actors (Customer, L1, L2, L3)\n  AI->>AI: Map broken workflow (≤18 steps)\n  AI->>Validator: Validate diagram (actors, steps, alt blocks)\n  Validator->>Validator: Check: 6 actors ✓, 12 steps ✓, 1 alt block ✓\n  Validator-->>AI: ✓ As-Is diagram valid\n  \n  Researcher->>AI: Generate Orchestrated diagram\n  AI->>AI: Add orchestration elements (Router, Monitor)\n  AI->>AI: Map improved workflow (≤18 steps)\n  AI->>Validator: Validate diagram\n  Validator->>Validator: Check: 7 actors ✓, 16 steps ✓, 2 alt blocks ✓\n  Validator-->>AI: ✓ Orchestrated diagram valid\n  \n  AI-->>Researcher: ✅ Both diagrams ready (As-Is: 12 steps, Orchestrated: 16 steps)",
+          "acceptanceCriteria": [
+            {
+              "given": [
+                "Problem description complete"
+              ],
+              "when": [
+                "Diagrams are generated"
+              ],
+              "then": [
+                "Returns 2 Mermaid sequence diagrams (As-Is + Orchestrated)"
+              ],
+              "and": [
+                "As-Is shows broken current state clearly",
+                "Orchestrated shows improvement with new elements",
+                "Both diagrams: ≤7 actors, ≤18 steps, ≤2 alt blocks",
+                "No nested alt blocks",
+                "Concise verb-led messages"
+              ]
+            }
+          ],
+          "testFile": "N/A - AI generated content with schema validation",
+          "testCase": "Generated diagrams pass budget validation ≥95% of time",
+          "notes": [
+            "Diagram budget: ≤7 actors, ≤18 steps, ≤2 alt blocks, ≤8 steps per alt",
+            "If diagram exceeds budget, AI should decompose pattern into smaller scope"
+          ]
+        },
+        {
+          "name": "Complete Remaining Sections",
+          "beat": 5,
+          "event": "markdown.draft.generated",
+          "title": "Generate Decision Point, Metrics, Checklist, Scorecard, Closing",
+          "description": "AI completes remaining pattern sections: critical decision point, metrics/SLAs, implementation checklist, HQO scorecard (8 dimensions), and closing insight",
+          "dynamics": "ff",
+          "timing": "AI generation (8-12 seconds)",
+          "handler": {
+            "name": "AI Multi-Section Content Generation",
+            "scope": "external",
+            "kind": "external-integration",
+            "externalSystem": {
+              "vendor": "Anthropic",
+              "system": "Claude 3.5 Sonnet",
+              "type": "api",
+              "description": "Generate Decision Point, Metrics, Checklist (6-8 items), Scorecard (8 dimensions), Closing Insight"
+            }
+          },
+          "errorHandling": "retry",
+          "dependencies": ["diagrams.generated"],
+          "userStory": {
+            "persona": "Implementation leader",
+            "goal": "Receive actionable guidance for pattern implementation",
+            "benefit": "Clear roadmap from understanding to execution",
+            "diagram": "sequenceDiagram\n  participant AI\n  AI->>AI: Generate Decision Point\n  AI->>AI: Define Metrics/SLAs\n  AI->>AI: Build Checklist\n  AI->>AI: Calculate Scorecard\n  AI->>AI: Write Closing\n  AI-->>AI: ✓ All sections complete"
+          },
+          "diagram": "sequenceDiagram\n  participant Researcher as 🧑‍💻 Researcher\n  participant AI as 🤖 AI\n  participant Scorecard as 📊 HQO Calculator\n  \n  Note over Researcher,Scorecard: Beat 5: Complete Remaining Sections\n  \n  Researcher->>AI: Generate remaining sections\n  \n  AI->>AI: Generate Decision Point (critical orchestration choice)\n  AI-->>AI: ✓ \"Who owns this escalation?\"\n  \n  AI->>AI: Define Metrics & SLAs\n  AI-->>AI: ✓ 4 key metrics (MTTR, queue depth, SLA %, re-escalation rate)\n  \n  AI->>AI: Build Implementation Checklist\n  AI->>AI: List 6-8 concrete action items\n  AI-->>AI: ✓ Checklist (6 items)\n  \n  AI->>Scorecard: Calculate Orchestration Scorecard\n  Scorecard->>Scorecard: Score 8 dimensions (Ownership=5, TimeSLA=4, Capacity=4, Visibility=4, CustomerLoop=3, Escalation=5, Handoffs=4, Documentation=3)\n  Scorecard-->>AI: ✓ Total: 35/40 (HQO threshold met)\n  \n  AI->>AI: Write Closing Insight (1-2 sentence takeaway)\n  AI-->>AI: ✓ \"The backlog isn't a people problem—it's an orchestration gap.\"\n  \n  AI-->>Researcher: ✅ Complete ARTICLE.md draft (all sections ready)",
+          "acceptanceCriteria": [
+            {
+              "given": [
+                "Diagrams and problem sections complete"
+              ],
+              "when": [
+                "Remaining sections are generated"
+              ],
+              "then": [
+                "Returns complete ARTICLE.md with all sections"
+              ],
+              "and": [
+                "Decision Point identifies the critical orchestration choice",
+                "Metrics are measurable and relevant",
+                "Checklist has 6-8 concrete items",
+                "Scorecard scores all 8 HQO dimensions",
+                "Total HQO score ≥30/40",
+                "No dimension scored below 3",
+                "Closing insight is memorable and actionable"
+              ]
+            }
+          ],
+          "testFile": "N/A - AI generated content with HQO validation",
+          "testCase": "Generated patterns score ≥30/40 on HQO rubric ≥90% of time",
+          "notes": [
+            "HQO dimensions: Ownership, Time/SLA, Capacity, Visibility, Customer Loop, Escalation, Handoffs, Documentation",
+            "Scorecard should reflect improvements shown in Orchestrated diagram"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "desktop-preview-validation",
+      "name": "Desktop Preview & Validation",
+      "number": 2,
+      "description": "Use MarkdownViewer desktop application to preview rendered pattern, validate Mermaid diagrams, calculate HQO scorecard, and refine content",
+      "tempo": 100,
+      "errorHandling": "continue",
+      "userStory": {
+        "persona": "Content Quality Reviewer",
+        "goal": "Verify pattern quality before publication",
+        "benefit": "Catch formatting issues, validate diagrams, ensure HQO standards met",
+        "diagram": "sequenceDiagram\n  participant Reviewer as 🧑‍💻 Reviewer\n  participant Viewer as 🖥️ MarkdownViewer\n  participant Validator as ✅ Validator\n  \n  Note over Reviewer,Validator: Movement 2: Desktop Preview & Validation\n  \n  Reviewer->>Viewer: Open ARTICLE.md\n  Viewer->>Viewer: Render markdown with Markdig\n  Viewer->>Viewer: Render Mermaid diagrams\n  Viewer-->>Reviewer: ✓ Live preview (Dark theme)\n  \n  Reviewer->>Viewer: Edit: Refine decision point wording\n  Viewer->>Viewer: Update preview in real-time\n  Viewer-->>Reviewer: ✓ Changes reflected immediately\n  \n  Reviewer->>Validator: Validate diagrams\n  Validator->>Validator: Check As-Is (6 actors, 12 steps)\n  Validator->>Validator: Check Orchestrated (7 actors, 16 steps)\n  Validator-->>Reviewer: ✅ Both diagrams within budget\n  \n  Reviewer->>Validator: Calculate HQO scorecard\n  Validator->>Validator: Score 8 dimensions\n  Validator-->>Reviewer: ✅ Score: 35/40 (Ready for publication)"
+      },
+      "diagram": "sequenceDiagram\n  participant Reviewer as 🧑‍💻 Content Reviewer\n  participant Viewer as 🖥️ MarkdownViewer\n  participant Markdig as 📝 Markdig Engine\n  participant Mermaid as 🎨 Mermaid.js\n  participant Validator as ✅ Diagram Validator\n  participant Calculator as 📊 HQO Calculator\n  \n  Reviewer->>Viewer: Open support-escalation-backlog.md\n  \n  Note over Reviewer,Calculator: Movement 2: Desktop Preview & Validation\n  \n  Note over Viewer,Mermaid: Beat 1: Render Markdown Preview\n  Viewer->>Markdig: Parse markdown content\n  Markdig-->>Viewer: ✓ HTML structure\n  Viewer->>Mermaid: Render As-Is diagram\n  Mermaid-->>Viewer: ✓ As-Is diagram rendered\n  Viewer->>Mermaid: Render Orchestrated diagram\n  Mermaid-->>Viewer: ✓ Orchestrated diagram rendered\n  Viewer-->>Reviewer: ✓ Live preview with diagrams (WebView2)\n  \n  Note over Reviewer,Viewer: Beat 2: Edit and Refine Content\n  Reviewer->>Viewer: Edit: Strengthen hook, clarify decision point\n  Viewer->>Markdig: Re-parse updated markdown\n  Markdig-->>Viewer: ✓ Updated HTML\n  Viewer->>Mermaid: Re-render diagrams if changed\n  Viewer-->>Reviewer: ✓ Real-time preview updates\n  \n  Note over Reviewer,Validator: Beat 3: Validate Diagram Budgets\n  Reviewer->>Validator: Check diagram constraints\n  Validator->>Validator: Analyze As-Is diagram\n  Validator->>Validator: Count: 6 actors ✓, 12 steps ✓, 1 alt block ✓\n  Validator-->>Viewer: ✓ As-Is within budget\n  Validator->>Validator: Analyze Orchestrated diagram\n  Validator->>Validator: Count: 7 actors ✓, 16 steps ✓, 2 alt blocks ✓\n  Validator-->>Viewer: ✓ Orchestrated within budget\n  Viewer-->>Reviewer: ✅ Both diagrams valid\n  \n  Note over Reviewer,Calculator: Beat 4: Calculate HQO Scorecard\n  Reviewer->>Calculator: Calculate orchestration quality\n  Calculator->>Calculator: Score Ownership (explicit L2 owner) = 5\n  Calculator->>Calculator: Score Time/SLA (SLA monitor) = 4\n  Calculator->>Calculator: Score Capacity (capacity routing) = 4\n  Calculator->>Calculator: Score Visibility (queue tracking) = 4\n  Calculator->>Calculator: Score Customer Loop (auto-comms) = 3\n  Calculator->>Calculator: Score Escalation (routing rules) = 5\n  Calculator->>Calculator: Score Handoffs (context transfer) = 4\n  Calculator->>Calculator: Score Documentation (runbook) = 3\n  Calculator->>Calculator: Total = 35/40\n  Calculator-->>Viewer: ✅ HQO: 35/40 (Above 30, no dim <3)\n  Viewer-->>Reviewer: ✅ Pattern ready for publication (HQO validated)\n  \n  Note over Reviewer,Viewer: Beat 5: Export HTML Preview\n  Reviewer->>Viewer: Export HTML for offline review\n  Viewer->>Viewer: Generate standalone HTML with embedded CSS\n  Viewer-->>Reviewer: ✓ support-escalation.html saved (284KB)",
+      "status": "active",
+      "beats": [
+        {
+          "name": "Render Markdown Preview",
+          "beat": 1,
+          "event": "preview.rendered",
+          "title": "Open ARTICLE.md in MarkdownViewer desktop app",
+          "description": "Use MarkdownViewer WPF application to render markdown with Markdig pipeline and display Mermaid diagrams using WebView2",
+          "dynamics": "f",
+          "timing": "Application launch + render (2-3 seconds)",
+          "handler": {
+            "name": "MarkdownViewer.MainWindow + MarkdownService",
+            "scope": "system",
+            "kind": "reporting",
+            "sourcePath": "Tools/MarkdownViewer/MainWindow.xaml.cs + Services/MarkdownService.cs",
+            "handlerCapabilities": ["report"]
+          },
+          "errorHandling": "continue",
+          "dependencies": ["markdown.draft.generated"],
+          "userStory": {
+            "persona": "Content Reviewer",
+            "goal": "See how pattern will look when published",
+            "benefit": "Catch formatting issues before publication",
+            "diagram": "sequenceDiagram\n  participant R as Reviewer\n  participant Viewer\n  R->>Viewer: Open ARTICLE.md\n  Viewer->>Viewer: Render with Markdig\n  Viewer-->>R: ✓ Preview with diagrams"
+          },
+          "diagram": "sequenceDiagram\n  participant Reviewer as 🧑‍💻 Reviewer\n  participant Viewer as 🖥️ MarkdownViewer\n  participant Markdig as 📝 Markdig\n  participant Mermaid as 🎨 Mermaid.js\n  \n  Note over Reviewer,Mermaid: Beat 1: Render Markdown Preview\n  \n  Reviewer->>Viewer: Open File → support-escalation.md\n  Viewer->>Viewer: Read markdown file content\n  Viewer->>Markdig: ConvertToHtml(markdown)\n  Markdig->>Markdig: Parse markdown to AST\n  Markdig->>Markdig: Apply advanced extensions\n  Markdig->>Markdig: Custom MermaidCodeBlockRenderer (```mermaid → <pre class=\"mermaid\">)\n  Markdig-->>Viewer: ✓ HTML with Mermaid blocks\n  Viewer->>Mermaid: Initialize Mermaid.js\n  Mermaid->>Mermaid: Render all <pre class=\"mermaid\"> elements\n  Mermaid-->>Viewer: ✓ Interactive diagrams rendered\n  Viewer-->>Reviewer: ✅ Live preview (Dark theme, scroll sync)",
+          "acceptanceCriteria": [
+            {
+              "given": ["ARTICLE.md file available"],
+              "when": ["File opened in MarkdownViewer"],
+              "then": ["Renders markdown with proper formatting"],
+              "and": [
+                "Mermaid diagrams display correctly",
+                "Dark/Light theme applied",
+                "Table of Contents auto-generated",
+                "Render time < 3 seconds"
+              ]
+            }
+          ],
+          "testFile": "Tools/MarkdownViewer/Tests/MarkdownService.Tests.cs",
+          "testCase": "TestConvertToHtml_MermaidDiagram_RendersCorrectly",
+          "notes": [
+            "MarkdownViewer uses same Markdig pipeline as Blazor web app",
+            "WYSIWYG: What you see in desktop app = what users see on web"
+          ]
+        },
+        {
+          "name": "Edit and Refine Content",
+          "beat": 2,
+          "event": "content.refined",
+          "title": "Make real-time edits to markdown content",
+          "description": "Reviewer edits markdown in external editor (VS Code, Notepad++), MarkdownViewer auto-refreshes preview on file save",
+          "dynamics": "mf",
+          "timing": "Real-time file watching",
+          "handler": {
+            "name": "MarkdownViewer.FileWatcher + ReloadContent",
+            "scope": "system",
+            "kind": "automation",
+            "sourcePath": "Tools/MarkdownViewer/MainWindow.xaml.cs",
+            "handlerCapabilities": ["report"]
+          },
+          "errorHandling": "continue",
+          "dependencies": ["preview.rendered"],
+          "userStory": {
+            "persona": "Content Editor",
+            "goal": "Iterate quickly on content with instant feedback",
+            "benefit": "See changes immediately without manual refresh",
+            "diagram": "sequenceDiagram\n  participant E as Editor\n  participant Viewer\n  E->>E: Edit markdown\n  E->>Viewer: Save file\n  Viewer-->>E: ✓ Preview updates"
+          },
+          "diagram": "sequenceDiagram\n  participant Reviewer as 🧑‍💻 Reviewer\n  participant Editor as 📝 VS Code\n  participant FileWatcher as 👁️ File Watcher\n  participant Viewer as 🖥️ MarkdownViewer\n  \n  Note over Reviewer,Viewer: Beat 2: Edit and Refine Content\n  \n  Reviewer->>Editor: Open support-escalation.md in VS Code\n  Reviewer->>Editor: Edit: Strengthen hook sentence\n  Reviewer->>Editor: Edit: Clarify decision point language\n  Reviewer->>Editor: Save (Ctrl+S)\n  \n  FileWatcher->>FileWatcher: Detect file change event\n  FileWatcher->>Viewer: Notify: File modified\n  Viewer->>Viewer: Reload markdown content\n  Viewer->>Viewer: Re-render with Markdig + Mermaid\n  Viewer-->>Reviewer: ✅ Preview updated with edits (auto-refresh)",
+          "acceptanceCriteria": [
+            {
+              "given": ["ARTICLE.md open in MarkdownViewer and editor"],
+              "when": ["File is saved after edits"],
+              "then": ["Preview automatically refreshes"],
+              "and": [
+                "Refresh time < 1 second",
+                "Scroll position maintained if possible",
+                "No flicker or lag"
+              ]
+            }
+          ],
+          "testFile": "N/A - Desktop app feature",
+          "testCase": "File watcher detects changes and refreshes view",
+          "notes": [
+            "Use F5 manual refresh if file watcher disabled",
+            "Edit/preview workflow mirrors live web development"
+          ]
+        },
+        {
+          "name": "Validate Diagram Budgets",
+          "beat": 3,
+          "event": "diagram.validated",
+          "title": "Check Mermaid diagrams against budget constraints",
+          "description": "Parse Mermaid diagram code to count actors, steps, alt blocks; validate against OWS budget constraints (≤7 actors, ≤18 steps, ≤2 alt, ≤8 steps per alt, no nested alt)",
+          "dynamics": "f",
+          "timing": "Diagram analysis (< 1 second)",
+          "handler": {
+            "name": "MermaidDiagramValidator (future enhancement)",
+            "scope": "orchestration",
+            "kind": "validation",
+            "sourcePath": "Tools/MarkdownViewer/Services/MermaidDiagramValidator.cs (planned)",
+            "handlerCapabilities": ["validate"]
+          },
+          "errorHandling": "continue",
+          "dependencies": ["preview.rendered"],
+          "userStory": {
+            "persona": "Pattern Quality Enforcer",
+            "goal": "Ensure diagrams meet simplicity constraints",
+            "benefit": "Maintain no-scroll diagram principle across all patterns",
+            "diagram": "sequenceDiagram\n  participant V as Validator\n  V->>V: Parse diagram\n  V->>V: Count actors\n  V->>V: Count steps\n  V->>V: Check alt blocks\n  V-->>V: ✓ Within budget"
+          },
+          "diagram": "sequenceDiagram\n  participant Reviewer as 🧑‍💻 Reviewer\n  participant Viewer as 🖥️ MarkdownViewer\n  participant Parser as 🔍 Mermaid Parser\n  participant Validator as ✅ Budget Validator\n  \n  Note over Reviewer,Validator: Beat 3: Validate Diagram Budgets\n  \n  Reviewer->>Viewer: Validate Diagrams\n  \n  Viewer->>Parser: Extract As-Is diagram code\n  Parser->>Parser: Parse sequenceDiagram syntax\n  Parser->>Validator: Analyze structure\n  Validator->>Validator: Count participants (6 actors)\n  Validator->>Validator: Count steps (12 steps)\n  Validator->>Validator: Count alt blocks (1 alt block)\n  Validator->>Validator: Check nested alt (none)\n  Validator-->>Viewer: ✅ As-Is: 6 actors ✓, 12 steps ✓, 1 alt ✓\n  \n  Viewer->>Parser: Extract Orchestrated diagram code\n  Parser->>Parser: Parse sequenceDiagram syntax\n  Parser->>Validator: Analyze structure\n  Validator->>Validator: Count participants (7 actors)\n  Validator->>Validator: Count steps (16 steps)\n  Validator->>Validator: Count alt blocks (2 alt blocks)\n  Validator->>Validator: Check alt branch lengths (6 steps, 7 steps)\n  Validator-->>Viewer: ✅ Orchestrated: 7 actors ✓, 16 steps ✓, 2 alt ✓\n  \n  Viewer-->>Reviewer: ✅ Both diagrams within budget (ready for publication)",
+          "acceptanceCriteria": [
+            {
+              "given": ["Mermaid diagram code in ARTICLE.md"],
+              "when": ["Validation is triggered"],
+              "then": ["Returns pass/fail for each constraint"],
+              "and": [
+                "Checks: ≤7 actors, ≤18 steps, ≤2 alt blocks",
+                "Checks: ≤8 steps per alt branch",
+                "Checks: No nested alt blocks",
+                "Provides clear error message if violation found"
+              ]
+            }
+          ],
+          "testFile": "Tools/MarkdownViewer/Tests/MermaidDiagramValidator.Tests.cs (planned)",
+          "testCase": "TestValidateDiagram_WithinBudget_ReturnsPass",
+          "notes": [
+            "Future enhancement: Add diagram validator to MarkdownViewer",
+            "Regex parse or use Mermaid AST if available"
+          ]
+        },
+        {
+          "name": "Calculate HQO Scorecard",
+          "beat": 4,
+          "event": "hqo.scorecard.calculated",
+          "title": "Score pattern on 8 HQO dimensions",
+          "description": "Analyze Orchestrated diagram and pattern content to score each HQO dimension (Ownership, Time/SLA, Capacity, Visibility, Customer Loop, Escalation, Handoffs, Documentation) from 0-5; validate total ≥30 and no dimension <3",
+          "dynamics": "mf",
+          "timing": "Scorecard calculation (< 2 seconds)",
+          "handler": {
+            "name": "HQOScorecardCalculator (future enhancement)",
+            "scope": "orchestration",
+            "kind": "validation",
+            "sourcePath": "Tools/MarkdownViewer/Services/HQOScorecardCalculator.cs (planned)",
+            "handlerCapabilities": ["validate", "measure"]
+          },
+          "errorHandling": "continue",
+          "dependencies": ["diagram.validated"],
+          "userStory": {
+            "persona": "Quality Assurance Reviewer",
+            "goal": "Verify pattern meets High Quality Orchestration standards",
+            "benefit": "Ensure published patterns maintain platform quality bar",
+            "diagram": "sequenceDiagram\n  participant C as Calculator\n  C->>C: Score Ownership\n  C->>C: Score Time/SLA\n  C->>C: Score Capacity\n  C->>C: Score Visibility\n  C->>C: Score Customer Loop\n  C->>C: Score Escalation\n  C->>C: Score Handoffs\n  C->>C: Score Documentation\n  C->>C: Total = 35/40\n  C-->>C: ✓ HQO pass"
+          },
+          "diagram": "sequenceDiagram\n  participant Reviewer as 🧑‍💻 Reviewer\n  participant Viewer as 🖥️ MarkdownViewer\n  participant Calculator as 📊 HQO Calculator\n  participant Diagram as 🎨 Diagram Analyzer\n  \n  Note over Reviewer,Diagram: Beat 4: Calculate HQO Scorecard\n  \n  Reviewer->>Viewer: Calculate HQO Score\n  Viewer->>Calculator: Analyze pattern for HQO dimensions\n  \n  Calculator->>Diagram: Check Orchestrated diagram for ownership clarity\n  Diagram-->>Calculator: ✓ Explicit L2 owner assignment → Ownership = 5\n  \n  Calculator->>Diagram: Check for SLA monitoring mechanism\n  Diagram-->>Calculator: ✓ SLA Monitor present → Time/SLA = 4\n  \n  Calculator->>Diagram: Check for capacity-aware routing\n  Diagram-->>Calculator: ✓ Smart Router with capacity → Capacity = 4\n  \n  Calculator->>Diagram: Check for visibility/tracking\n  Diagram-->>Calculator: ✓ Queue monitoring visible → Visibility = 4\n  \n  Calculator->>Diagram: Check for customer communication loop\n  Diagram-->>Calculator: ⚠️ Auto-response only → Customer Loop = 3\n  \n  Calculator->>Diagram: Check for escalation handling\n  Diagram-->>Calculator: ✓ Clear escalation routing → Escalation = 5\n  \n  Calculator->>Diagram: Check for handoff quality\n  Diagram-->>Calculator: ✓ Context transfer present → Handoffs = 4\n  \n  Calculator->>Diagram: Check for documentation/runbook\n  Diagram-->>Calculator: ⚠️ Mentioned but not detailed → Documentation = 3\n  \n  Calculator->>Calculator: Calculate total: 5+4+4+4+3+5+4+3 = 35/40\n  Calculator->>Calculator: Validate: Total ≥30 ✓, No dimension <3 ✓\n  \n  Calculator-->>Viewer: ✅ HQO Scorecard: 35/40 (Pass - Ready for publication)\n  Viewer-->>Reviewer: Display scorecard with dimension breakdown",
+          "acceptanceCriteria": [
+            {
+              "given": ["Complete pattern with Orchestrated diagram"],
+              "when": ["HQO calculation is triggered"],
+              "then": ["Returns score for each of 8 dimensions"],
+              "and": [
+                "Each dimension scored 0-5",
+                "Total score calculated (max 40)",
+                "Validates: Total ≥30",
+                "Validates: No dimension <3",
+                "Provides feedback if validation fails"
+              ]
+            }
+          ],
+          "testFile": "Tools/MarkdownViewer/Tests/HQOScorecardCalculator.Tests.cs (planned)",
+          "testCase": "TestCalculateHQO_ValidPattern_ReturnsScorecard",
+          "notes": [
+            "Future enhancement: Automated HQO scoring in MarkdownViewer",
+            "HQO scoring could use AI-assisted analysis of diagram elements",
+            "8 dimensions: Ownership, Time/SLA, Capacity, Visibility, Customer Loop, Escalation, Handoffs, Documentation"
+          ]
+        },
+        {
+          "name": "Export HTML Preview",
+          "beat": 5,
+          "event": "html.exported",
+          "title": "Export standalone HTML for offline review",
+          "description": "Generate standalone HTML file with embedded CSS and Mermaid diagrams for offline viewing or sharing with stakeholders",
+          "dynamics": "p",
+          "timing": "HTML generation (< 1 second)",
+          "handler": {
+            "name": "MarkdownViewer.ExportToHtml",
+            "scope": "system",
+            "kind": "reporting",
+            "sourcePath": "Tools/MarkdownViewer/MainWindow.xaml.cs",
+            "handlerCapabilities": ["report"]
+          },
+          "errorHandling": "continue",
+          "dependencies": ["hqo.scorecard.calculated"],
+          "userStory": {
+            "persona": "Pattern Reviewer",
+            "goal": "Share pattern draft with team for feedback",
+            "benefit": "Enable offline review without requiring MarkdownViewer installation",
+            "diagram": "sequenceDiagram\n  participant R as Reviewer\n  participant Viewer\n  R->>Viewer: Export HTML\n  Viewer->>Viewer: Generate HTML\n  Viewer-->>R: ✓ HTML saved"
+          },
+          "diagram": "sequenceDiagram\n  participant Reviewer as 🧑‍💻 Reviewer\n  participant Viewer as 🖥️ MarkdownViewer\n  participant Exporter as 📤 HTML Exporter\n  participant FileSystem as 💾 File System\n  \n  Note over Reviewer,FileSystem: Beat 5: Export HTML Preview\n  \n  Reviewer->>Viewer: File → Export to HTML\n  Viewer->>Exporter: Generate standalone HTML\n  Exporter->>Exporter: Convert markdown to HTML (Markdig)\n  Exporter->>Exporter: Embed CSS styles (light-theme.css)\n  Exporter->>Exporter: Include Mermaid.js CDN link\n  Exporter->>Exporter: Wrap in complete HTML document\n  Exporter->>FileSystem: Write support-escalation.html (284KB)\n  FileSystem-->>Exporter: ✓ File saved\n  Exporter-->>Viewer: ✓ Export complete\n  Viewer-->>Reviewer: ✅ HTML exported: C:\\Exports\\support-escalation.html",
+          "acceptanceCriteria": [
+            {
+              "given": ["Rendered pattern in MarkdownViewer"],
+              "when": ["Export to HTML is triggered"],
+              "then": ["Generates standalone HTML file"],
+              "and": [
+                "HTML file is self-contained",
+                "Mermaid diagrams render correctly when opened in browser",
+                "CSS styles embedded",
+                "File size reasonable (< 500KB)"
+              ]
+            }
+          ],
+          "testFile": "N/A - Desktop app feature",
+          "testCase": "Exported HTML opens correctly in Chrome, Firefox, Edge",
+          "notes": [
+            "Exported HTML can be sent via email for review",
+            "Useful for stakeholder approval before publication"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "json-conversion-publication",
+      "name": "JSON Conversion & Publication",
+      "number": 3,
+      "description": "Convert validated ARTICLE.md to OWS JSON schema, validate structure, and publish to Orchestration Wisdom platform",
+      "tempo": 120,
+      "errorHandling": "abort-sequence",
+      "userStory": {
+        "persona": "Content Publisher",
+        "goal": "Publish validated pattern to production platform",
+        "benefit": "Make pattern discoverable and usable by platform users",
+        "diagram": "sequenceDiagram\n  participant Publisher as 🧑‍💻 Publisher\n  participant Converter as 🔄 JSON Converter\n  participant Platform as 🌐 OW Platform\n  participant Analytics as 📊 Analytics\n  \n  Note over Publisher,Analytics: Movement 3: JSON Conversion & Publication\n  \n  Publisher->>Converter: Convert ARTICLE.md to JSON\n  Converter->>Converter: Parse markdown sections\n  Converter->>Converter: Extract Mermaid diagrams\n  Converter->>Converter: Build Pattern JSON\n  Converter-->>Publisher: ✓ pattern.json created\n  \n  Publisher->>Platform: Upload pattern.json\n  Platform->>Platform: Validate against OWS schema\n  Platform->>Platform: Load into PatternService\n  Platform-->>Publisher: ✅ Published: /patterns/support-escalation\n  \n  Platform->>Analytics: Track publication event\n  Analytics-->>Platform: ✓ Analytics recorded"
+      },
+      "diagram": "sequenceDiagram\n  participant Publisher as 🧑‍💻 Content Publisher\n  participant Viewer as 🖥️ MarkdownViewer\n  participant PowerShell as ⚙️ PowerShell\n  participant Validator as ✅ Schema Validator\n  participant Git as 📦 Git Repository\n  participant Platform as 🌐 Orchestration Wisdom\n  participant Analytics as 📊 Analytics Engine\n  \n  Publisher->>Viewer: Export to OWS JSON\n  \n  Note over Publisher,Analytics: Movement 3: JSON Conversion & Publication\n  \n  Note over Viewer,Viewer: Beat 1: Convert Markdown to JSON\n  Viewer->>Viewer: Parse ARTICLE.md structure\n  Viewer->>Viewer: Extract metadata (title, slug, industries)\n  Viewer->>Viewer: Extract Mermaid diagrams (As-Is, Orchestrated)\n  Viewer->>Viewer: Build Pattern JSON object\n  Viewer-->>Publisher: ✓ support-escalation.pattern.json (8.4KB)\n  \n  alt Using PowerShell Pipeline\n    Publisher->>PowerShell: .\\Convert-PatternToJSON.ps1 -Article ARTICLE.md\n    PowerShell->>PowerShell: Parse markdown with regex\n    PowerShell->>PowerShell: Extract sections and diagrams\n    PowerShell-->>Publisher: ✓ pattern.json generated\n  end\n  \n  Note over Publisher,Validator: Beat 2: Validate JSON Schema\n  Publisher->>Validator: Validate pattern.json against OWS schema\n  Validator->>Validator: Check required fields (id, slug, title...)\n  Validator->>Validator: Validate HQO scorecard structure\n  Validator->>Validator: Check component array format\n  Validator-->>Publisher: ✅ Schema validation passed\n  \n  Note over Publisher,Git: Beat 3: Commit to Repository\n  Publisher->>Git: git add patterns/support-escalation.pattern.json\n  Publisher->>Git: git commit -m \"Add support escalation pattern (HQO: 35/40)\"\n  Git-->>Publisher: ✓ Committed\n  Publisher->>Git: git push origin main\n  Git-->>Publisher: ✓ Pushed to remote\n  \n  Note over Publisher,Platform: Beat 4: Deploy to Platform\n  Platform->>Git: Detect new pattern file (CI/CD trigger)\n  Platform->>Platform: Pull latest patterns\n  Platform->>Platform: PatternService.LoadPatterns()\n  Platform->>Platform: Render with MarkdownService + Mermaid.js\n  Platform-->>Publisher: ✅ Deployed: orchestration-wisdom.com/patterns/support-ticket-escalation\n  \n  Note over Platform,Analytics: Beat 5: Track Publication Event\n  Platform->>Analytics: Log publication event\n  Analytics->>Analytics: Record: PatternId, PublishDate, HQO Score, Author\n  Analytics-->>Platform: ✓ Event tracked\n  Platform-->>Publisher: 🎉 Pattern live and discoverable",
+      "status": "active",
+      "beats": [
+        {
+          "name": "Convert Markdown to JSON",
+          "beat": 1,
+          "event": "json.pattern.created",
+          "title": "Transform ARTICLE.md into OWS JSON schema",
+          "description": "Parse markdown structure, extract metadata, diagrams, and content sections; build compliant Pattern JSON object matching OWS schema",
+          "dynamics": "mf",
+          "timing": "Conversion (1-2 seconds)",
+          "handler": {
+            "name": "MarkdownViewer.ExportToOWSJson OR Convert-PatternToJSON.ps1",
+            "scope": "orchestration",
+            "kind": "automation",
+            "sourcePath": "Tools/MarkdownViewer/Services/PatternJsonExporter.cs (planned) OR Tools/Convert-PatternToJSON.ps1",
+            "handlerCapabilities": ["deploy", "report"]
+          },
+          "errorHandling": "abort",
+          "dependencies": ["hqo.scorecard.calculated"],
+          "userStory": {
+            "persona": "Content Publisher",
+            "goal": "Convert validated markdown to structured JSON for platform ingestion",
+            "benefit": "Enable dynamic rendering and filtering on web platform",
+            "diagram": "sequenceDiagram\n  participant P as Publisher\n  participant Converter\n  P->>Converter: Convert to JSON\n  Converter->>Converter: Parse markdown\n  Converter->>Converter: Extract diagrams\n  Converter->>Converter: Build JSON\n  Converter-->>P: ✓ pattern.json"
+          },
+          "diagram": "sequenceDiagram\n  participant Publisher as 🧑‍💻 Publisher\n  participant Parser as 🔍 Markdown Parser\n  participant Builder as 🏗️ JSON Builder\n  participant FileSystem as 💾 File System\n  \n  Note over Publisher,FileSystem: Beat 1: Convert Markdown to JSON\n  \n  Publisher->>Parser: Parse ARTICLE.md\n  Parser->>Parser: Extract front matter / metadata\n  Parser->>Parser: Split by section headings (## Hook, ## Problem, etc.)\n  Parser->>Parser: Extract ```mermaid blocks\n  Parser-->>Builder: ✓ Structured sections\n  \n  Builder->>Builder: Build Pattern object\n  Builder->>Builder: Set id: \"support-ticket-escalation\"\n  Builder->>Builder: Set slug: \"support-ticket-escalation-backlog\"\n  Builder->>Builder: Set title: \"Support Ticket Escalation Backlog\"\n  Builder->>Builder: Set hookMarkdown: \"...\"\n  Builder->>Builder: Set asIsDiagramMermaid: \"sequenceDiagram\\n...\"\n  Builder->>Builder: Set orchestratedDiagramMermaid: \"sequenceDiagram\\n...\"\n  Builder->>Builder: Set scorecard: { Ownership: 5, TimeSLA: 4, ... }\n  Builder->>Builder: Set components: [{id, name, description}, ...]\n  \n  Builder->>FileSystem: Write pattern.json (formatted, UTF-8)\n  FileSystem-->>Builder: ✓ File saved (8.4KB)\n  Builder-->>Publisher: ✅ support-escalation.pattern.json created",
+          "acceptanceCriteria": [
+            {
+              "given": ["Valid ARTICLE.md with all sections"],
+              "when": ["Conversion is triggered"],
+              "then": ["Generates OWS-compliant Pattern JSON"],
+              "and": [
+                "All required fields present (id, slug, title, etc.)",
+                "Mermaid diagrams preserved as raw text",
+                "HQO scorecard included",
+                "Components array populated",
+                "JSON is valid and formatted"
+              ]
+            }
+          ],
+          "testFile": "Tools/Tests/PatternJsonExporter.Tests.cs OR Tools/Tests/Convert-PatternToJSON.Tests.ps1",
+          "testCase": "TestConvertMarkdownToJson_ValidArticle_ReturnsValidJson",
+          "notes": [
+            "Two options: Desktop app export OR PowerShell script",
+            "PowerShell option useful for batch conversion of multiple patterns"
+          ]
+        },
+        {
+          "name": "Validate JSON Schema",
+          "beat": 2,
+          "event": "schema.validated",
+          "title": "Validate generated JSON against OWS schema",
+          "description": "Use JSON schema validator to ensure pattern.json conforms to Pattern model requirements; check required fields, data types, constraints",
+          "dynamics": "f",
+          "timing": "Schema validation (< 1 second)",
+          "handler": {
+            "name": "JsonSchemaValidator OR dotnet test with schema validation",
+            "scope": "system",
+            "kind": "validation",
+            "sourcePath": "schemas/pattern.schema.json + validation script",
+            "handlerCapabilities": ["validate"]
+          },
+          "errorHandling": "abort",
+          "dependencies": ["json.pattern.created"],
+          "userStory": {
+            "persona": "Platform Integrator",
+            "goal": "Ensure only valid patterns are published to platform",
+            "benefit": "Prevent runtime errors from malformed pattern data",
+            "diagram": "sequenceDiagram\n  participant V as Validator\n  V->>V: Load schema\n  V->>V: Load pattern JSON\n  V->>V: Validate structure\n  V-->>V: ✓ Valid"
+          },
+          "diagram": "sequenceDiagram\n  participant Publisher as 🧑‍💻 Publisher\n  participant Validator as ✅ JSON Validator\n  participant Schema as 📋 Pattern Schema\n  \n  Note over Publisher,Schema: Beat 2: Validate JSON Schema\n  \n  Publisher->>Validator: Validate pattern.json\n  Validator->>Schema: Load Pattern schema definition\n  Schema-->>Validator: ✓ Schema loaded\n  \n  Validator->>Validator: Check required fields (id, slug, title, hookMarkdown, diagrams, scorecard)\n  Validator->>Validator: Validate data types (string, number, object, array)\n  Validator->>Validator: Check scorecard structure (8 dimensions, each 0-5)\n  Validator->>Validator: Validate components array (id, name, description)\n  Validator->>Validator: Check HQO constraints (total ≥30, no dim <3)\n  \n  alt Schema Valid\n    Validator-->>Publisher: ✅ Schema validation passed\n  else Schema Invalid\n    Validator-->>Publisher: ❌ Validation failed: Missing 'components' array\n    Publisher->>Publisher: Fix JSON and retry\n  end",
+          "acceptanceCriteria": [
+            {
+              "given": ["Generated pattern.json file"],
+              "when": ["Schema validation is run"],
+              "then": ["Returns pass/fail with specific error messages"],
+              "and": [
+                "Validates all required fields present",
+                "Validates data types match schema",
+                "Validates constraints (HQO score ≥30, etc.)",
+                "Provides clear error messages for failures"
+              ]
+            }
+          ],
+          "testFile": "schemas/tests/pattern-schema-validation.tests.js",
+          "testCase": "TestValidatePattern_CompliantJson_ReturnsSuccess",
+          "notes": [
+            "Use JSON Schema Draft-07 or later",
+            "Consider JSON Schema $ref for reusable definitions"
+          ]
+        },
+        {
+          "name": "Commit to Repository",
+          "beat": 3,
+          "event": "pattern.committed",
+          "title": "Commit pattern.json to git repository",
+          "description": "Add pattern.json to /patterns folder, commit with descriptive message including HQO score, push to remote repository",
+          "dynamics": "mf",
+          "timing": "Git operations (2-5 seconds)",
+          "handler": {
+            "name": "git add + commit + push",
+            "scope": "system",
+            "kind": "automation",
+            "sourcePath": "N/A - Git command line",
+            "handlerCapabilities": ["deploy", "audit"]
+          },
+          "errorHandling": "abort",
+          "dependencies": ["schema.validated"],
+          "userStory": {
+            "persona": "Content Manager",
+            "goal": "Version control pattern content",
+            "benefit": "Track pattern evolution and enable rollback if needed",
+            "diagram": "sequenceDiagram\n  participant P as Publisher\n  participant Git\n  P->>Git: git add pattern.json\n  P->>Git: git commit -m \"...\"\n  P->>Git: git push\n  Git-->>P: ✓ Pushed"
+          },
+          "diagram": "sequenceDiagram\n  participant Publisher as 🧑‍💻 Publisher\n  participant Git as 📦 Git\n  participant Remote as ☁️ GitHub/GitLab\n  \n  Note over Publisher,Remote: Beat 3: Commit to Repository\n  \n  Publisher->>Git: git status\n  Git-->>Publisher: ✓ Untracked: patterns/support-escalation.pattern.json\n  \n  Publisher->>Git: git add patterns/support-escalation.pattern.json\n  Git-->>Publisher: ✓ Staged\n  \n  Publisher->>Git: git commit -m \"Add support escalation pattern (HQO: 35/40)\"\n  Git->>Git: Create commit with timestamp and author\n  Git-->>Publisher: ✓ Committed [abc123f]\n  \n  Publisher->>Git: git push origin main\n  Git->>Remote: Push commits\n  Remote-->>Git: ✓ Accepted\n  Git-->>Publisher: ✅ Pushed to remote (main branch)",
+          "acceptanceCriteria": [
+            {
+              "given": ["Valid pattern.json file"],
+              "when": ["Git commit and push are executed"],
+              "then": ["Pattern file committed to repository"],
+              "and": [
+                "Commit message includes pattern name and HQO score",
+                "File pushed to remote repository",
+                "Commit timestamped and attributed to author"
+              ]
+            }
+          ],
+          "testFile": "N/A - Git operation",
+          "testCase": "Pattern appears in git log and GitHub/GitLab",
+          "notes": [
+            "Consider PR workflow for team review before merge to main",
+            "Tag releases for production deployments"
+          ]
+        },
+        {
+          "name": "Deploy to Platform",
+          "beat": 4,
+          "event": "pattern.published",
+          "title": "Platform loads new pattern and renders live",
+          "description": "CI/CD detects new pattern file, Blazor app reloads patterns from PatternService, renders pattern page with MarkdownService + Mermaid.js, pattern becomes discoverable",
+          "dynamics": "ff",
+          "timing": "CI/CD pipeline + app reload (30-60 seconds)",
+          "handler": {
+            "name": "OrchestrationWisdom.PatternService.LoadPatterns()",
+            "scope": "orchestration",
+            "kind": "automation",
+            "sourcePath": "src/OrchestrationWisdom/Services/PatternService.cs",
+            "handlerCapabilities": ["deploy", "report"]
+          },
+          "errorHandling": "abort",
+          "dependencies": ["pattern.committed"],
+          "userStory": {
+            "persona": "Platform User",
+            "goal": "Discover and read newly published pattern",
+            "benefit": "Access latest operational knowledge immediately",
+            "diagram": "sequenceDiagram\n  participant Platform\n  participant Git\n  Platform->>Git: Pull latest\n  Platform->>Platform: Load patterns\n  Platform->>Platform: Render page\n  Platform-->>Platform: ✓ Live"
+          },
+          "diagram": "sequenceDiagram\n  participant CICD as ⚙️ CI/CD Pipeline\n  participant Git as 📦 Git Repo\n  participant Platform as 🌐 Orchestration Wisdom\n  participant PatternService as 📂 Pattern Service\n  participant MarkdownService as 📝 Markdown Service\n  participant Browser as 🌐 User Browser\n  \n  Note over CICD,Browser: Beat 4: Deploy to Platform\n  \n  CICD->>Git: Detect new commit (webhook trigger)\n  CICD->>CICD: Run tests (dotnet test)\n  CICD->>CICD: Build app (dotnet build)\n  CICD->>Platform: Deploy to production\n  Platform-->>CICD: ✓ Deployment successful\n  \n  Platform->>PatternService: Reload patterns from /patterns folder\n  PatternService->>PatternService: Read support-escalation.pattern.json\n  PatternService->>PatternService: Deserialize to Pattern model\n  PatternService-->>Platform: ✓ Pattern loaded\n  \n  Browser->>Platform: GET /patterns/support-ticket-escalation\n  Platform->>PatternService: GetPatternBySlug(\"support-ticket-escalation\")\n  PatternService-->>Platform: ✓ Pattern data\n  Platform->>MarkdownService: ConvertToHtml(pattern.HookMarkdown)\n  MarkdownService-->>Platform: ✓ HTML content\n  Platform->>Platform: Render PatternDetail.razor with Mermaid.js\n  Platform-->>Browser: ✅ Pattern page rendered (live at /patterns/support-ticket-escalation)",
+          "acceptanceCriteria": [
+            {
+              "given": ["Pattern committed to repository"],
+              "when": ["CI/CD pipeline runs"],
+              "then": ["Pattern is live on production platform"],
+              "and": [
+                "Pattern discoverable in /patterns library",
+                "Pattern page renders correctly",
+                "Mermaid diagrams display properly",
+                "HQO scorecard visible",
+                "Download ARTICLE.md works"
+              ]
+            }
+          ],
+          "testFile": "src/OrchestrationWisdom/Tests/PatternService.Tests.cs",
+          "testCase": "TestGetPatternBySlug_PublishedPattern_ReturnsPattern",
+          "notes": [
+            "Consider pattern caching for performance",
+            "Add pattern sitemap.xml for SEO"
+          ]
+        },
+        {
+          "name": "Track Publication Event",
+          "beat": 5,
+          "event": "analytics.tracked",
+          "title": "Log pattern publication to analytics",
+          "description": "Record pattern publication event with metadata (pattern ID, HQO score, author, publish date) for tracking platform growth and content quality metrics",
+          "dynamics": "p",
+          "timing": "Analytics logging (< 1 second)",
+          "handler": {
+            "name": "AnalyticsService.TrackEvent(\"pattern_published\")",
+            "scope": "system",
+            "kind": "metrics",
+            "sourcePath": "src/OrchestrationWisdom/Services/AnalyticsService.cs (planned)",
+            "handlerCapabilities": ["measure", "audit"]
+          },
+          "errorHandling": "continue",
+          "dependencies": ["pattern.published"],
+          "userStory": {
+            "persona": "Platform Analytics Manager",
+            "goal": "Track pattern publication metrics for platform growth insights",
+            "benefit": "Measure content velocity and quality trends",
+            "diagram": "sequenceDiagram\n  participant Platform\n  participant Analytics\n  Platform->>Analytics: Track event\n  Analytics->>Analytics: Log metadata\n  Analytics-->>Platform: ✓ Tracked"
+          },
+          "diagram": "sequenceDiagram\n  participant Platform as 🌐 Platform\n  participant Analytics as 📊 Analytics Engine\n  participant DataWarehouse as 🗄️ Data Warehouse\n  \n  Note over Platform,DataWarehouse: Beat 5: Track Publication Event\n  \n  Platform->>Analytics: TrackEvent(\"pattern_published\")\n  Analytics->>Analytics: Build event payload\n  Analytics->>Analytics: Add metadata (PatternId: \"support-escalation\", HQOScore: 35, Author: \"AI_Researcher\")\n  Analytics->>Analytics: Add timestamp (2026-01-11T14:23:45Z)\n  Analytics->>DataWarehouse: Write event record\n  DataWarehouse-->>Analytics: ✓ Event stored\n  Analytics-->>Platform: ✅ Analytics event tracked (EventId: evt_001)",
+          "acceptanceCriteria": [
+            {
+              "given": ["Pattern published successfully"],
+              "when": ["Analytics tracking is triggered"],
+              "then": ["Event logged with complete metadata"],
+              "and": [
+                "Event includes: pattern ID, slug, title",
+                "Event includes: HQO score, author, publish date",
+                "Event stored for future reporting",
+                "Event queryable for analytics dashboards"
+              ]
+            }
+          ],
+          "testFile": "src/OrchestrationWisdom/Tests/AnalyticsService.Tests.cs (planned)",
+          "testCase": "TestTrackPatternPublication_ValidEvent_LogsSuccessfully",
+          "notes": [
+            "Use for platform metrics: patterns/month, average HQO score, top authors",
+            "Consider privacy: anonymize author if needed"
+          ]
+        }
+      ]
+    }
+  ]
+}

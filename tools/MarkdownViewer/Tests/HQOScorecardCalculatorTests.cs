@@ -5,7 +5,7 @@ namespace OrchestrationWisdom.Tools.MarkdownViewer.Tests
 {
     public class HQOScorecardCalculatorTests
     {
-        private readonly HQOScorecardCalculator _calculator = new();
+        private readonly HQOScorecardCalculator _calculator = new HQOScorecardCalculator();
 
         [Fact]
         public void CalculateScorecard_ValidDimensions_ReturnsCorrectTotal()

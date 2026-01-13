@@ -62,10 +62,10 @@ namespace OrchestrationWisdom.Tools.MarkdownViewer.Services
         public string MetricsMarkdown { get; set; }
 
         [JsonPropertyName("implementationChecklist")]
-        public List<string> ImplementationChecklist { get; set; } = new();
+        public List<string> ImplementationChecklist { get; set; } = new List<string>();
 
         [JsonPropertyName("commonPitfalls")]
-        public List<string> CommonPitfalls { get; set; } = new();
+        public List<string> CommonPitfalls { get; set; } = new List<string>();
 
         [JsonPropertyName("closingInsightMarkdown")]
         public string ClosingInsightMarkdown { get; set; }
@@ -74,13 +74,13 @@ namespace OrchestrationWisdom.Tools.MarkdownViewer.Services
         public Dictionary<string, int> Scorecard { get; set; }
 
         [JsonPropertyName("components")]
-        public List<string> Components { get; set; } = new();
+        public List<string> Components { get; set; } = new List<string>();
 
         [JsonPropertyName("industries")]
-        public List<string> Industries { get; set; } = new();
+        public List<string> Industries { get; set; } = new List<string>();
 
         [JsonPropertyName("brokenSignals")]
-        public List<string> BrokenSignals { get; set; } = new();
+        public List<string> BrokenSignals { get; set; } = new List<string>();
 
         [JsonPropertyName("clarityScore")]
         public double ClarityScore { get; set; }
